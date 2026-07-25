@@ -4,8 +4,11 @@ Generates the frozen dev/eval page split for the British Library Bengali corpus.
 Of the 81 downloaded pages, 29 have PAGE-XML with region boxes but zero
 transcribed ground-truth text (<Unicode> tags empty or absent) — these cannot
 be used to compute CER/WER and are excluded. That leaves 52 usable pages; this
-script selects 50 of them (dropping the 2 with the least transcribed text, as
-the weakest ground-truth signal) and splits into 10 dev / 40 eval.
+script selects 50 of them, dropping the 2 with the "thinnest" transcriptions —
+lowest fraction of TextRegion elements that actually have non-empty text
+(a page where most regions are empty despite having *some* text is a weaker
+ground-truth signal than a uniformly-transcribed page, even a short one) —
+and splits into 10 dev / 40 eval.
 
 Run once against the local dataset directory to (re)produce split_dev.txt and
 split_eval.txt. Deterministic via a fixed seed — do not change SEED or the
@@ -20,12 +23,26 @@ SEED = 403
 DEV_SIZE = 10
 POOL_SIZE = 50
 
+REGION_RE = re.compile(r"<TextRegion\b.*?</TextRegion>", re.DOTALL)
 UNICODE_RE = re.compile(r"<Unicode>([^<]*)</Unicode>")
 
 
 def transcribed_char_count(xml_path: Path) -> int:
     text = xml_path.read_text(encoding="utf-8")
     return sum(len(m.strip()) for m in UNICODE_RE.findall(text))
+
+
+def region_coverage(xml_path: Path) -> float:
+    """Fraction of TextRegion elements that have non-empty transcribed text.
+    Returns 1.0 for pages with no TextRegion elements (nothing to be thin)."""
+    text = xml_path.read_text(encoding="utf-8")
+    regions = REGION_RE.findall(text)
+    if not regions:
+        return 1.0
+    nonempty = sum(
+        1 for r in regions if sum(len(m.strip()) for m in UNICODE_RE.findall(r)) > 0
+    )
+    return nonempty / len(regions)
 
 
 def main():
@@ -76,10 +93,15 @@ def main():
             f"Only {len(usable)} pages have transcribed text; need {POOL_SIZE}."
         )
 
-    # Deterministic pool selection: keep the POOL_SIZE pages with the most
-    # transcribed text (ties broken by page_id), dropping the weakest-signal
-    # pages from the usable set rather than choosing arbitrarily.
-    usable_sorted = sorted(usable, key=lambda p: (-char_counts[p], p))
+    coverage = {p: region_coverage(dataset_dir / f"{p}.xml") for p in usable}
+
+    # Deterministic pool selection: keep the POOL_SIZE pages with the highest
+    # region-coverage (ties broken by more total chars, then page_id),
+    # dropping the pages with the "thinnest" transcriptions — most TextRegion
+    # elements left empty despite the page having some transcribed text.
+    usable_sorted = sorted(
+        usable, key=lambda p: (-coverage[p], -char_counts[p], p)
+    )
     pool = sorted(usable_sorted[:POOL_SIZE])
     dropped_from_usable = sorted(usable_sorted[POOL_SIZE:])
 
@@ -101,9 +123,12 @@ def main():
     print(f"Pages with zero transcribed text (excluded): {len(empty)}")
     print(f"Usable pages (transcribed text present): {len(usable)}")
     if dropped_from_usable:
+        details = ", ".join(
+            f"{p} ({coverage[p]:.0%} region coverage)" for p in dropped_from_usable
+        )
         print(
             f"Usable pages dropped to reach pool of {POOL_SIZE} "
-            f"(least transcribed text): {dropped_from_usable}"
+            f"(thinnest transcriptions): {details}"
         )
     print(f"Dev: {len(dev)} -> split_dev.txt")
     print(f"Eval: {len(eval_)} -> split_eval.txt")
