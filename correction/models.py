@@ -91,6 +91,12 @@ def correct_text(
             max_new_tokens=max_new_tokens,
             do_sample=False,  # greedy decoding: deterministic, appropriate
                                # for a correction task (not creative generation)
+            repetition_penalty=1.3,  # greedy decoding on noisy/short OCR
+            no_repeat_ngram_size=4,  # input is prone to degenerate repetition
+                                      # loops (seen in practice on this task,
+                                      # e.g. a phrase repeated until max_new_tokens
+                                      # is hit) — both are standard, deterministic
+                                      # guards, not sampling/randomness
             pad_token_id=tokenizer.pad_token_id or tokenizer.eos_token_id,
         )
 
