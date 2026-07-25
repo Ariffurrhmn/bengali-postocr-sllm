@@ -72,10 +72,16 @@ def correct_text(
     else:
         prompt = CORRECTION_INSTRUCTION.format(ocr_text=ocr_text)
         messages = [{"role": "user", "content": prompt}]
-        input_ids = tokenizer.apply_chat_template(
-            messages, add_generation_prompt=True, return_tensors="pt"
+        # apply_chat_template(..., return_dict=True) returns a BatchEncoding
+        # (dict-like, with attention_mask) rather than a bare tensor — needed
+        # so **inputs below passes attention_mask to generate() too, not
+        # just input_ids.
+        inputs = tokenizer.apply_chat_template(
+            messages,
+            add_generation_prompt=True,
+            return_tensors="pt",
+            return_dict=True,
         )
-        inputs = {"input_ids": input_ids}
 
     input_len = inputs["input_ids"].shape[-1]
 
