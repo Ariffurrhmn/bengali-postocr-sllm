@@ -8,5 +8,9 @@ env/
 
 data/*
 !data/.gitkeep
+!data/*.py
+!data/split_dev.txt
+!data/split_eval.txt
+!data/excluded_no_ground_truth.txt
 results/*
 !results/.gitkeep
