@@ -15,10 +15,21 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 def main():
     model_key = sys.argv[1] if len(sys.argv) > 1 else "titullm-1b"
+    # Page defaults to the best (lowest-CER) Tesseract dev result, not just
+    # the first record — a near-empty/garbage OCR input (e.g. 14048_D_11_0003,
+    # CER=0.640) gives the model almost nothing to work with and produces
+    # uninformative confabulation rather than testing actual correction
+    # behavior. Pass a page_id explicitly as the 2nd CLI arg to override.
+    page_id_arg = sys.argv[2] if len(sys.argv) > 2 else None
 
     ocr_path = REPO_ROOT / "results" / "ocr_dev.jsonl"
     records = [json.loads(l) for l in ocr_path.read_text(encoding="utf-8").splitlines()]
-    page = records[0]  # first dev page
+
+    default_page_id = "279_36_C_32_0016"  # best (lowest-CER) Tesseract dev result
+    if page_id_arg:
+        page = next(r for r in records if r["page_id"] == page_id_arg)
+    else:
+        page = next((r for r in records if r["page_id"] == default_page_id), records[0])
 
     print(f"Page: {page['page_id']}")
     print(f"Model: {model_key}")

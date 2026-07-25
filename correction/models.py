@@ -30,11 +30,19 @@ CORRECTION_INSTRUCTION = (
 )
 
 
+MIN_OCR_CHARS_FOR_CORRECTION = 10  # below this, OCR output is treated as too
+                                    # degenerate to correct meaningfully — the
+                                    # model has almost no real signal and tends
+                                    # to confabulate rather than correct
+
+
 @dataclass
 class CorrectionResult:
     model_key: str
     raw_output: str
     truncated: bool
+    skipped: bool = False  # True if OCR input was too short/empty to attempt
+                            # correction — raw_output equals the input verbatim
 
 
 def load_model(model_key: str, hf_token: str | None = None):
@@ -64,6 +72,11 @@ def correct_text(
     model_key: str, tokenizer, model, ocr_text: str, max_new_tokens: int = 512
 ) -> CorrectionResult:
     import torch
+
+    if len(ocr_text.strip()) < MIN_OCR_CHARS_FOR_CORRECTION:
+        return CorrectionResult(
+            model_key=model_key, raw_output=ocr_text, truncated=False, skipped=True
+        )
 
     if model_key in SEQ2SEQ_MODELS:
         # BanglaT5 is not instruction-tuned: no chat template, direct
