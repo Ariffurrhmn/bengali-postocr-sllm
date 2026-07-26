@@ -56,13 +56,21 @@ def load_model(model_key: str, hf_token: str | None = None):
     model_id = MODEL_IDS[model_key]
     tokenizer = AutoTokenizer.from_pretrained(model_id, token=hf_token)
 
+    # bfloat16 (not float32): halves memory footprint, which matters on
+    # free-tier Colab's ~12-13GB RAM (Phi-3 Mini at fp32 was getting killed
+    # partway through weight loading). bfloat16 is well-supported for CPU
+    # inference in modern torch/transformers and standard practice for
+    # small-LM CPU inference — unlike fp16, it doesn't have CPU numerical
+    # stability issues. Applied to all 5 models for consistency.
+    dtype = torch.bfloat16
+
     if model_key in SEQ2SEQ_MODELS:
         model = AutoModelForSeq2SeqLM.from_pretrained(
-            model_id, token=hf_token, torch_dtype=torch.float32
+            model_id, token=hf_token, dtype=dtype
         )
     else:
         model = AutoModelForCausalLM.from_pretrained(
-            model_id, token=hf_token, torch_dtype=torch.float32
+            model_id, token=hf_token, dtype=dtype
         )
     model.eval()
     return tokenizer, model
