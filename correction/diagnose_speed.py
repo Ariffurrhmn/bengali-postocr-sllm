@@ -3,17 +3,17 @@ number of tokens with live per-step progress printed, so we get hard
 per-token timing data quickly instead of guessing from a long, silent run.
 
 Also runs a second generation call WITHOUT repetition_penalty/no_repeat_ngram_size
-to check whether those settings are the source of any slowdown, and a third
-call using multiple CPU threads explicitly, in case thread config is the issue.
+to check whether those settings are the source of any slowdown.
 """
 import io
+import os
 import sys
 import time
 from pathlib import Path
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-from models import MODEL_IDS
+from models import MODEL_IDS  # noqa: E402 (triggers _configure_cpu_threads() on import)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -24,7 +24,8 @@ def main():
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
-    print(f"torch.get_num_threads() = {torch.get_num_threads()}")
+    print(f"os.cpu_count() = {os.cpu_count()}")
+    print(f"torch.get_num_threads() = {torch.get_num_threads()} (after models.py's fix)")
     print(f"torch version: {torch.__version__}")
 
     model_id = MODEL_IDS[model_key]

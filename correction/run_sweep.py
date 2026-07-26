@@ -23,7 +23,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 from chunking import chunk_text
-from models import MODEL_IDS, correct_text, load_model
+from models import MODEL_IDS, correct_text, load_model  # noqa: E402 (also sets CPU threads)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -68,6 +68,10 @@ def correct_chunked(model_key, tokenizer, model, ocr_text):
 
 
 def main():
+    import torch
+
+    print(f"torch.get_num_threads() = {torch.get_num_threads()}", file=sys.stderr)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--split", choices=["dev", "eval"], default="dev")
     parser.add_argument(

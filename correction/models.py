@@ -9,7 +9,24 @@ Two loading/inference paths, matching how each model actually works:
 Greedy decoding (do_sample=False) is used throughout: this is a correction
 task, not creative generation, and determinism matters for reproducibility.
 """
+import os
 from dataclasses import dataclass
+
+
+def _configure_cpu_threads():
+    """PyTorch doesn't always auto-detect available cores correctly in
+    containerized environments (observed: torch.get_num_threads()==1 on a
+    Colab CPU runtime with more cores available, causing ~1 s/token
+    generation and multi-minute-per-page runtimes). Explicitly set thread
+    count to the actual CPU count Python sees."""
+    import torch
+
+    cpu_count = os.cpu_count() or 1
+    if torch.get_num_threads() < cpu_count:
+        torch.set_num_threads(cpu_count)
+
+
+_configure_cpu_threads()
 
 MODEL_IDS = {
     "phi3-mini": "microsoft/Phi-3-mini-4k-instruct",
