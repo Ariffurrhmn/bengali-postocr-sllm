@@ -121,6 +121,10 @@ def main():
                         if key in done:
                             continue
 
+                        print(
+                            f"  -> starting {page['page_id']} {engine}/{model_key}/{approach}...",
+                            file=sys.stderr,
+                        )
                         t0 = time.time()
                         try:
                             fn = correct_whole if approach == "whole" else correct_chunked

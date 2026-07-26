@@ -107,6 +107,36 @@ MAX_NEW_TOKENS_FLOOR = 64  # minimum, so very short OCR inputs still get
                             # enough room for a real corrected line
 
 
+def _make_progress_heartbeat(every_n: int = 10):
+    """Returns a StoppingCriteria that never actually stops generation, but
+    prints a heartbeat every `every_n` tokens — so a long single-page
+    generation call shows visible progress instead of looking identical to
+    a hang until it finishes (this looked like a stuck/frozen run in
+    practice on Colab, when it was really just slow)."""
+    import sys
+    import time
+
+    from transformers import StoppingCriteria
+
+    class _ProgressHeartbeat(StoppingCriteria):
+        def __init__(self):
+            self.count = 0
+            self.t0 = time.time()
+
+        def __call__(self, input_ids, scores, **kwargs):
+            self.count += 1
+            if self.count % every_n == 0:
+                elapsed = time.time() - self.t0
+                print(
+                    f"    ...{self.count} tokens generated ({elapsed:.0f}s, "
+                    f"{elapsed / self.count:.2f}s/token)",
+                    file=sys.stderr,
+                )
+            return False  # never stop early — progress reporter, not a real stopping condition
+
+    return _ProgressHeartbeat()
+
+
 def correct_text(
     model_key: str, tokenizer, model, ocr_text: str, max_new_tokens: int | None = None
 ) -> CorrectionResult:
@@ -144,6 +174,8 @@ def correct_text(
             max(MAX_NEW_TOKENS_FLOOR, int(ocr_token_len * MAX_NEW_TOKENS_MULTIPLIER)),
         )
 
+    from transformers import StoppingCriteriaList
+
     with torch.no_grad():
         output_ids = model.generate(
             **inputs,
@@ -157,6 +189,7 @@ def correct_text(
                                       # is hit) — both are standard, deterministic
                                       # guards, not sampling/randomness
             pad_token_id=tokenizer.pad_token_id or tokenizer.eos_token_id,
+            stopping_criteria=StoppingCriteriaList([_make_progress_heartbeat(every_n=10)]),
         )
 
     if model_key in SEQ2SEQ_MODELS:
