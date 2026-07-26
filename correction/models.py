@@ -76,8 +76,22 @@ def load_model(model_key: str, hf_token: str | None = None):
     return tokenizer, model
 
 
+MAX_NEW_TOKENS_CAP = 512  # hard ceiling regardless of input length
+MAX_NEW_TOKENS_MULTIPLIER = 1.5  # corrected output should be roughly the
+                                  # same length as the OCR input, not an
+                                  # unrelated fixed size — capping relative
+                                  # to input length bounds worst-case runtime
+                                  # per page (whole-page prompts with a flat
+                                  # 512-token cap were taking 20+ min/page on
+                                  # free Colab CPU for some models, likely
+                                  # generating close to the full cap before
+                                  # naturally stopping)
+MAX_NEW_TOKENS_FLOOR = 64  # minimum, so very short OCR inputs still get
+                            # enough room for a real corrected line
+
+
 def correct_text(
-    model_key: str, tokenizer, model, ocr_text: str, max_new_tokens: int = 512
+    model_key: str, tokenizer, model, ocr_text: str, max_new_tokens: int | None = None
 ) -> CorrectionResult:
     import torch
 
@@ -105,6 +119,13 @@ def correct_text(
         )
 
     input_len = inputs["input_ids"].shape[-1]
+
+    if max_new_tokens is None:
+        ocr_token_len = len(tokenizer.encode(ocr_text, add_special_tokens=False))
+        max_new_tokens = min(
+            MAX_NEW_TOKENS_CAP,
+            max(MAX_NEW_TOKENS_FLOOR, int(ocr_token_len * MAX_NEW_TOKENS_MULTIPLIER)),
+        )
 
     with torch.no_grad():
         output_ids = model.generate(
