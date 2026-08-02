@@ -30,10 +30,28 @@ REGION_RE = re.compile(r"<TextRegion\b.*?</TextRegion>", re.DOTALL)
 UNICODE_RE = re.compile(r"<Unicode>([^<]*)</Unicode>")
 
 
+def resolve_file(dataset_dir: Path, page_id: str, suffix: str) -> Path:
+    """Case-insensitive file lookup. The source dataset has at least one page
+    (279_2_a_15_0005) where the .tif and .xml stems differ only in case
+    (279_2_a_15_0005.tif vs 279_2_A_15_0005.xml) — same quirk data/make_split.py
+    already works around when building the split; page_id here is the
+    split's canonical (.tif-cased) name, so an exact f"{page_id}{suffix}"
+    match can miss the differently-cased file on disk."""
+    exact = dataset_dir / f"{page_id}{suffix}"
+    if exact.exists():
+        return exact
+    target = f"{page_id}{suffix}".lower()
+    for candidate in dataset_dir.iterdir():
+        if candidate.name.lower() == target:
+            return candidate
+    raise FileNotFoundError(f"No {suffix} file for page_id={page_id!r} in {dataset_dir}")
+
+
 def ground_truth_text(dataset_dir: Path, page_id: str) -> str:
     """Concatenates all TextRegion transcriptions in document order,
     one line per region — mirrors how a page's running text is laid out."""
-    xml_text = (dataset_dir / f"{page_id}.xml").read_text(encoding="utf-8")
+    xml_path = resolve_file(dataset_dir, page_id, ".xml")
+    xml_text = xml_path.read_text(encoding="utf-8")
     lines = []
     for region in REGION_RE.findall(xml_text):
         matches = UNICODE_RE.findall(region)
@@ -49,12 +67,12 @@ def run_tesseract(dataset_dir: Path, page_id: str) -> str:
     from PIL import Image
 
     pytesseract.pytesseract.tesseract_cmd = TESSERACT_CMD
-    img = Image.open(dataset_dir / f"{page_id}.tif")
+    img = Image.open(resolve_file(dataset_dir, page_id, ".tif"))
     return pytesseract.image_to_string(img, lang="ben")
 
 
 def run_easyocr(dataset_dir: Path, page_id: str, reader) -> str:
-    result = reader.readtext(str(dataset_dir / f"{page_id}.tif"), detail=0)
+    result = reader.readtext(str(resolve_file(dataset_dir, page_id, ".tif")), detail=0)
     return "\n".join(result)
 
 
