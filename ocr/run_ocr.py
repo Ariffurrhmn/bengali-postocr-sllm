@@ -3,6 +3,7 @@ truth from each page's PAGE-XML, writing one JSON record per page per engine."""
 import argparse
 import json
 import os
+import random
 import re
 import sys
 from pathlib import Path
@@ -12,6 +13,11 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # Local (Windows) default; override with --dataset-dir on Colab/Linux, e.g.
 # /content/Competition_dataset_ImagesPAGEXML after unzipping the dataset.
 DEFAULT_DATASET_DIR = r"D:\Competition_dataset_ImagesPAGEXML"
+
+# Same literal value as data/make_split.py's SEED, reused here for the
+# separate step of subsampling N pages out of a frozen split (not the same
+# operation, but keeping one project-wide default seed for consistency).
+DEFAULT_SAMPLE_SEED = 403
 
 os.environ.setdefault("TESSDATA_PREFIX", str(REPO_ROOT / ".tessdata"))
 # Local (Windows) default; on Colab, `apt-get install tesseract-ocr` puts
@@ -52,6 +58,23 @@ def run_easyocr(dataset_dir: Path, page_id: str, reader) -> str:
     return "\n".join(result)
 
 
+def load_done_page_ids(out_path: Path) -> set:
+    """Reads whatever's already in the output file so completed pages are
+    skipped on resume — mirrors correction/run_sweep.py's resumability."""
+    if not out_path.exists():
+        return set()
+    done = set()
+    for line in out_path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        try:
+            r = json.loads(line)
+        except json.JSONDecodeError:
+            continue  # tolerate a truncated last line from a mid-write interruption
+        done.add(r["page_id"])
+    return done
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -65,6 +88,19 @@ def main():
         type=Path,
         default=Path(DEFAULT_DATASET_DIR),
         help="Directory containing the .tif/.xml page pairs",
+    )
+    parser.add_argument(
+        "--sample-n",
+        type=int,
+        default=None,
+        help="If set, randomly subsample this many pages from the split "
+        "(e.g. for a smaller, Colab-feasible eval run) instead of using all of it",
+    )
+    parser.add_argument(
+        "--sample-seed",
+        type=int,
+        default=DEFAULT_SAMPLE_SEED,
+        help="Seed for --sample-n subsampling (deterministic/reproducible)",
     )
     parser.add_argument(
         "--out",
@@ -81,35 +117,44 @@ def main():
         .split()
     )
 
+    if args.sample_n is not None:
+        page_ids = sorted(random.Random(args.sample_seed).sample(page_ids, args.sample_n))
+
     out_path = args.out or (REPO_ROOT / "results" / f"ocr_{args.split}.jsonl")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    print(f"Running OCR on {len(page_ids)} pages ({args.split} split) from {dataset_dir}...")
+    done = load_done_page_ids(out_path)
+    remaining = [p for p in page_ids if p not in done]
+
+    print(
+        f"Running OCR on {len(page_ids)} pages ({args.split} split) from {dataset_dir} "
+        f"— {len(done)} already done, {len(remaining)} remaining..."
+    )
+
+    if not remaining:
+        print("Nothing to do.")
+        return
 
     import easyocr
 
     reader = easyocr.Reader(["bn"], gpu=False)
 
-    records = []
-    for i, page_id in enumerate(page_ids, 1):
-        print(f"[{i}/{len(page_ids)}] {page_id}", file=sys.stderr)
-        gt = ground_truth_text(dataset_dir, page_id)
-        tess_out = run_tesseract(dataset_dir, page_id)
-        easy_out = run_easyocr(dataset_dir, page_id, reader)
-        records.append(
-            {
+    with out_path.open("a", encoding="utf-8") as f:
+        for i, page_id in enumerate(remaining, 1):
+            print(f"[{i}/{len(remaining)}] {page_id}", file=sys.stderr)
+            gt = ground_truth_text(dataset_dir, page_id)
+            tess_out = run_tesseract(dataset_dir, page_id)
+            easy_out = run_easyocr(dataset_dir, page_id, reader)
+            record = {
                 "page_id": page_id,
                 "ground_truth": gt,
                 "tesseract": tess_out,
                 "easyocr": easy_out,
             }
-        )
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+            f.flush()  # survive an interruption right after this line
 
-    with out_path.open("w", encoding="utf-8") as f:
-        for r in records:
-            f.write(json.dumps(r, ensure_ascii=False) + "\n")
-
-    print(f"Wrote {len(records)} records to {out_path}")
+    print(f"Wrote {len(remaining)} new records to {out_path}")
 
 
 if __name__ == "__main__":

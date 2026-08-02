@@ -86,13 +86,21 @@ def main():
         help="Comma-separated: whole,chunked",
     )
     parser.add_argument("--out", type=Path, default=None)
+    parser.add_argument(
+        "--ocr-path",
+        type=Path,
+        default=None,
+        help="Override for the input OCR results file (default: "
+        "results/ocr_<split>.jsonl) — e.g. a Drive-mounted path when "
+        "run_ocr.py wrote there instead of the repo's results/ dir",
+    )
     args = parser.parse_args()
 
     models = args.models.split(",")
     engines = args.engines.split(",")
     approaches = args.approaches.split(",")
 
-    ocr_path = REPO_ROOT / "results" / f"ocr_{args.split}.jsonl"
+    ocr_path = args.ocr_path or (REPO_ROOT / "results" / f"ocr_{args.split}.jsonl")
     pages = [json.loads(l) for l in ocr_path.read_text(encoding="utf-8").splitlines()]
 
     out_path = args.out or (REPO_ROOT / "results" / f"correction_{args.split}.jsonl")

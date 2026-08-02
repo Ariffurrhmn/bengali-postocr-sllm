@@ -18,10 +18,26 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--split", choices=["dev", "eval"], default="dev")
+    parser.add_argument(
+        "--correction-path",
+        type=Path,
+        default=None,
+        help="Override for the correction results file (e.g. a Drive-mounted "
+        "path when run_sweep.py wrote there instead of the repo's results/ dir)",
+    )
+    parser.add_argument(
+        "--ocr-path",
+        type=Path,
+        default=None,
+        help="Override for the input OCR results file (e.g. a Drive-mounted "
+        "path when run_ocr.py wrote there instead of the repo's results/ dir)",
+    )
     args = parser.parse_args()
 
-    ocr_path = REPO_ROOT / "results" / f"ocr_{args.split}.jsonl"
-    correction_path = REPO_ROOT / "results" / f"correction_{args.split}.jsonl"
+    ocr_path = args.ocr_path or (REPO_ROOT / "results" / f"ocr_{args.split}.jsonl")
+    correction_path = args.correction_path or (
+        REPO_ROOT / "results" / f"correction_{args.split}.jsonl"
+    )
 
     ground_truth = {}
     raw_ocr = {}
