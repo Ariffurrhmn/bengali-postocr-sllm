@@ -6,3 +6,4 @@ sentencepiece>=0.2.0
 accelerate>=0.33.0
 jiwer>=3.0.4
 numpy>=1.26.0
+matplotlib>=3.8.0
