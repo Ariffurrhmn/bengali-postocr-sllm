@@ -15,3 +15,17 @@ data/*
 !data/excluded_no_ground_truth.txt
 results/*
 !results/.gitkeep
+
+# Third-party papers (copyrighted) downloaded for literature review
+reviewer-feedback/candidate-papers/
+
+# Local-only copies of the draft PDF and Overleaf zips (contain student ID / large)
+paper/Draft_Paper_02.pdf
+paper/archive/*.zip
+reviewer-feedback/*.pdf
+
+# Local only: reviewer material and personal shortcut
+reviewer-feedback/
+Group 2.lnk
+paper/EDITORIAL-NOTES.md
+paper/CHECK-BEFORE-SUBMITTING.md

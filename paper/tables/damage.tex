@@ -1,0 +1,26 @@
+\begin{table*}[t]
+\centering
+\caption{What Correction Changed: Bounded Error, Word-Level Damage and Fixes, Change Ratio, and a Length Safeguard}
+\label{tab:damage}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{llcccccc}
+\toprule
+Engine & Model & cMER & \shortstack{Correct words\\broken} & \shortstack{Wrong words\\fixed} & \shortstack{Change\\ratio} & \shortstack{Invented\\runs} & \shortstack{CER with safeguard\\(fallbacks)} \\
+\midrule
+Tesseract & (no correction) & 0.336 & --- & --- & --- & --- & 0.364 \\
+Tesseract & Gemma 2B & \best{0.542} & \best{82\%} & 1.8\% & \best{1.9} & 1\% & 0.583 (0/15) \\
+Tesseract & Llama 3.2 1B & 0.796 & 100\% & 0.9\% & 3.9 & 1\% & 0.768 (2/15) \\
+Tesseract & BanglaT5 & 0.889 & 96\% & 2.4\% & 4.1 & \best{0\%} & \best{0.434} (13/15) \\
+Tesseract & TituLLMs 1B & 0.876 & 99\% & \best{3.2\%} & 10.0 & 44\% & 1.140 (5/15) \\
+\midrule
+EasyOCR & (no correction) & 0.257 & --- & --- & --- & --- & 0.297 \\
+EasyOCR & Gemma 2B & \best{0.471} & \best{76\%} & 1.1\% & \best{1.7} & 1\% & \best{0.471} (1/15) \\
+EasyOCR & Llama 3.2 1B & 0.809 & 99\% & 1.1\% & 4.6 & 3\% & 0.853 (1/15) \\
+EasyOCR & BanglaT5 & 0.815 & 98\% & 2.7\% & 4.3 & \best{0\%} & 0.633 (5/15) \\
+EasyOCR & TituLLMs 1B & 0.880 & 99\% & \best{5.5\%} & 14.2 & 52\% & 0.993 (7/15) \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize cMER $=(S{+}D{+}I)/(H{+}S{+}D{+}I)$, bounded in $[0,1]$. Correct words broken: share of ground-truth words the raw OCR had right that the output gets wrong; wrong words fixed: share the raw OCR had wrong that the output gets right (word alignment against the ground truth). Change ratio: CER of the output against the raw OCR, divided by the raw OCR's CER. Invented runs: share of output characters in runs of $\geq$6 characters with no counterpart in the raw OCR. Safeguard: raw OCR kept when output length is outside 0.35--2.8$\times$ the input. \colorbox{bestbg}{\textbf{Shaded}}: best corrected model per engine.\end{minipage}
+\end{table*}

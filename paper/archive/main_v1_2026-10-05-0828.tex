@@ -1,0 +1,275 @@
+\documentclass[conference]{IEEEtran}
+\input{tables/preamble}
+\usepackage{amsmath}
+\usepackage{cite}
+\usepackage{url}
+
+\begin{document}
+
+\title{OCR-Engine-Agnostic Post-OCR Correction for Bengali Text using Small Language Models}
+
+\author{\IEEEauthorblockN{Arifur Rahman}
+\IEEEauthorblockA{ID: 20234103222\\
+Department of Computer Science and Engineering\\
+Bangladesh University of Business and Technology\\
+Dhaka, Bangladesh\\
+arifur.rahman.cs04@gmail.com}}
+
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+Optical character recognition (OCR) for historical Bengali print is error-prone, and correcting its output with a small language model has been suggested as a low-cost remedy that needs no retraining. We test this suggestion on fifteen held-out pages of a British Library corpus of Bengali books. Two OCR engines (Tesseract and EasyOCR) produce the text, and four open models of at most two billion parameters (Gemma 2B, Llama 3.2 1B, TituLLMs 1B and BanglaT5) correct it zero-shot on a CPU with one fixed instruction (BanglaT5, which is not instruction-tuned, receives the text alone). In all eight engine-and-model combinations, correction raised both the character and the word error rate, and fifteen of the sixteen resulting increases (two metrics per combination) are significant under a paired bootstrap and a Holm-corrected Wilcoxon test. The smallest increase was for Gemma 2B, which raised the character error rate from 0.364 to 0.583 on Tesseract output and from 0.297 to 0.517 on EasyOCR output. The models changed text that the OCR had already read correctly: they broke between 76 and 99.5 percent of the correctly recognised words and fixed at most 5.5 percent of the wrong ones. The direction of the effect was the same for both engines. A length-based safeguard reduced the increase in error but never brought it below the uncorrected level. For the models, prompt and historical corpus tested here, zero-shot correction made Bengali OCR output worse; fine-tuning remains untested.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Bengali OCR, post-OCR correction, small language models, zero-shot prompting, low-resource NLP, negative results
+\end{IEEEkeywords}
+
+% =====================================================================
+\section{Introduction}
+
+Bengali ranks seventh among the world's languages by total speakers, with about 278 million~\cite{eberhard2025ethnologue}. Turning its printed records into searchable text starts with OCR, and published evaluations report high error rates for Bengali. In the evaluation reported with the bbOCR system, Tesseract reaches an average character error rate (CER) of 0.78 across Bengali document types, and the purpose-built bbOCR system reaches 0.59~\cite{zulkarnain2023bbocr}. A separate study puts Tesseract's character accuracy between 37 and 84 percent depending on the document type~\cite{rabby2024enhancement}. Several properties of the script make recognition hard. Consonants combine into conjunct glyphs, vowel signs attach before, after, above or below the consonant they modify, and many characters differ from their neighbours only in small strokes~\cite{rabby2024enhancement}. Historical books add worn type, uneven inking and ornate display lettering, and the corpora needed to train recognition models are small~\cite{zulkarnain2023bbocr}.
+
+High OCR error rates leave users with noisy text. One way to deal with such errors is to leave the recognition engine alone and repair its output afterwards with a language model. Small models are attractive for this job, because the institutions that need large-scale Bengali digitisation, such as national archives, government offices and non-governmental organisations in Bangladesh, often cannot rely on GPU infrastructure, and lightweight models are what resource-limited archives can run~\cite{vershinin2025lightweight}. A correction layer of this kind would also be engine-independent: it reads text, not images, so it could be attached to any OCR system without retraining.
+
+Evidence on whether such a layer works is mixed outside English. Open-weight models improved OCR output in English but made Finnish worse~\cite{kanerva2025nofreelunches}. Zero-shot models, including a 70-billion-parameter one, increased the error rate once the input CER reached about 0.15~\cite{koynov2025opportunities}. For Hindi speech-recognition output, zero-shot language models raised the word error rate~\cite{kumar2026postasr}. For Bengali OCR we found no published study of language-model correction, and none that checks whether a correction layer behaves the same way across OCR engines. This paper asks two questions.
+\begin{itemize}
+\item \textbf{RQ1.} Can small open language models (at most two billion parameters), prompted zero-shot on a CPU, reduce the character and word error rates of Bengali OCR output?
+\item \textbf{RQ2.} Is the effect of correction consistent across OCR engines when the correction step is not adapted to either engine?
+\end{itemize}
+
+The answer to RQ1 is no. Correction increased both CER and WER in all eight engine-and-model combinations we tested, and fifteen of the sixteen resulting increases (CER and WER for each combination) are statistically significant. The answer to RQ2 is that the direction of the effect was the same for both engines, and for three of the four models its size also agreed; for TituLLMs the size differed (CER increases of 1.63 and 2.29). We also describe how the corrected text differs from the raw OCR.
+
+This study makes the following contributions.
+\begin{enumerate}
+\item To our knowledge, it is the first evaluation of language-model post-correction for Bengali OCR, using two OCR engines and four models of at most two billion parameters.
+\item It tests the result with paired statistics (a bootstrap and a Holm-corrected Wilcoxon test) on pages that were held out before any model was run.
+\item It measures how the corrected text differs from the raw OCR: word-level counts of correct words broken and wrong words fixed, edit-operation profiles, script share, truncation, and dependence on page difficulty.
+\item It tests a simple safeguard, falling back to the raw OCR when the output length is implausible, with thresholds taken from a published system, and finds that it lowers the error increase in some conditions without bringing it below the uncorrected level.
+\item It releases the code, the frozen page lists and the prompt, so the study can be repeated on free CPU-only infrastructure.
+\end{enumerate}
+
+% =====================================================================
+\section{Related Work}
+
+This section covers three areas: Bengali OCR systems, language-model correction of OCR output, and Bengali language models together with the tokenisation costs that affect them. It ends with the gap that this study addresses.
+
+\subsection{Bengali OCR systems}
+Work on Bengali OCR has focused on recognition itself. bbOCR combines text detection, a purpose-built Bengali recognition model and layout reconstruction to convert whole documents into searchable text~\cite{zulkarnain2023bbocr}; it is compared only against Tesseract, with average text-level CER of 0.59 against 0.78. Rabby et al.\ train separate word-segmentation models for computer-composed, letterpress, typewritten and handwritten documents, and report Tesseract accuracy of 37 to 84 percent against 83 to 90 percent for their system~\cite{rabby2024enhancement}. At the level of single handwritten words, Safir et al.\ reach a CER of 0.091 and a WER of 0.273, using no surrounding context~\cite{safir2021endtoend}. These systems improve recognition. None is paired with a step that repairs the errors that survive recognition, and each ties its gains to its own recognition model.
+
+\subsection{Post-OCR correction with language models}
+Instruction-tuned language models can correct OCR errors well when they are trained for it. Llama 2 tuned on short segments of 19th-century English newspapers reduced CER by 54.5 percent, against 23.3 percent for a fine-tuned BART~\cite{thomas2024leveraging}. Results without such tuning are less consistent. Kanerva et al.\ prompted open-weight models of 8 to 70 billion parameters on English and Finnish; most improved the English text, but every open model made the Finnish text worse, and only GPT-4o improved it~\cite{kanerva2025nofreelunches}. Koynov and Doan found that zero-shot GPT-4o-mini and Llama 3.3 70B cut CER by 48 to 58 percent on newspapers with an input CER of 0.07, but raised it by about 19 percent at 0.15 and, for Llama, by 41 percent on German text at 0.25~\cite{koynov2025opportunities}. Vershinin et al.\ ran four quantised 7 to 13 billion parameter models zero-shot on an English newspaper corpus (input CER 0.084); only one improved CER, and the others raised it, in one case five-fold~\cite{vershinin2025lightweight}. None of the instruction-tuned German models in another study reduced the average CER of a periodical, although the best one cut the word error rate by 22 percent; re-examining the outputs of an earlier study, the authors also found that inputs longer than about 400 characters degraded most~\cite{danilova2025german}.
+
+The 2026 HIPE-OCRepair shared task compared zero-shot, fine-tuned and continued-pretraining systems of 8 to 24 billion parameters on English, French and German; the best system used continued pre-training and fine-tuning and finished ahead of the zero-shot systems, and over-correction of text that was already accurate was a recurring problem~\cite{ehrmann2026hipeocrepair}. At the other end, a frontier model reduced CER from 11.7 to 4.7 percent on Portuguese survey pages~\cite{viana2026reframing}. Beshirov et al.\ improved historical Bulgarian, a non-Latin script, with a supervised two-stage system, but one that is specific to its engine and language~\cite{beshirov2025bulgarian}. Levchenko found that multimodal models transcribing 18th-century Russian text sometimes beat conventional OCR but inserted archaic characters from the wrong period~\cite{levchenko2025historical}. Witte's poster describes models that modernised historical language while appearing to correct it~\cite{witte2025postocr}.
+
+\subsection{Bengali language models and tokenisation}
+BanglaBERT is a Bengali encoder built for understanding tasks, not for rewriting text~\cite{bhattacharjee2022banglabert}. BanglaT5 is the corresponding sequence-to-sequence model for generation~\cite{bhattacharjee2023banglat5}. TituLLMs are Bengali-pretrained Llama 3.2 models at 1B and 3B parameters, trained on about 37 billion tokens with an extended tokenizer~\cite{nahin2025titullms}. BanglaLlama continues the pretraining of other Llama models and reports that Bangla and Hindi together make up less than 0.21 percent of Llama 2's pretraining tokens, against 89.7 percent for English~\cite{zehady2026banglallama}. Mahfuz et al.\ study whether dedicated Bengali models are needed at all, and find that inefficient tokenisation of Bengali raises computational cost and lowers generation quality~\cite{mahfuz2025toolate}. This is a general effect. Petrov et al.\ show that English-centric tokenizers need several times more tokens for the same text in many languages, with Bengali among them (roughly five to ten times the English count), while multilingual tokenizers such as XLM-R and M2M100 stay at about 1.4 to 1.6 times~\cite{petrov2023tokenizer}. Ahia et al.\ add that over-segmented languages pay more and also get worse results from language models~\cite{ahia2023cost}.
+
+\subsection{Correction of Bengali and other Indic text}
+The closest Bengali work corrects grammar, not OCR. Instruction-tuning raised Bangla grammar-correction scores by 3 to 7 points over the zero-shot setting, and humans still outperformed the models at correcting; the hardest categories for GPT-4o included mixing of the older literary register with the modern one~\cite{bhattacharyya2025banglagec}. For Hindi speech-recognition output, fine-tuned models of 0.3 to 0.58 billion parameters beat much larger language models, and zero-shot GPT-4o-mini raised the word error rate from 28.6 to 31.8 and from 18.0 to 25.1 percent. The authors trace this to over-correction, which grows with model size~\cite{kumar2026postasr}.
+
+\subsection{Research gap}
+Table~\ref{tab:literature} summarises the studies above. Among the work we reviewed, none evaluates post-OCR correction for Bengali, none tests models of at most two billion parameters on input with a CER above 0.3, and none compares one correction layer across OCR engines. This study addresses those three points.
+
+\input{tables/literature}
+
+% =====================================================================
+\section{Methodology}
+
+This section describes the pipeline from page image to evaluated text. It covers the data, the two OCR engines, the correction step and the reasons for the choice of models, and then the evaluation protocol.
+
+\subsection{Overview}
+Figure~\ref{fig:method} shows the pipeline. Two OCR engines read each page image. Their raw text is split into chunks and passed to a correction model, and both the raw and the corrected text are scored against a manual transcription. OCR and correction are separate stages, so the same correction step can be attached to the output of any engine. No model is trained or fine-tuned, and every model is used as released.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig_method.pdf}
+\caption{Pipeline of the study. Each page image is read by two OCR engines. The raw text is chunked and corrected zero-shot by one of four models, and both raw and corrected text are scored against the ground truth. The dashed arrow marks the uncorrected baseline: raw OCR scored directly.}
+\label{fig:method}
+\end{figure*}
+
+\subsection{Dataset}
+We use the ground-truth transcriptions released with the ICDAR 2019 Competition on Recognition of Early Indian Printed Documents (REID2019)~\cite{clausner2019reid}, produced by the British Library's Two Centuries of Indian Print project with the PRImA Research Lab and Jadavpur University~\cite{britishlibrary2019bengaligt}. The source volumes are Bengali books printed between 1713 and 1914. The digitised images are out of copyright and the transcriptions are in the public domain.
+
+The release contains 81 page images with PAGE-XML annotations. Twenty-nine of them (36\%) have text regions marked but no transcribed text, so no error rate can be computed, and they are excluded; 52 pages remain. We drop the two pages with the thinnest transcriptions, measured by the share of text regions that actually contain text, which leaves a pool of 50 pages. The pool is split into 10 development pages, used only to debug the pipeline, and 40 evaluation pages. The split was frozen in saved page-identifier lists and committed to version control before any correction model was run. From the 40 evaluation pages we scored a random sample of 15 (seed 403) through the full engine-by-model sweep, the largest number that the CPU-only budget allowed. All reported results come from these 15 pages, and no development page contributes to any reported figure (Fig.~\ref{fig:dataset}). The scored pages have a median ground-truth length of 577 characters; several are verse or title pages in ornate display type.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig_dataset.pdf}
+\caption{Dataset. (a) How the 81 pages of the release become the 15 scored pages. (b) A sample evaluation page, with the ground-truth text regions outlined in red.}
+\label{fig:dataset}
+\end{figure*}
+
+\subsection{Baseline OCR}
+Two open-source engines produce the noisy text: Tesseract~\cite{smith2007tesseract} with the Bengali \texttt{tessdata\_best} model, and EasyOCR~\cite{jaidedai2024easyocr} with Bengali enabled. Each engine runs on every evaluation image with default settings and produces one hypothesis per page. Two engines with different error profiles let us test whether correction behaves differently depending on which engine produced its input.
+
+\subsection{Correction layer}
+\textbf{Zero-shot.} In this paper, zero-shot means that a model receives only an instruction and the text to correct. It sees no worked examples, and none of its weights is changed. We chose this setting because we know of no large public set of Bengali OCR error pairs for training, and because it is the lowest-cost way to deploy a correction layer for institutions without training resources.
+
+\textbf{Prompt.} The three decoder models receive the same instruction, through each model's chat template:
+\begin{quote}
+\small\itshape
+The following text was produced by OCR on a historical Bengali document and may contain recognition errors. Correct the OCR errors and output only the corrected Bengali text, with no explanation, preamble, or additional commentary.
+\end{quote}
+The OCR text follows the instruction. BanglaT5 is not instruction-tuned and has no chat template, so it receives the OCR text alone and is run as a text-to-text model. The prompt was fixed in advance and never revised in response to model output, so differences between conditions are not attributable to prompt revisions.
+
+\textbf{Chunking.} Following Kanerva et al.~\cite{kanerva2025nofreelunches}, each page is divided into chunks of about 250 tokens of the model's own tokenizer before correction. Chunks are formed by grouping complete lines, so no chunk boundary falls inside a line. A page whose raw OCR is shorter than ten characters would be left unchanged, since the model would have almost nothing to work from; no evaluation page triggered this rule.
+
+\textbf{Decoding.} Decoding is greedy, so output is deterministic. We use a repetition penalty of 1.3 and forbid repeated four-grams, a guard added after a development-set run in which one model repeated a single phrase until it reached the length limit. The maximum number of new tokens is $\min(512,\max(64,1.5n))$, where $n$ is the token length of the input chunk. An output that reaches this limit is counted as truncated.
+
+\subsection{Choice of models}
+We planned five models and evaluated four, all small enough for CPU inference. Phi-3 Mini (3.8B) was implemented but not run to completion: even the four evaluated models took between about two and fourteen minutes per page on average, and up to 26 minutes for one page, and a 3.8-billion-parameter model did not fit the available budget.
+\begin{itemize}
+\item \emph{Llama 3.2 1B}~\cite{meta2024llama32} and \emph{Gemma 2B}~\cite{gemma2024} are widely used open instruction-tuned models that represent general-purpose multilingual models. Bengali is a very small share of their pretraining data~\cite{zehady2026banglallama}.
+\item \emph{TituLLMs 1B}~\cite{nahin2025titullms} is a Bengali-pretrained model built on Llama 3.2 1B with an extended tokenizer. It has the same size and base architecture as Llama 3.2 1B, so comparing the two gives a partial comparison of Bengali pretraining at a similar parameter count; the two models may differ in other training details.
+\item \emph{BanglaT5} (about 248M parameters)~\cite{bhattacharjee2023banglat5} is a Bengali sequence-to-sequence model. Correction is a text-to-text task, so this architecture is the natural baseline. It is used as released, without fine-tuning.
+\end{itemize}
+BanglaBERT~\cite{bhattacharjee2022banglabert} was not considered because it is an encoder and cannot generate corrected text. All models are loaded with the Transformers library~\cite{wolf2020transformers} in bfloat16.
+
+\subsection{Deployment setting}
+All models run in CPU-only mode on a free Google Colab runtime. This approximates the setting that motivates the work: institutions in Bangladesh that process large volumes of Bengali documents and typically lack GPU infrastructure. No paid API is used at any stage.
+
+\subsection{Evaluation protocol}
+\textbf{Normalisation and metrics.} Before scoring, reference and hypothesis are normalised to Unicode NFC and runs of whitespace are collapsed, because Bengali conjuncts and vowel signs can be encoded as different codepoint sequences that look identical. CER and WER are computed with jiwer~\cite{vaessen2022jiwer} for each page and averaged over pages, so every page counts equally regardless of its length. CER is unbounded: an output with more erroneous characters than the reference has characters scores above 1. We therefore also report the character match error rate, $\mathrm{cMER}=(S+D+I)/(H+S+D+I)$, which counts insertions in the denominator and is bounded in $[0,1]$~\cite{ehrmann2026hipeocrepair}. Here $H$, $S$, $D$ and $I$ are the numbers of matched, substituted, deleted and inserted characters.
+
+\textbf{Statistical testing.} For each engine and model, the unit of analysis is the per-page difference between the corrected and the uncorrected error rate. We report the mean difference with a 95\% percentile interval from a paired bootstrap of the 15 pages (10{,}000 resamples, seed 403). We also run a two-sided Wilcoxon signed-rank test~\cite{wilcoxon1945} on the same differences and adjust the $p$-values with the Holm procedure~\cite{holm1979} over the 16 CER and WER tests, which follows the reporting of Viana~\cite{viana2026reframing}.
+
+\textbf{Validation.} The held-out split was frozen before any model ran, and development pages are never scored. No model is trained, and decoding is deterministic, so we did not use cross-validation or repeated runs with different seeds; each page is paired with its own uncorrected text.
+
+\textbf{Word-level and edit analysis.} To see what correction changes, we align the ground-truth words with the raw OCR and with the corrected output. A ground-truth word that the raw OCR matched exactly and the output does not is a \emph{broken} word; a word the raw OCR missed and the output matches is a \emph{fixed} word~\cite{kumar2026postasr}. The \emph{change ratio} is the CER of the output measured against the raw OCR, divided by the CER of the raw OCR against the ground truth~\cite{koynov2025opportunities}; a ratio above 1 means the model changed more than there was to repair. \emph{Invented runs} are runs of at least six characters that the output contains and the raw OCR does not~\cite{koynov2025opportunities}. We also report output length relative to the reference, the share of Bengali, Latin and other characters, ground-truth word retention, and the truncation rate.
+
+\textbf{Safeguard.} As a post-hoc check, we replace a model's output by the raw OCR whenever its length falls outside 0.35 to 2.8 times the input length. These thresholds are taken from a zero-shot system in the HIPE-OCRepair task~\cite{ehrmann2026hipeocrepair} and are not tuned on our pages.
+
+\textbf{Deviation from the intended protocol.} Kanerva et al.\ strip leading and trailing text that does not align with the input, such as explanatory preambles~\cite{kanerva2025nofreelunches}. We specified this step but did not implement it, so all scores use unfiltered model output and any preamble or commentary counts as error. Section~\ref{sec:discussion} discusses what this means.
+
+\subsection{Reproducibility}
+The page lists, the correction prompt, and the OCR, correction, scoring and statistics code are public~\cite{rahman2026repo}, with the frozen split committed before any model was run. Nothing is trained and no paid service is used, so the study can be repeated end to end on a free CPU-only runtime.
+
+% =====================================================================
+\section{Results}
+
+We report the uncorrected baselines first, then the effect of correction, the comparison between engines, and finally per-page and bounded-metric views of the same data.
+
+\subsection{Baseline OCR performance}
+Table~\ref{tab:baseline} gives the error rates of the raw OCR text before any correction. EasyOCR is better than Tesseract on all three metrics (CER 0.297 against 0.364). This agrees with the weakness of Tesseract on Bengali reported in earlier work~\cite{zulkarnain2023bbocr,rabby2024enhancement}. We did not find a published comparison of the two engines on historical Bengali print, and our pages are 19th-century books, several of them verse or title pages in ornate type, on which EasyOCR appears to degrade less. Both baselines are high in absolute terms: EasyOCR, the better engine, has a CER of 0.297 and a WER of 0.719.
+
+\input{tables/baseline}
+
+\subsection{Effect of correction}
+Table~\ref{tab:matrix} gives the full evaluation matrix, and Figs.~\ref{fig:cer} and~\ref{fig:ci} show the same result graphically. Every engine-by-model cell has a positive difference on both metrics: correction increased the error rate in all eight combinations. Fifteen of the 16 resulting increases (two metrics per combination) are significant, both under the bootstrap and under the Holm-corrected Wilcoxon test. The one exception is Tesseract with BanglaT5 on WER, whose interval spans zero ($[-0.101,+0.397]$, Holm $p=0.15$). The largest effect is TituLLMs on EasyOCR output, where CER rises from 0.297 to 2.588, about nine times the baseline. A CER above 1 means the output contains more erroneous characters than the reference has characters.
+
+\input{tables/eval_matrix}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig1_cer_by_model.png}
+\caption{Mean CER over the 15 pages after correction, by model and OCR engine. The dashed lines mark the uncorrected baselines (Tesseract 0.364, EasyOCR 0.297). Every bar lies above both baselines.}
+\label{fig:cer}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig2_bootstrap_ci.png}
+\caption{Mean change in CER (corrected minus uncorrected) for each model and engine, with 95\% paired-bootstrap intervals over the 15 pages. A value above zero means correction made the text worse. Every interval lies to the right of zero, and the two engines nearly coincide for three of the four models.}
+\label{fig:ci}
+\end{figure}
+
+\subsection{The engine-agnostic question}
+Correction increased the error rate for both engines, although the size of the increase differed by model. For Gemma 2B and BanglaT5 the CER differences agree to within 0.01 (0.219 against 0.220, and 0.525 against 0.519), and for Llama 3.2 1B to within 0.12 (0.480 against 0.600). TituLLMs differs more (1.632 against 2.291), but is the worst model for both engines. This answers RQ2 in two parts: the direction of the effect did not depend on the engine, and its size agreed closely for three of the four models. With two engines and 15 pages we make no stronger claim about how the engine changes the size of the effect for TituLLMs.
+
+\subsection{Per-page analysis}
+Across the 120 page-level cells (15 pages, 4 models, 2 engines), correction lowered CER in three (2.5\%). All three are on the same page, the Tesseract page with the highest baseline CER (0.882); the lowest corrected CER on that page is 0.803. On the bounded cMER, none of the 120 cells improved. Figure~\ref{fig:perpage} shows the baseline curve below every model on every page except that one.
+
+The size of the increase also varies with page difficulty. When the pages are split into thirds by baseline CER, the increase in CER is smallest on the hardest third in each of the eight engine-and-model cells. For Llama 3.2 1B on Tesseract output, for example, the increase is $+0.69$ on the easiest third and $+0.23$ on the hardest. The HIPE-OCRepair task also reports over-correction of low-noise input~\cite{ehrmann2026hipeocrepair}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig3_per_page.png}
+\caption{CER per evaluation page, with pages sorted from easiest to hardest by baseline CER, for Tesseract (left) and EasyOCR (right). The solid black line is the uncorrected baseline; each dashed line is one correction model. The baseline lies below every model on every page except the hardest Tesseract page, where three models end below it.}
+\label{fig:perpage}
+\end{figure*}
+
+\subsection{Bounded error rate}
+Because CER can exceed 1, we repeated the analysis with cMER (Table~\ref{tab:damage}). The baseline cMER is 0.336 for Tesseract and 0.257 for EasyOCR, and the corrected values range from 0.471 to 0.889. TituLLMs, whose CER reached 2.588, has a cMER of 0.876 on Tesseract text and 0.880 on EasyOCR text. The two scales therefore differ most for TituLLMs, but the conclusion is the same on both: all eight cMER tests are significant after Holm correction.
+
+% =====================================================================
+\section{Failure Analysis}
+
+This section describes how the corrected text differs from the raw OCR in four steps: word retention and word-level changes, edit operations by model, truncation, and the effect of a length safeguard.
+
+\subsection{Word retention and word-level changes}
+Table~\ref{tab:diagnostics} reports how many ground-truth words each output retains. Raw Tesseract output keeps 46\% of the distinct ground-truth words and raw EasyOCR output 55\%. After correction, retention falls to 13\% for Gemma 2B and to between 2\% and 4\% for the other three models. The word-level counts in Table~\ref{tab:damage} separate correct words that were changed from wrong words that were fixed. Of the words that the raw OCR had read correctly, the models broke between 76\% and 99.5\%, and of the words it had read wrongly they fixed between 0.9\% and 5.5\%. The change ratio is above 1 for every model: it is 1.7 to 1.9 for Gemma 2B and 10.0 to 14.2 for TituLLMs.
+
+\input{tables/diagnostics}
+
+\input{tables/damage}
+
+\subsection{Edit profiles by model}
+The models differ in which edit operations increase. The counts below are per page, measured against the ground truth.
+
+\emph{BanglaT5.} Its output is on average 0.34 times the reference length. Deletions rise from 72 to 667 per page on Tesseract text and from 64 to 524 on EasyOCR text, and insertions fall to near zero. The output is often a short string of punctuation and digits. BanglaT5 is not instruction-tuned and was not fine-tuned for correction, which may account for this, but we did not test it.
+
+\emph{TituLLMs.} Its output is 2.58 times the reference length, 40\% of its characters are Bengali and 34\% are Latin, and it reached the generation limit on all 30 pages (15 per engine). Insertions rise from 37 to 1{,}106 per page on Tesseract text and from 72 to 1{,}604 on EasyOCR text; between 44\% and 52\% of its output sits in runs of at least six characters that the input does not contain. On one devotional page (14076\_a\_2\_0006) the output is English commentary on a word from the first line instead of corrected Bengali text. It begins by explaining the word as meaning to be at war against one's enemies and as an epithet of Indra, goes on to discuss figures from Sanatan mythology that do not appear in the input, and continues in English for several more sentences. The prompt asked for the corrected Bengali text only.
+
+\emph{Llama 3.2 1B.} Substitutions more than triple, from 135 to 447 per page on Tesseract text and from 93 to 414 on EasyOCR text, and it reached the generation limit on 19 of the 30 pages. \emph{Gemma 2B} has the output length closest to the reference (0.88 times) and never reached the generation limit. It has the smallest error increase, but its edit counts also rise: on Tesseract text, substitutions go from 135 to 193 and deletions from 72 to 206 per page.
+
+\subsection{Truncation}
+Across the eight engine-and-model conditions, the rate of truncation correlates with mean CER at $r=0.84$ (Fig.~\ref{fig:trunc}). Truncation may be a symptom of degenerate output and not an independent cause, but we did not test this. BanglaT5 reached the generation limit on only one page of 15 per engine, yet its CER on Tesseract text is 0.889, so a high error rate does not require truncation.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig4_truncation.png}
+\caption{Truncation rate against mean CER for the eight engine-and-model conditions. Each point is one condition; the horizontal axis is the percentage of pages on which the output reached the generation limit, and the vertical axis is the mean CER of the corrected text. The correlation is $r=0.84$.}
+\label{fig:trunc}
+\end{figure}
+
+\subsection{Does a length safeguard help?}
+The last column of Table~\ref{tab:damage} applies the length safeguard. It lowers the error where the output length changes a great deal: TituLLMs falls back to the raw OCR on 5 to 7 of 15 pages, and BanglaT5 on Tesseract text on 13 of 15, which cuts its CER from 0.889 to 0.434. Even so, no model beats the uncorrected text. In seven of the eight conditions, the safeguarded output is still significantly worse than the raw OCR after Holm correction. The exception is BanglaT5 on Tesseract text, which ends 0.07 above the baseline (not significant after Holm correction); 13 of its 15 pages revert to the raw OCR, so that result mostly reflects the raw text. Gemma 2B triggers the safeguard on at most one page, since its outputs stay close to the input length.
+
+% =====================================================================
+\section{Discussion}
+\label{sec:discussion}
+
+This section answers the research questions, places the result among related studies, offers reasons for the failure, and states what the result means for practice.
+
+\subsection{Answers to the research questions}
+\textbf{RQ1: can small models, zero-shot on a CPU, reduce Bengali OCR error rates?} No. All four models raised both CER and WER on both engines, and the increase is significant in 15 of the 16 CER and WER tests. On the bounded metric all eight tests are significant.
+\textbf{RQ2: is the effect consistent across engines?} In direction, yes: the effect is negative for both engines. In size, the engines agree closely for three of the four models and differ for TituLLMs. Two engines are too few to say more.
+
+\subsection{Relation to prior work}
+The direction of the present result matches the unfavourable results reported elsewhere. Open models degraded Finnish~\cite{kanerva2025nofreelunches}, zero-shot models degraded text once the input CER reached 0.15, even at 70 billion parameters~\cite{koynov2025opportunities}, zero-shot models degraded Hindi speech-recognition output~\cite{kumar2026postasr}, and the HIPE-OCRepair task found over-correction of accurate input~\cite{ehrmann2026hipeocrepair}. Correction worked where it was fine-tuned for the task~\cite{thomas2024leveraging,ehrmann2026hipeocrepair}, where a frontier model read moderately noisy text~\cite{viana2026reframing}, or where the input was clean English~\cite{koynov2025opportunities}. Our setting combines factors that those studies report separately: models of at most two billion parameters, no task-specific training, a low-resource non-Latin script, and an input CER of 0.30 to 0.36, above the 0.25 or less of the other studies we reviewed. The Bulgarian result~\cite{beshirov2025bulgarian} suggests that a non-Latin script is not by itself an obstacle, but that system is supervised and tied to its engine, whereas the layer studied here uses no training and is not tied to an engine.
+
+\subsection{Possible explanations}
+Correction requires reproducing most of the input while changing only the erroneous parts. We did not test why the models fail at this. The following factors are candidate explanations.
+\begin{itemize}
+\item The input is far noisier than the text on which language-model correction has been shown to help, so the model has less reliable context to restore from.
+\item Bengali is expensive to tokenise. English-centric tokenizers need roughly five to ten times as many tokens as English for the same content~\cite{petrov2023tokenizer,ahia2023cost}, and a median page of 743 to 790 raw-OCR characters may be a long input for a model of one or two billion parameters. Bengali is also a very small part of the pretraining data of general models~\cite{zehady2026banglallama}.
+\item Our sources use older forms of Bengali. A model with a bias towards the modern language may treat them as errors. Mixing of the older and the modern literary register is among the categories that GPT-4o handled worst in grammar correction~\cite{bhattacharyya2025banglagec}. We did not test this explanation.
+\end{itemize}
+The Bengali-specific model did worst, which was not the expected outcome. TituLLMs was included because language-specific pretraining should help on a Bengali task, yet it had the highest error rates, the lowest share of Bengali characters, and truncation on every page. One possible explanation is that, at one billion parameters, its Bengali training did not give it enough ability to follow the correction instruction. We did not measure this, so it is an interpretation and not a demonstrated mechanism. The result does not show that a Bengali-specific model cannot solve the problem at this scale; it shows that these off-the-shelf models do not.
+
+\subsection{Practical implications}
+In the configuration tested here, zero-shot correction increased the error rate for every model and engine, so these results do not support applying it to this kind of text without further adaptation. Switching between the two OCR engines did not change the direction of the effect. The raw OCR retained more of the ground-truth words than any corrected output (Table~\ref{tab:diagnostics}), and correction took between about two and fourteen minutes of CPU time per page on average. The length safeguard reduced the error in some conditions but not below the uncorrected level. The published evidence on other languages points to fine-tuned small models as the more promising route~\cite{kumar2026postasr,thomas2024leveraging}, but this is untested for Bengali.
+
+\subsection{Limitations}
+\begin{itemize}
+\item \emph{No output filter.} The alignment step that strips preambles was not implemented, so models that add commentary are penalised for it, TituLLMs most. Gemma 2B adds almost none and still raises CER from 0.364 to 0.583, so the omission is not the only cause of the increase.
+\item \emph{Sample size.} Only 15 of the 40 evaluation pages were scored, so intervals are wide; the other 25 are available for a larger run.
+\item \emph{Phi-3 Mini} was not evaluated because of its runtime on a free CPU.
+\item \emph{One prompt.} The prompt is fixed by design, and it does not tell the model to preserve historical spelling, as several published systems do. The results describe this prompt, not the best prompt for each model.
+\item \emph{Segment length.} Chunks are measured in tokens, and shorter segments were not tested.
+\item \emph{Model integration.} BanglaT5 is not instruction-tuned and was never fine-tuned, so its figures describe this use of it, not its ceiling on the task.
+\item \emph{Corpus.} The pages are early printed books, so the results may not transfer to modern printed Bengali.
+\item \emph{Scope of the analysis.} Section~V describes how the outputs differ from the input and the reference. It does not apply attribution or other model-internal explanation methods, so the explanations in Section~VI are hypotheses.
+\end{itemize}
+
+% =====================================================================
+\section{Conclusion}
+
+Small open language models, used zero-shot on a CPU, did not improve Bengali OCR output. On fifteen held-out pages and two OCR engines, all four models raised both CER and WER on both engines (RQ1), and the direction of the effect was the same for Tesseract and for EasyOCR (RQ2). The models changed most of the words the OCR had read correctly and fixed few of the wrong ones. BanglaT5 mainly deleted text, TituLLMs mainly inserted text, often in English, and Llama 3.2 1B mainly substituted characters. A length safeguard reduced the error increase in some conditions but not below the uncorrected level. Future work should test fine-tuned small models, including byte-level and Bengali sequence-to-sequence models, correction at line level, and a prompt that asks the model to preserve historical spelling.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

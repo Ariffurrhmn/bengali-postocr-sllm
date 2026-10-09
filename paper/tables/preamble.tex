@@ -1,0 +1,7 @@
+% Add to the paper's preamble (or \input{tables/preamble} after \documentclass).
+\usepackage{booktabs}          % \toprule \midrule \bottomrule
+\usepackage[table]{xcolor}     % \cellcolor
+\usepackage{graphicx}
+\definecolor{bestbg}{RGB}{226,239,218}
+% Best corrected model per engine and column (reviewer item #42: "color the best").
+\newcommand{\best}[1]{\cellcolor{bestbg}\textbf{#1}}

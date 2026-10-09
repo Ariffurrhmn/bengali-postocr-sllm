@@ -1,0 +1,21 @@
+\begin{table}[t]
+\centering
+\caption{Output Diagnostics by Model}
+\label{tab:diagnostics}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccc}
+\toprule
+Source & Len. & Bn & Latin & Other & GT ret. \\
+\midrule
+Raw Tesseract & --- & 79\% & 12\% & 9\% & 46\% \\
+Raw EasyOCR & --- & 92\% & 0\% & 8\% & 55\% \\
+\midrule
+Gemma 2B & \best{0.88$\times$} & \best{84\%} & \best{7\%} & \best{9\%} & \best{13\%} \\
+Llama 3.2 1B & 0.84$\times$ & 78\% & 9\% & 13\% & 2\% \\
+BanglaT5 & 0.34$\times$ & 63\% & 10\% & 27\% & 3\% \\
+TituLLMs 1B & 2.58$\times$ & 40\% & 34\% & 26\% & 4\% \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Len.: output length / reference length. Bn / Latin / Other: share of characters by script. GT ret.: share of distinct ground-truth words present in the output. Pooled over both engines.\end{minipage}
+\end{table}

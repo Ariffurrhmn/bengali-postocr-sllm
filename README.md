@@ -2,7 +2,7 @@
 
 OCR-engine-agnostic post-OCR correction for Bengali text using small open-weight language models (zero-shot, CPU-only).
 
-See the project methodology in the Drive folder: `Draft Paper/Methodology_PostOCR.docx`.
+Current status and which file is latest: see [STATUS.md](STATUS.md). Decision log: [context/](context/).
 
 ## Layout
 
@@ -12,6 +12,9 @@ See the project methodology in the Drive folder: `Draft Paper/Methodology_PostOC
 - `eval/` — CER/WER scoring, NFC normalization, paired bootstrap significance testing, figures, qualitative failure-mode diagnostics.
 - `results/` — logged per-page outcome data (CSV/JSON), not committed except for structure.
 - `notebooks/` — Colab notebook(s).
+- `paper/` — current paper source (`main.tex`), tables, figures, bibliography; `archive/` holds superseded versions.
+- `reviewer-feedback/` — transcribed review comments, literature notes, rewrite plan.
+- `context/` — decision log, results, timeline, open items.
 
 ## Dataset
 

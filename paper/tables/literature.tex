@@ -1,0 +1,28 @@
+% Literature comparison table (reviewer item #10: "Add tables if possible").
+% Every cell was checked against the paper itself; see reviewer-feedback/paper-reviews.md.
+% Keys refer to paper/references.bib.
+\begin{table*}[t]
+\centering
+\caption{Language-Model Correction of Recognition Output: Prior Work and This Study}
+\label{tab:literature}
+\setlength{\tabcolsep}{3.5pt}
+\footnotesize
+\begin{tabular}{p{2.6cm}p{1.2cm}p{1.6cm}p{3.3cm}p{1.6cm}p{1.6cm}p{3.6cm}}
+\toprule
+Study & Language & Task & Models (size) & Setting & Input error & Did correction help? \\
+\midrule
+Thomas et al.~\cite{thomas2024leveraging} & English & post-OCR & Llama 2 (7B, 13B); BART & fine-tuned & CER 0.08 & Yes: CER $-$54.5\% (13B) \\
+Danilova \& Aangenendt~\cite{danilova2025german} & German & post-OCR & Llama 2 13B, Mistral 7B; BART & fine-tuned & CER 0.02 & No CER gain on average; WER $-$22\% (best) \\
+Kanerva et al.~\cite{kanerva2025nofreelunches} & English, Finnish & post-OCR & open models 8B--70B; GPT-4o & zero-shot & CER 0.07 / 0.09 & English: 6 of 7 models; Finnish: only GPT-4o \\
+Koynov \& Doan~\cite{koynov2025opportunities} & English, German & post-OCR & GPT-4o-mini; Llama 3.3 70B & zero-shot (+ fine-tuned) & CER 0.07--0.25 & Yes at CER 0.07; worse at CER $\geq$0.15 \\
+Vershinin et al.~\cite{vershinin2025lightweight} & English & post-OCR & 7B--13B, 4-bit quantized & zero-shot & CER 0.08 & 1 of 4 models improved CER \\
+Beshirov et al.~\cite{beshirov2025bulgarian} & Bulgarian & post-OCR & BERT detector + LSTM corrector & supervised & --- & Yes \\
+Ehrmann et al.~\cite{ehrmann2026hipeocrepair} & English, French, German & post-OCR & 8B--24B & zero-shot; fine-tuned & CER 0.004--0.057 & Fine-tuned: yes; zero-shot: mixed (worse than raw OCR on French) \\
+Viana~\cite{viana2026reframing} & Portuguese & post-OCR & GPT-5.5 (frontier) & zero-shot & CER 0.12 & Yes: CER $-$60\% \\
+Bhattacharyya \& Bhattacharya~\cite{bhattacharyya2025banglagec} & Bengali & grammar correction & 1.1B--8B; GPT-4o & zero-shot; fine-tuned & clean modern text & Fine-tuned 3--7 points above zero-shot \\
+Kumar et al.~\cite{kumar2026postasr} & Hindi & post-ASR & Llama 1B--70B, GPT-4o-mini; mT5, ByT5 (0.3--0.58B) & zero-shot; fine-tuned & WER 0.18--0.29 & Zero-shot: worse; fine-tuned small models: yes \\
+\midrule
+\textbf{This study} & \textbf{Bengali} & \textbf{post-OCR} & \textbf{0.25B--2B} & \textbf{zero-shot, CPU} & \textbf{CER 0.30--0.36} & \textbf{No: worse in 8/8 engine-model combinations} \\
+\bottomrule
+\end{tabular}
+\end{table*}

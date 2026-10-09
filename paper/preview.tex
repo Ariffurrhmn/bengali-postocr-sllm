@@ -1,0 +1,34 @@
+% Compile check for the new figures and tables. Upload the whole paper/ folder
+% (plus paper/references.bib) to a fresh Overleaf project and compile
+% this file. It contains no paper text, only the floats.
+\documentclass[conference]{IEEEtran}
+\input{tables/preamble}
+
+\begin{document}
+\title{Figure and Table Preview}
+\maketitle
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig_method.pdf}
+\caption{Methodology (caption text: write your own).}
+\label{fig:method}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig_dataset.pdf}
+\caption{Dataset (caption text: write your own).}
+\label{fig:dataset}
+\end{figure*}
+
+\input{tables/literature}
+\input{tables/baseline}
+\input{tables/eval_matrix}
+\input{tables/diagnostics}
+\input{tables/damage}
+
+\nocite{*}
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+\end{document}

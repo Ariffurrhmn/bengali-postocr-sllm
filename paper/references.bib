@@ -1,0 +1,380 @@
+% =====================================================================
+% Reference list for the revised paper (IEEEtran / BibTeX).
+% Checked 2026-09-26 / 2026-10-04 against ACL Anthology, Crossref, IEEE,
+% NeurIPS proceedings, publisher pages. Keys are stable; cite with \cite{key}.
+%
+% STATUS legend in the comment above each entry:
+%   KEEP    = in the old draft, unchanged or corrected
+%   FIXED   = in the old draft, preprint replaced by published version / error fixed
+%   NEW     = new citation (read in full; see paper-reviews.md)
+%   PREPRINT= still only a preprint (kept on purpose, or optional)
+%   DROP    = do not cite (listed only so you know it was considered)
+% =====================================================================
+
+% ---------------- Bengali OCR -----------------------------------------
+
+% PREPRINT (old [1]) - keep: main open Bengali OCR pipeline; no published version exists.
+% NOTE: it compares bbOCR vs Tesseract only. It never tests EasyOCR (see draft error in paper-reviews.md).
+@misc{zulkarnain2023bbocr,
+  author       = {Imam Mohammad Zulkarnain and Shayekh Bin Islam and Md. Zami Al Zunaed Farabe and Md. Mehedi Hasan Shawon and Jawaril Munshad Abedin and Beig Rajibul Hasan and Marsia Haque Meghla and Ishrat Shihab and Mohammad Tasnimul Hasan Mobassir and Md. Nazmul Ansary and Abrar Sushmit and Farig Sadeque},
+  title        = {{bbOCR}: An Open-source Multi-domain {OCR} Pipeline for {Bengali} Documents},
+  year         = {2023},
+  howpublished = {arXiv preprint arXiv:2308.10647},
+  url          = {https://arxiv.org/abs/2308.10647}
+}
+
+% FIXED (old [2]) - IEEE published version.
+@inproceedings{safir2021endtoend,
+  author    = {Farisa Benta Safir and Abu Quwsar Ohi and M. F. Mridha and Muhammad Mostafa Monowar and Md. Abdul Hamid},
+  title     = {End-to-End Optical Character Recognition for {Bengali} Handwritten Words},
+  booktitle = {2021 National Computing Colleges Conference (NCCC)},
+  pages     = {1--7},
+  year      = {2021},
+  publisher = {IEEE},
+  doi       = {10.1109/NCCC49330.2021.9428809}
+}
+
+% NEW - published Bengali OCR system incl. letterpress; Tesseract comparison.
+@inproceedings{rabby2024enhancement,
+  author    = {A. K. M. Shahariar Azad Rabby and Hasmot Ali and Md. Majedul Islam and Sheikh Abujar and Fuad Rahman},
+  title     = {Enhancement of {Bengali} {OCR} by Specialized Models and Advanced Techniques for Diverse Document Types},
+  booktitle = {Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision Workshops (WACVW)},
+  pages     = {1102--1109},
+  year      = {2024},
+  url       = {https://openaccess.thecvf.com/content/WACV2024W/WVLL/papers/Rabby_Enhancement_of_Bengali_OCR_by_Specialized_Models_and_Advanced_Techniques_WACVW_2024_paper.pdf}
+}
+
+% ---------------- LLM post-OCR correction -----------------------------
+
+% PREPRINT (old [3]) - university poster; optional: keep one brief mention only.
+@misc{witte2025postocr,
+  author       = {J. Witte},
+  title        = {Post-{OCR} Error Correction with Large Language Models},
+  year         = {2025},
+  howpublished = {Poster, University of Edinburgh}
+}
+
+% FIXED (old [4]) - base paper, ACL Anthology.
+@inproceedings{kanerva2025nofreelunches,
+  author    = {Jenna Kanerva and Cassandra Ledins and Siiri K{\"a}pyaho and Filip Ginter},
+  title     = {{OCR} Error Post-Correction with {LLMs} in Historical Documents: No Free Lunches},
+  booktitle = {Proceedings of the Third Workshop on Resources and Representations for Under-Resourced Languages and Domains (RESOURCEFUL-2025)},
+  pages     = {38--47},
+  address   = {Tallinn, Estonia},
+  year      = {2025},
+  url       = {https://aclanthology.org/2025.resourceful-1.8/}
+}
+
+% FIXED (old [5]) - issue number corrected: vol 26, no 1, article 4 (draft wrongly said no. 4).
+@article{beshirov2025bulgarian,
+  author  = {Angel Beshirov and Milena Dobreva and Dimitar Dimitrov and Momchil Hardalov and Ivan Koychev and Preslav Nakov},
+  title   = {Post-{OCR} Text Correction for {Bulgarian} Historical Documents},
+  journal = {International Journal on Digital Libraries},
+  volume  = {26},
+  number  = {1},
+  pages   = {4},
+  year    = {2025},
+  doi     = {10.1007/s00799-025-00415-x}
+}
+
+% FIXED (old [6]) - ACL Anthology, pages and location added.
+@inproceedings{levchenko2025historical,
+  author    = {Maria A. Levchenko},
+  title     = {Evaluating {LLMs} for Historical Document {OCR}: A Methodological Framework for Digital Humanities},
+  booktitle = {Proceedings of the First Workshop on Natural Language Processing and Language Models for Digital Humanities (LM4DH 2025)},
+  pages     = {75--85},
+  address   = {Varna, Bulgaria},
+  year      = {2025},
+  url       = {https://aclanthology.org/2025.lm4dh-1.7/}
+}
+
+% NEW - ICDAR 2026 shared task: over-correction of low-noise input; fine-tuned beats zero-shot; same bootstrap protocol; source of cMER, preference score and the 0.35-2.8x safeguard.
+@inproceedings{ehrmann2026hipeocrepair,
+  author    = {Maud Ehrmann and Emanuela Boros and Juri Opitz and Andrianos Michail and Florian Wagner and Simon Clematide},
+  title     = {{ICDAR} 2026 {HIPE-OCRepair} Competition on {LLM}-Assisted {OCR} Post-correction for Historical Documents},
+  booktitle = {Document Analysis and Recognition -- ICDAR 2026},
+  series    = {Lecture Notes in Computer Science},
+  publisher = {Springer},
+  pages     = {405--422},
+  year      = {2026},
+  doi       = {10.1007/978-3-032-36042-7_24}
+}
+
+% NEW - zero-shot GPT-4o-mini / Llama-3.3-70B: CER worse once input CER >= 0.15; source of CCR / change ratio.
+@inproceedings{koynov2025opportunities,
+  author    = {Radoslav Koynov and Triet Ho Anh Doan},
+  title     = {Opportunities and Challenges of {LLMs} as Post-{OCR} Correctors},
+  booktitle = {Communication Papers of the 20th Conference on Computer Science and Intelligence Systems (FedCSIS)},
+  series    = {Annals of Computer Science and Information Systems},
+  volume    = {45},
+  pages     = {111--118},
+  year      = {2025},
+  doi       = {10.15439/2025F4697}
+}
+
+% NEW - instruction-tuned German LLMs did not reduce CER; long segments degrade.
+@inproceedings{danilova2025german,
+  author    = {Vera Danilova and Gijs Aangenendt},
+  title     = {Post-{OCR} Correction of Historical {German} Periodicals using {LLMs}},
+  booktitle = {Proceedings of the Third Workshop on Resources and Representations for Under-Resourced Languages and Domains (RESOURCEFUL-2025)},
+  pages     = {120--129},
+  address   = {Tallinn, Estonia},
+  year      = {2025},
+  url       = {https://aclanthology.org/2025.resourceful-1.26/}
+}
+
+% NEW - contrast case: fine-tuned Llama 2 works on clean English, short segments.
+@inproceedings{thomas2024leveraging,
+  author    = {Alan Thomas and Robert Gaizauskas and Haiping Lu},
+  title     = {Leveraging {LLMs} for Post-{OCR} Correction of Historical Newspapers},
+  booktitle = {Proceedings of the Third Workshop on Language Technologies for Historical and Ancient Languages (LT4HALA) @ LREC-COLING-2024},
+  pages     = {116--121},
+  address   = {Torino, Italia},
+  year      = {2024},
+  url       = {https://aclanthology.org/2024.lt4hala-1.14/}
+}
+
+% NEW - frontier model (GPT-5.5) helps at ~12% CER; source of Wilcoxon + Holm + bootstrap reporting.
+@article{viana2026reframing,
+  author  = {Cl{\'a}udia M. Viana},
+  title   = {Reframing Historical Text Extraction: A Cross-Pathway Validation of {OCR}, {LLM}-Assisted Correction, and Direct Multimodal Transcription},
+  journal = {Information},
+  volume  = {17},
+  number  = {8},
+  pages   = {722},
+  year    = {2026},
+  doi     = {10.3390/info17080722}
+}
+
+% NEW (cite with care) - lightweight 4-bit 7-8B zero-shot; 3 of 4 models made CER worse even on English.
+% Original article is in Russian; an English translation exists in Automatic Documentation and
+% Mathematical Linguistics 59 (Suppl 5), 2025 (https://link.springer.com/article/10.3103/S0005105525701328).
+@article{vershinin2025lightweight,
+  author  = {V. K. Vershinin and I. V. Khodnenko and S. V. Ivanov},
+  title   = {Normalization of Text Recognized by Optical Character Recognition using Lightweight {LLMs}},
+  journal = {Russian Digital Libraries Journal},
+  volume  = {28},
+  number  = {5},
+  pages   = {1036--1056},
+  year    = {2025},
+  doi     = {10.26907/1562-5419-2025-28-5-1036-1056}
+}
+
+% ---------------- Correction in Bengali / Indic -----------------------
+
+% NEW - Bangla correction with LLMs: zero-shot 3-7 pts below instruction-tuned; humans still better.
+@inproceedings{bhattacharyya2025banglagec,
+  author    = {Pramit Bhattacharyya and Arnab Bhattacharya},
+  title     = {Leveraging {LLMs} for {Bangla} Grammar Error Correction: Error Categorization, Synthetic Data, and Model Evaluation},
+  booktitle = {Findings of the Association for Computational Linguistics: ACL 2025},
+  pages     = {8220--8239},
+  year      = {2025},
+  url       = {https://aclanthology.org/2025.findings-acl.431/}
+}
+
+% NEW - closest analogue: zero-shot LLM correction made Hindi ASR worse; over-correction; small fine-tuned models win.
+@inproceedings{kumar2026postasr,
+  author    = {Rishabh Kumar and Amrith Krishna and Ganesh Ramakrishnan and Preethi Jyothi},
+  title     = {Post-{ASR} Correction in {Hindi}: Comparing Language Models and Large Language Models in Low-Resource Scenarios},
+  booktitle = {Proceedings of the 19th Conference of the European Chapter of the Association for Computational Linguistics (Volume 2: Short Papers)},
+  pages     = {636--645},
+  year      = {2026},
+  url       = {https://aclanthology.org/2026.eacl-short.45/}
+}
+
+% ---------------- Bengali language models -----------------------------
+
+% KEEP (old [7])
+@inproceedings{bhattacharjee2022banglabert,
+  author    = {Abhik Bhattacharjee and Tahmid Hasan and Wasi Ahmad and Kazi Samin Mubasshir and Md Saiful Islam and Anindya Iqbal and M. Sohel Rahman and Rifat Shahriyar},
+  title     = {{BanglaBERT}: Language Model Pretraining and Benchmarks for Low-Resource Language Understanding Evaluation in {Bangla}},
+  booktitle = {Findings of the Association for Computational Linguistics: NAACL 2022},
+  pages     = {1318--1327},
+  address   = {Seattle, USA},
+  year      = {2022}
+}
+
+% FIXED (old [8]) - drop the arXiv ID; venue was already right.
+@inproceedings{nahin2025titullms,
+  author    = {Shahriar Kabir Nahin and Rabindra Nath Nandi and Sagor Sarker and Quazi Sarwar Muhtaseem and Md Kowsher and Apu Chandraw Shill and Md Ibrahim and Mehadi Hasan Menon and Tareq Al Muntasir and Firoj Alam},
+  title     = {{TituLLMs}: A Family of {Bangla} {LLMs} with Comprehensive Benchmarking},
+  booktitle = {Findings of the Association for Computational Linguistics: ACL 2025},
+  pages     = {24922--24940},
+  address   = {Vienna, Austria},
+  year      = {2025},
+  url       = {https://aclanthology.org/2025.findings-acl.1279/}
+}
+
+% NEW (narrow use) - fact: Bangla+Hindi < 0.21% of Llama 2 pretraining tokens; another Bengali 1B model family.
+@inproceedings{zehady2026banglallama,
+  author    = {Abdullah Khan Zehady and Shubhashis Roy Dipta and Naymul Islam and Safi Al Mamun and Santu Karmaker},
+  title     = {{BanglaLlama}: {LLaMA} for {Bangla} Language},
+  booktitle = {Proceedings of the Second Workshop on Language Models for Low-Resource Languages (LoResLM 2026)},
+  pages     = {73--89},
+  year      = {2026},
+  url       = {https://aclanthology.org/2026.loreslm-1.7/}
+}
+
+% ---------------- Tokenization ----------------------------------------
+
+% FIXED (old [10]) - drop the arXiv ID.
+@inproceedings{mahfuz2025toolate,
+  author    = {Tamzeed Mahfuz and Satak Kumar Dey and Ruwad Naswan and Hasnaen Adil and Khondker Salman Sayeed and Haz Sameen Shahgir},
+  title     = {Too Late to Train, Too Early To Use? A Study on Necessity and Viability of Low-Resource {Bengali} {LLMs}},
+  booktitle = {Proceedings of the 31st International Conference on Computational Linguistics (COLING 2025)},
+  pages     = {1183--1200},
+  address   = {Abu Dhabi, UAE},
+  year      = {2025},
+  url       = {https://aclanthology.org/2025.coling-main.79/}
+}
+
+% NEW - replaces Bhowmik: Bengali needs ~5.4x-9.7x the tokens of English (GPT-family tokenizers).
+@inproceedings{petrov2023tokenizer,
+  author    = {Aleksandar Petrov and Emanuele La Malfa and Philip H. S. Torr and Adel Bibi},
+  title     = {Language Model Tokenizers Introduce Unfairness Between Languages},
+  booktitle = {Advances in Neural Information Processing Systems 36 (NeurIPS 2023)},
+  year      = {2023},
+  url       = {https://proceedings.neurips.cc/paper_files/paper/2023/hash/74bb24dca8334adce292883b4b651eda-Abstract-Conference.html}
+}
+
+% NEW - over-segmented languages pay more AND get worse results; Indic non-Latin ~5x English.
+@inproceedings{ahia2023cost,
+  author    = {Orevaoghene Ahia and Sachin Kumar and Hila Gonen and Jungo Kasai and David Mortensen and Noah Smith and Yulia Tsvetkov},
+  title     = {Do All Languages Cost the Same? Tokenization in the Era of Commercial Language Models},
+  booktitle = {Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing},
+  pages     = {9904--9923},
+  year      = {2023},
+  url       = {https://aclanthology.org/2023.emnlp-main.614/}
+}
+
+% DROP (old [9]) - Bhowmik et al., arXiv 2507.23248: preprint, retitled in v2; replaced by petrov2023tokenizer + ahia2023cost + mahfuz2025toolate.
+% DROP - Sharma & Bhattacharyya, IndiGEC (EMNLP 2025): no LLMs, no OCR; would be padding.
+% OPTIONAL - Arnett et al., NeurIPS 2025 (tokenizer inequities): only if Discussion explains why abugidas get high token premiums.
+
+% ---------------- Dataset, tools, models (old [11]-[19], unchanged) -----
+
+% KEEP (old [11])
+@inproceedings{clausner2019reid,
+  author    = {Christian Clausner and Apostolos Antonacopoulos and Tom Derrick and Stefan Pletschacher},
+  title     = {{ICDAR2019} Competition on Recognition of Early {Indian} Printed Documents ({REID2019})},
+  booktitle = {Proceedings of the 15th International Conference on Document Analysis and Recognition (ICDAR)},
+  address   = {Sydney, Australia},
+  year      = {2019}
+}
+
+% KEEP (old [12])
+@misc{britishlibrary2019bengaligt,
+  author       = {{British Library}},
+  title        = {Ground truth transcriptions for training {OCR} of historical {Bengali} printed texts -- recognition of early {Indian} printed documents competition},
+  year         = {2019},
+  howpublished = {Dataset. 81 images (400 dpi TIFF) with PAGE XML transcriptions, books printed 1713--1914},
+  doi          = {10.11588/data/AIQSXL},
+  url          = {https://bl.iro.bl.uk}
+}
+
+% KEEP (old [13])
+@inproceedings{smith2007tesseract,
+  author    = {Ray Smith},
+  title     = {An Overview of the {Tesseract} {OCR} Engine},
+  booktitle = {Proceedings of the 9th International Conference on Document Analysis and Recognition (ICDAR)},
+  pages     = {629--633},
+  address   = {Curitiba, Brazil},
+  year      = {2007}
+}
+
+% KEEP (old [14])
+@misc{jaidedai2024easyocr,
+  author       = {{JaidedAI}},
+  title        = {{EasyOCR}: Ready-to-use {OCR} with 80+ supported languages},
+  year         = {2024},
+  howpublished = {Software, version 1.7.2},
+  url          = {https://github.com/JaidedAI/EasyOCR}
+}
+
+% KEEP (old [15])
+@inproceedings{wolf2020transformers,
+  author    = {Thomas Wolf and others},
+  title     = {Transformers: State-of-the-Art Natural Language Processing},
+  booktitle = {Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing: System Demonstrations},
+  pages     = {38--45},
+  year      = {2020}
+}
+
+% KEEP (old [16]) - model card (unavoidable: no peer-reviewed paper for Llama 3.2 1B).
+@misc{meta2024llama32,
+  author       = {{Meta AI}},
+  title        = {Llama 3.2: Multilingual Large Language Models},
+  year         = {2024},
+  howpublished = {Model card. Checkpoint: meta-llama/Llama-3.2-1B-Instruct}
+}
+
+% KEEP (old [17]) - technical report (unavoidable).
+@techreport{gemma2024,
+  author      = {{Google DeepMind}},
+  title       = {Gemma: Open Models Based on {Gemini} Research and Technology},
+  institution = {Google DeepMind},
+  year        = {2024},
+  note        = {Checkpoint: google/gemma-2b-it}
+}
+
+% KEEP (old [18])
+@inproceedings{bhattacharjee2023banglat5,
+  author    = {Abhik Bhattacharjee and Tahmid Hasan and Wasi Uddin Ahmad and Rifat Shahriyar},
+  title     = {{BanglaNLG} and {BanglaT5}: Benchmarks and Resources for Evaluating Low-Resource Natural Language Generation in {Bangla}},
+  booktitle = {Findings of the Association for Computational Linguistics: EACL 2023},
+  year      = {2023},
+  note      = {Checkpoint: csebuetnlp/banglat5}
+}
+
+% KEEP (old [19])
+@misc{vaessen2022jiwer,
+  author       = {Nik Vaessen},
+  title        = {{JiWER}: Similarity Measures for Automatic Speech Recognition Evaluation},
+  year         = {2022},
+  howpublished = {Software, version 4.0.0},
+  url          = {https://github.com/jitsi/jiwer}
+}
+
+% NEW (needed for the repo citation the reviewer asked for, item #38: "Not like this. Add ref.")
+@misc{rahman2026repo,
+  author       = {Arifur Rahman},
+  title        = {bengali-postocr-sllm: Code, Data Splits and Evaluation for Zero-Shot Post-{OCR} Correction of {Bengali}},
+  year         = {2026},
+  howpublished = {GitHub repository},
+  url          = {https://github.com/Ariffurrhmn/bengali-postocr-sllm}
+}
+
+% NEW (statistics methods you now use; standard references)
+@article{wilcoxon1945,
+  author  = {Frank Wilcoxon},
+  title   = {Individual Comparisons by Ranking Methods},
+  journal = {Biometrics Bulletin},
+  volume  = {1},
+  number  = {6},
+  pages   = {80--83},
+  year    = {1945}
+}
+@article{holm1979,
+  author  = {Sture Holm},
+  title   = {A Simple Sequentially Rejective Multiple Test Procedure},
+  journal = {Scandinavian Journal of Statistics},
+  volume  = {6},
+  number  = {2},
+  pages   = {65--70},
+  year    = {1979}
+}
+
+% NEW (reviewer items #18-#20: cite the speaker numbers)
+% Ethnologue 2025 gives 278M total / 237M native speakers and ranks Bengali 7th by total speakers.
+% TODO (you): confirm the figures on ethnologue.com (the site is paywalled; I read them from secondary
+% summaries). Edit the sentence to match whatever the edition you cite says. The old draft's
+% "170M in Bangladesh + 100M in West Bengal" is not a figure Ethnologue publishes in that split.
+@book{eberhard2025ethnologue,
+  editor    = {David M. Eberhard and Gary F. Simons and Charles D. Fennig},
+  title     = {Ethnologue: Languages of the World},
+  edition   = {28},
+  publisher = {SIL International},
+  address   = {Dallas, Texas},
+  year      = {2025},
+  url       = {https://www.ethnologue.com}
+}
