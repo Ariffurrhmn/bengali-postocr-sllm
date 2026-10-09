@@ -27,3 +27,17 @@ Reviewed 24 Aug 2026; verdict "not acceptable at current stage". All 50 items ar
 - **Paper source.** The current source is `paper/main.tex` (restored 2026-10-09 to the version that compiled to Draft_Paper_02). Older versions are in `paper/archive/`.
 - **Dev baseline numbers differ between runs.** Tesseract dev CER was 0.371 in the first local scoring and ~0.350 in the Colab sweep scoring. Probably a different Tesseract build (local 5.4.0 against Colab's apt package); not verified. Dev numbers are never reported, so this is low priority.
 - **Result files aren't versioned** (D26). The eval outputs exist only in local `results/` and on Drive. Consider committing the small summary files (`bootstrap_eval.json`, `figures/evaluation_matrix.csv`), or archiving the full outputs with the Zenodo deposit.
+
+## Decoding ablation (review item C1), started 2026-10-09
+
+`correct_text` now takes `decoding="guarded"` (the paper's runs: repetition_penalty 1.3 + no_repeat_ngram_size 4) or `"plain"` (neither; only the max_new_tokens guard). `run_sweep.py` exposes this as `--decoding` and adds `--pages`.
+
+Smoke test, TituLLMs 1B, Tesseract, chunked, 3 eval pages, run on the local PC (not Colab, so not for the paper; D17):
+
+| Page | OCR CER | guarded | plain |
+|---|---|---|---|
+| 279_34_D_26_0007 | 0.113 | 1.330 | 0.956 |
+| 279_41_D_19_0004 | 0.319 | 1.825 | 1.003 |
+| 279_42_B_41_0003 | 0.493 | 1.392 | 0.760 |
+
+Plain decoding cuts the damage but the output is still far worse than raw OCR, and all 3 pages hit max_new_tokens. The failure changes from English commentary to Bengali sentence-repetition loops. Outputs: `results/ablation_plain_decoding.jsonl`. **Next:** the same test on Gemma 2B (needs an HF token; gated repo), then the full ablation on Colab.

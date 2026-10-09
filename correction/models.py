@@ -137,8 +137,23 @@ def _make_progress_heartbeat(every_n: int = 10):
     return _ProgressHeartbeat()
 
 
+# "guarded" is what the paper's runs used. In HF generate(), both guards also
+# see the prompt tokens of decoder-only models, so they penalise copying the
+# OCR text. "plain" drops them (repetition_penalty 1.0, no n-gram ban) and
+# keeps only the max_new_tokens length guard: the decoding ablation.
+DECODING_PRESETS = {
+    "guarded": dict(repetition_penalty=1.3, no_repeat_ngram_size=4),
+    "plain": dict(),
+}
+
+
 def correct_text(
-    model_key: str, tokenizer, model, ocr_text: str, max_new_tokens: int | None = None
+    model_key: str,
+    tokenizer,
+    model,
+    ocr_text: str,
+    max_new_tokens: int | None = None,
+    decoding: str = "guarded",
 ) -> CorrectionResult:
     import torch
 
@@ -182,12 +197,10 @@ def correct_text(
             max_new_tokens=max_new_tokens,
             do_sample=False,  # greedy decoding: deterministic, appropriate
                                # for a correction task (not creative generation)
-            repetition_penalty=1.3,  # greedy decoding on noisy/short OCR
-            no_repeat_ngram_size=4,  # input is prone to degenerate repetition
-                                      # loops (seen in practice on this task,
-                                      # e.g. a phrase repeated until max_new_tokens
-                                      # is hit) — both are standard, deterministic
-                                      # guards, not sampling/randomness
+            # "guarded": greedy decoding on noisy/short OCR input is prone to
+            # degenerate repetition loops (seen in practice on this task, e.g.
+            # a phrase repeated until max_new_tokens is hit)
+            **DECODING_PRESETS[decoding],
             pad_token_id=tokenizer.pad_token_id or tokenizer.eos_token_id,
             stopping_criteria=StoppingCriteriaList([_make_progress_heartbeat(every_n=10)]),
         )

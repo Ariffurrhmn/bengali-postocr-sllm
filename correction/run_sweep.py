@@ -23,7 +23,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 from chunking import chunk_text
-from models import MODEL_IDS, correct_text, load_model  # noqa: E402 (also sets CPU threads)
+from models import DECODING_PRESETS, MODEL_IDS, correct_text, load_model  # noqa: E402 (also sets CPU threads)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -49,18 +49,18 @@ def load_done_keys(out_path: Path) -> set:
     return done
 
 
-def correct_whole(model_key, tokenizer, model, ocr_text):
-    result = correct_text(model_key, tokenizer, model, ocr_text)
+def correct_whole(model_key, tokenizer, model, ocr_text, decoding):
+    result = correct_text(model_key, tokenizer, model, ocr_text, decoding=decoding)
     return result.raw_output, result.truncated, result.skipped
 
 
-def correct_chunked(model_key, tokenizer, model, ocr_text):
+def correct_chunked(model_key, tokenizer, model, ocr_text, decoding):
     chunks = chunk_text(ocr_text, tokenizer)
     outputs = []
     any_truncated = False
     all_skipped = True
     for chunk in chunks:
-        result = correct_text(model_key, tokenizer, model, chunk)
+        result = correct_text(model_key, tokenizer, model, chunk, decoding=decoding)
         outputs.append(result.raw_output)
         any_truncated = any_truncated or result.truncated
         all_skipped = all_skipped and result.skipped
@@ -87,6 +87,16 @@ def main():
     )
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument(
+        "--decoding",
+        choices=list(DECODING_PRESETS),
+        default="guarded",
+        help="guarded = repetition_penalty 1.3 + no_repeat_ngram_size 4 (the "
+        "paper's runs); plain = neither (decoding ablation)",
+    )
+    parser.add_argument(
+        "--pages", default=None, help="Comma-separated page_ids to restrict to"
+    )
+    parser.add_argument(
         "--ocr-path",
         type=Path,
         default=None,
@@ -102,6 +112,9 @@ def main():
 
     ocr_path = args.ocr_path or (REPO_ROOT / "results" / f"ocr_{args.split}.jsonl")
     pages = [json.loads(l) for l in ocr_path.read_text(encoding="utf-8").splitlines()]
+    if args.pages:
+        wanted = set(args.pages.split(","))
+        pages = [p for p in pages if p["page_id"] in wanted]
 
     out_path = args.out or (REPO_ROOT / "results" / f"correction_{args.split}.jsonl")
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -137,7 +150,7 @@ def main():
                         try:
                             fn = correct_whole if approach == "whole" else correct_chunked
                             raw_output, truncated, skipped = fn(
-                                model_key, tokenizer, model, page[engine]
+                                model_key, tokenizer, model, page[engine], args.decoding
                             )
                             error = None
                         except Exception as e:
@@ -151,6 +164,7 @@ def main():
                             "engine": engine,
                             "model_key": model_key,
                             "approach": approach,
+                            "decoding": args.decoding,
                             "raw_output": raw_output,
                             "truncated": truncated,
                             "skipped": skipped,
