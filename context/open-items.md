@@ -24,7 +24,6 @@ Reviewed 24 Aug 2026; verdict "not acceptable at current stage". All 50 items ar
 - **Proposal vs paper hypothesis.** The proposal states ≥10% CER reduction; methodology dropped it (D03). Make sure the final paper doesn't reintroduce it.
 - **Zenodo DOI.** The proposal promised to archive splits and code on Zenodo with a DOI. The paper only cites GitHub.
 - **Table III layout.** In the submitted PDF, the rightmost column ("Tr", truncation %) is cut off at the page edge.
-- **Paper source missing.** The paper was written in Overleaf. The export zip (`bengali-postocr-overleaf.zip`, once in the repo root) and the PDF in Downloads are both gone. The only local copy found is `Draft Paper/222_CSE403_Draft_Paper.pdf` in the Drive folder. The Overleaf project itself should still be online.
-- **README references `Draft Paper/Methodology_PostOCR.docx`.** That file is no longer in the Drive "Draft Paper" folder. There is also an old mojibake character (�) in "British Library's" in that docx.
+- **Paper source.** The current source is `paper/main.tex` (restored 2026-10-09 to the version that compiled to Draft_Paper_02). Older versions are in `paper/archive/`.
 - **Dev baseline numbers differ between runs.** Tesseract dev CER was 0.371 in the first local scoring and ~0.350 in the Colab sweep scoring. Probably a different Tesseract build (local 5.4.0 against Colab's apt package); not verified. Dev numbers are never reported, so this is low priority.
 - **Result files aren't versioned** (D26). The eval outputs exist only in local `results/` and on Drive. Consider committing the small summary files (`bootstrap_eval.json`, `figures/evaluation_matrix.csv`), or archiving the full outputs with the Zenodo deposit.

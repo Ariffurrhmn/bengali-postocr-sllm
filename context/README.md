@@ -22,7 +22,7 @@ The study asked whether a small open-weight language model, used zero-shot on CP
 - **Dataset:** not in the repo. Locally at `D:\Competition_dataset_ImagesPAGEXML`; on Google Drive as `My Drive/Dataset/REID2019.zip` (identical content, wrapped in one subfolder).
 - **Frozen split:** `data/split_dev.txt` (10), `data/split_eval.txt` (40), `data/excluded_no_ground_truth.txt` (29).
 - **Run outputs:** `results/` (gitignored, so NOT on GitHub). Colab runs wrote to `My Drive/bengali-postocr-results/`. Local copies: `results/ocr_eval.jsonl`, `results/correction_eval.jsonl`, `results/bootstrap_eval.json`, `results/figures/`, `results/examples_*.txt`.
-- **Paper, proposal, literature, related papers:** Google Drive folder "Group 2" (shortcut `Group 2.lnk` in the repo root, which points to `E:\.shortcut-targets-by-id\...\Group 2`). The paper was written in Overleaf; see open-items for the missing source.
+- **Paper, proposal, literature, related papers:** kept outside this repo. The current paper source is `paper/main.tex`; it was written in Overleaf.
 - **Compute:** free Google Colab, CPU runtime, via `notebooks/setup_and_dry_run.ipynb`. The local machine is for code and tests only (see decisions D17).
 
 ## Conventions

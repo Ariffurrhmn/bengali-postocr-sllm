@@ -39,6 +39,6 @@ A complete revised draft that uses everything above: `main.tex` + `tables/` + `f
 
 ## Which version is current (corrected 2026-10-09)
 - **`main.tex` is the current source.** It is the version that compiled to `Draft_Paper_02.pdf` (Overleaf, 5 Oct 2026, 09:23). It was restored from the v2 zip, because the earlier `main.tex` here was an older wording pass.
-- `Draft_Paper_02.pdf`: local copy of the compiled PDF (also in Drive: Group 2 / Draft Paper). Gitignored.
+- `Draft_Paper_02.pdf`: local copy of the compiled PDF. Gitignored.
 - `archive/`: older source and the two Overleaf zips. Not current. `main_v1_...tex` is the pre-v2 wording; `EDITORIAL-NOTES.md` describes the pass that produced v1, so its quotes may not match `main.tex`.
 - `CHECK-BEFORE-SUBMITTING.md`: item 1 (never compiled) is out of date; it did compile.
