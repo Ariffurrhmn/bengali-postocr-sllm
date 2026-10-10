@@ -41,3 +41,43 @@ Smoke test, TituLLMs 1B, Tesseract, chunked, 3 eval pages, run on the local PC (
 | 279_42_B_41_0003 | 0.493 | 1.392 | 0.760 |
 
 Plain decoding cuts the damage but the output is still far worse than raw OCR, and all 3 pages hit max_new_tokens. The failure changes from English commentary to Bengali sentence-repetition loops. Outputs: `results/ablation_plain_decoding.jsonl`. **Next:** the same test on Gemma 2B (needs an HF token; gated repo), then the full ablation on Colab.
+
+**Gemma 2B result (Colab CPU, same 3 pages, 2026-10-09):** the guards caused nearly all of Gemma's damage.
+
+| Page | OCR CER | guarded | plain |
+|---|---|---|---|
+| 279_34_D_26_0007 | 0.113 | 0.298 | 0.120 |
+| 279_41_D_19_0004 | 0.319 | 0.626 | 0.310 |
+| 279_42_B_41_0003 | 0.493 | 0.892 | 0.500 |
+| mean | 0.308 | 0.605 | 0.310 |
+
+With plain decoding Gemma ends up about level with raw OCR (it neither helps nor hurts). The paper's headline "correction makes OCR worse" is therefore, at least for Gemma, mostly a decoding artefact. Not yet checked: whether plain Gemma is just echoing its input. **Next:** Gemma plain on all 15 pages × both engines, then Llama 3.2 1B; then rewrite the result.
+
+**Gemma 2B, full 15 pages × both engines (Colab CPU, 2026-10-09):**
+
+| Engine | raw OCR CER | guarded | plain | plain beats OCR | plain beats guarded |
+|---|---|---|---|---|---|
+| Tesseract | 0.364 | 0.583 | 0.360 | 7/15 | 14/15 |
+| EasyOCR | 0.297 | 0.517 | 0.301 | 2/15 | 15/15 |
+
+How much plain Gemma changed its input (CER of output vs OCR input): mostly 0.00–0.03, max 0.12. So with plain decoding Gemma essentially **echoes the OCR text**: no harm, no help. All of the paper's Gemma damage came from the decoding guards. Candidate reframing: zero-shot small LMs don't correct Bengali OCR; with plain decoding they copy, and with common anti-repetition guards (which also see the prompt) they are forced to rewrite and do damage. Plain outputs are on Drive: `bengali-postocr-results/ablation_plain_decoding.jsonl`. **Next:** Llama 3.2 1B, TituLLMs, BanglaT5 plain on the same 15 × 2.
+
+**All four models, 15 pages × both engines (Colab CPU, finished 2026-10-10).** Mean per-page CER:
+
+| Model | Tess OCR | Tess guarded | Tess plain | Easy OCR | Easy guarded | Easy plain |
+|---|---|---|---|---|---|---|
+| Gemma 2B | 0.364 | 0.583 | 0.360 | 0.297 | 0.517 | 0.301 |
+| Llama 3.2 1B | 0.364 | 0.844 | 0.430 | 0.297 | 0.897 | 0.337 |
+| TituLLMs 1B | 0.364 | 1.996 | 0.929 | 0.297 | 2.588 | 1.029 |
+| BanglaT5 | 0.364 | 0.889 | 0.900 | 0.297 | 0.817 | 0.837 |
+
+Reading: the guards caused most of the damage for all three decoder-only models. With plain decoding, no model beats raw OCR on average: Gemma ties it (it echoes the input), Llama is somewhat worse, and TituLLMs is still far worse (repetition loops; every page hits max_new_tokens). BanglaT5 is unchanged, as expected, because for an encoder-decoder the guards don't see the input; it fails because it isn't trained for correction. **The negative result survives, but in a different form:** "zero-shot small LMs don't improve Bengali OCR, and a common anti-repetition setting turns them from harmless to harmful." The paper's damage numbers (Tables IV/V, 76–100% of correct words broken) are mostly a decoding artefact and must be redone.
+
+Note: TituLLMs plain on 279_34_D_26_0007 scored 0.956 in the local smoke test and 0.905 on Colab (different library versions). Only the Colab numbers count.
+
+**Significance (paired bootstrap, 10k resamples, seed 403; `results/bootstrap_plain.json`, `results/decoding_ablation.json`).**
+- Plain vs raw OCR, CER: Gemma n.s. on both engines (Tess −0.004 [−0.013, +0.002]; Easy +0.004 [−0.014, +0.017]). Llama significantly worse (Tess +0.066 [+0.019, +0.114]; Easy +0.040 [+0.005, +0.082]). TituLLMs and BanglaT5 significantly worse (+0.54 to +0.73). No cell significantly better.
+- Plain minus guarded, CER: significant improvement for all decoder-only cells (Gemma −0.22, Llama −0.41/−0.56, TituLLMs −1.07/−1.56). BanglaT5 slightly worse without guards (Easy +0.020, sig; Tess +0.011, n.s.).
+- Median CER of plain output against its own OCR input: Gemma 0.005/0.012 (echoes), Llama 0.065/0.163 (light edits that hurt), TituLLMs 0.96, BanglaT5 0.84–0.88 (regenerates).
+
+**Newer model (E-a), 2026-10-10:** added `qwen3-1.7b` (Qwen/Qwen3-1.7B, ungated, thinking disabled via the chat template) to `correction/models.py`. To run on Colab with plain decoding, all 15 pages × both engines.

@@ -1,7 +1,8 @@
 """Zero-shot correction wrappers for the 5 models named in the methodology.
 
 Two loading/inference paths, matching how each model actually works:
-  - Causal LM + chat template (Phi-3 Mini, Llama 3.2 1B, Gemma 2B, TituLLMs 1B):
+  - Causal LM + chat template (Phi-3 Mini, Llama 3.2 1B, Gemma 2B, TituLLMs 1B,
+    Qwen3 1.7B):
     instruction-tuned, prompted via tokenizer.apply_chat_template.
   - Seq2seq (BanglaT5): not instruction-tuned, no chat template — prompted
     with a direct text-to-text framing instead.
@@ -34,10 +35,17 @@ MODEL_IDS = {
     "gemma-2b": "google/gemma-2b-it",
     "titullm-1b": "hishab/titulm-llama-3.2-1b-v1.1",
     "banglat5": "csebuetnlp/banglat5",
+    # Added in revision (review item E-a): a 2025 small LM, ungated, fits
+    # free Colab RAM in bf16.
+    "qwen3-1.7b": "Qwen/Qwen3-1.7B",
 }
 
-CAUSAL_LM_MODELS = {"phi3-mini", "llama3.2-1b", "gemma-2b", "titullm-1b"}
+CAUSAL_LM_MODELS = {"phi3-mini", "llama3.2-1b", "gemma-2b", "titullm-1b", "qwen3-1.7b"}
 SEQ2SEQ_MODELS = {"banglat5"}
+
+# Qwen3 is a hybrid reasoning model; without this its chat template lets it
+# open a <think> block before answering. Passed only to models that need it.
+CHAT_TEMPLATE_KWARGS = {"qwen3-1.7b": {"enable_thinking": False}}
 
 CORRECTION_INSTRUCTION = (
     "The following text was produced by OCR on a historical Bengali document "
@@ -178,6 +186,7 @@ def correct_text(
             add_generation_prompt=True,
             return_tensors="pt",
             return_dict=True,
+            **CHAT_TEMPLATE_KWARGS.get(model_key, {}),
         )
 
     input_len = inputs["input_ids"].shape[-1]
