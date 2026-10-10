@@ -29,6 +29,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 ALL_MODELS = list(MODEL_IDS.keys())
 ALL_ENGINES = ["tesseract", "easyocr"]
+# "ground_truth" is also accepted as an engine: the model then receives the
+# reference text itself (clean-text control, review item E1).
 ALL_APPROACHES = ["whole", "chunked"]
 
 
@@ -165,6 +167,7 @@ def main():
                             "model_key": model_key,
                             "approach": approach,
                             "decoding": args.decoding,
+                            "device": str(model.device),
                             "raw_output": raw_output,
                             "truncated": truncated,
                             "skipped": skipped,

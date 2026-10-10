@@ -81,21 +81,25 @@ def load_model(model_key: str, hf_token: str | None = None):
     model_id = MODEL_IDS[model_key]
     tokenizer = AutoTokenizer.from_pretrained(model_id, token=hf_token)
 
-    # bfloat16 (not float32): halves memory footprint, which matters on
-    # free-tier Colab's ~12-13GB RAM (Phi-3 Mini at fp32 was getting killed
-    # partway through weight loading). bfloat16 is well-supported for CPU
-    # inference in modern torch/transformers and standard practice for
-    # small-LM CPU inference — unlike fp16, it doesn't have CPU numerical
-    # stability issues. Applied to all 5 models for consistency.
-    dtype = torch.bfloat16
+    # CPU: bfloat16 (not float32) halves memory, which matters on free-tier
+    # Colab's ~12-13GB RAM (Phi-3 Mini at fp32 was getting killed partway
+    # through weight loading); unlike fp16 it has no CPU stability issues.
+    # GPU (revision runs, Colab T4): float32. The T4 has no native bfloat16,
+    # and Gemma is known to overflow in float16; every model fits in the
+    # T4's 15GB at float32. Weights load straight onto the GPU so the
+    # float32 copy never has to fit in system RAM.
+    if torch.cuda.is_available():
+        dtype, device_map = torch.float32, "cuda"
+    else:
+        dtype, device_map = torch.bfloat16, None
 
     if model_key in SEQ2SEQ_MODELS:
         model = AutoModelForSeq2SeqLM.from_pretrained(
-            model_id, token=hf_token, dtype=dtype
+            model_id, token=hf_token, dtype=dtype, device_map=device_map
         )
     else:
         model = AutoModelForCausalLM.from_pretrained(
-            model_id, token=hf_token, dtype=dtype
+            model_id, token=hf_token, dtype=dtype, device_map=device_map
         )
     model.eval()
     return tokenizer, model
@@ -189,6 +193,7 @@ def correct_text(
             **CHAT_TEMPLATE_KWARGS.get(model_key, {}),
         )
 
+    inputs = inputs.to(model.device)
     input_len = inputs["input_ids"].shape[-1]
 
     if max_new_tokens is None:
