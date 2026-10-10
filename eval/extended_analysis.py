@@ -50,7 +50,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_RESAMPLES = 10000
 DEFAULT_SEED = 403  # same convention as data/make_split.py and bootstrap.py
 
-MODEL_ORDER = ["gemma-2b", "qwen3-1.7b", "llama3.2-1b", "banglat5", "titullm-1b"]
+MODEL_ORDER = ["gemma-2b", "qwen3-1.7b", "phi4-mini", "llama3.2-1b", "banglat5", "titullm-1b",
+               "titullm-1b-instruct", "titullm-3b-instruct"]
 ENGINES = ["tesseract", "easyocr"]
 
 SAFEGUARD_MIN_RATIO = 0.35  # published thresholds (HIPE-OCRepair 2026,

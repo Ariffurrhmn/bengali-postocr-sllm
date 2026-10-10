@@ -38,9 +38,20 @@ MODEL_IDS = {
     # Added in revision (review item E-a): a 2025 small LM, ungated, fits
     # free Colab RAM in bf16.
     "qwen3-1.7b": "Qwen/Qwen3-1.7B",
+    # Added in revision. Phi-4-mini (review item M5) supersedes Phi-3 Mini.
+    # The TituLLMs 1B checkpoint above (v1.1) is a base model, not
+    # instruction-tuned; the v2.0 Instruct checkpoints are (review item E-b).
+    "phi4-mini": "microsoft/Phi-4-mini-instruct",
+    "titullm-1b-instruct": "hishab/titulm-llama-3.2-1b-v2.0-Instruct-v1.0",
+    "titullm-3b-instruct": "hishab/titulm-llama-3.2-3b-v2.0-Instruct-v1.0",
 }
 
-CAUSAL_LM_MODELS = {"phi3-mini", "llama3.2-1b", "gemma-2b", "titullm-1b", "qwen3-1.7b"}
+CAUSAL_LM_MODELS = {"phi3-mini", "llama3.2-1b", "gemma-2b", "titullm-1b", "qwen3-1.7b",
+                    "phi4-mini", "titullm-1b-instruct", "titullm-3b-instruct"}
+
+# Models above ~3B do not fit the T4's 15GB in float32, so on GPU they run
+# in float16 (see load_model).
+GPU_FLOAT16_MODELS = {"phi3-mini", "phi4-mini", "titullm-3b-instruct"}
 SEQ2SEQ_MODELS = {"banglat5"}
 
 # Qwen3 is a hybrid reasoning model; without this its chat template lets it
@@ -88,8 +99,10 @@ def load_model(model_key: str, hf_token: str | None = None):
     # and Gemma is known to overflow in float16; every model fits in the
     # T4's 15GB at float32. Weights load straight onto the GPU so the
     # float32 copy never has to fit in system RAM.
+    # Models over ~3B use float16 on GPU, since float32 would not fit.
     if torch.cuda.is_available():
-        dtype, device_map = torch.float32, "cuda"
+        dtype = torch.float16 if model_key in GPU_FLOAT16_MODELS else torch.float32
+        device_map = "cuda"
     else:
         dtype, device_map = torch.bfloat16, None
 

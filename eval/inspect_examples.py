@@ -23,7 +23,8 @@ from metrics import normalize, score_pair
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-MODEL_ORDER = ["gemma-2b", "qwen3-1.7b", "llama3.2-1b", "banglat5", "titullm-1b"]
+MODEL_ORDER = ["gemma-2b", "qwen3-1.7b", "phi4-mini", "llama3.2-1b", "banglat5", "titullm-1b",
+               "titullm-1b-instruct", "titullm-3b-instruct"]
 
 BENGALI_RANGE = (0x0980, 0x09FF)
 

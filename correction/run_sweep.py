@@ -99,6 +99,13 @@ def main():
         "--pages", default=None, help="Comma-separated page_ids to restrict to"
     )
     parser.add_argument(
+        "--stop-after-minutes",
+        type=float,
+        default=None,
+        help="Start no new page after this many minutes, so a time-limited "
+        "session (e.g. a Kaggle background run) ends cleanly; rerun to resume",
+    )
+    parser.add_argument(
         "--ocr-path",
         type=Path,
         default=None,
@@ -127,6 +134,7 @@ def main():
     total = len(pages) * len(engines) * len(models) * len(approaches)
     print(f"Total combos to consider: {total}")
 
+    started = time.time()
     with out_path.open("a", encoding="utf-8") as out_f:
         for model_key in models:
             print(f"\n=== Loading model: {model_key} ===")
@@ -143,6 +151,11 @@ def main():
                         key = (page["page_id"], engine, model_key, approach)
                         if key in done:
                             continue
+                        if (args.stop_after_minutes is not None
+                                and time.time() - started > args.stop_after_minutes * 60):
+                            print(f"Time budget of {args.stop_after_minutes:.0f} min reached; "
+                                  "stopping. Rerun to resume.")
+                            return
 
                         print(
                             f"  -> starting {page['page_id']} {engine}/{model_key}/{approach}...",

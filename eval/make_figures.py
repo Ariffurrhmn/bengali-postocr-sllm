@@ -27,10 +27,14 @@ from metrics import score_pair
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Fixed order best-to-worst so every figure tells the story the same way.
-MODEL_ORDER = ["gemma-2b", "qwen3-1.7b", "llama3.2-1b", "banglat5", "titullm-1b"]
+MODEL_ORDER = ["gemma-2b", "qwen3-1.7b", "phi4-mini", "llama3.2-1b", "banglat5", "titullm-1b",
+               "titullm-1b-instruct", "titullm-3b-instruct"]
 MODEL_LABELS = {
     "gemma-2b": "Gemma 2B",
     "qwen3-1.7b": "Qwen3 1.7B",
+    "phi4-mini": "Phi-4-mini",
+    "titullm-1b-instruct": "TituLLMs 1B Inst.",
+    "titullm-3b-instruct": "TituLLMs 3B Inst.",
     "llama3.2-1b": "Llama 3.2 1B",
     "banglat5": "BanglaT5",
     "titullm-1b": "TituLLMs 1B",

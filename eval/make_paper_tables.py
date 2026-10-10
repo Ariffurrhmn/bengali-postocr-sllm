@@ -39,7 +39,9 @@ OUT_DIR = REPO_ROOT / "paper" / "tables"
 ENGINES = [("tesseract", "Tesseract"), ("easyocr", "EasyOCR")]
 MODEL_NAMES = {"gemma-2b": "Gemma 2B", "llama3.2-1b": "Llama 3.2 1B",
                "banglat5": "BanglaT5", "titullm-1b": "TituLLMs 1B",
-               "qwen3-1.7b": "Qwen3 1.7B"}
+               "qwen3-1.7b": "Qwen3 1.7B", "phi4-mini": "Phi-4-mini",
+               "titullm-1b-instruct": "TituLLMs 1B Instruct",
+               "titullm-3b-instruct": "TituLLMs 3B Instruct"}
 
 
 def mark(values: dict, key, text: str, lower_is_better=True) -> str:
