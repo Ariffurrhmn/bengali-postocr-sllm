@@ -13,9 +13,18 @@ number is typed by hand.
 The best corrected model per engine and column is marked with \\best{}
 (reviewer item #42). Macros are in paper/tables/preamble.tex.
 
-Inputs: results/bootstrap_eval.json, results/extended_eval.json (run
-extended_analysis.py first), results/ocr_eval.jsonl, results/correction_eval.jsonl.
+  paper/tables/decoding.tex     - decoding ablation: guarded vs plain decoding
+                                  (review item C1)
+
+Main tables use the plain-decoding runs (repetition_penalty 1.0, no n-gram
+ban); the original guarded runs appear only in decoding.tex.
+
+Inputs (defaults): results/bootstrap_plain.json, results/extended_plain.json
+(run bootstrap.py and extended_analysis.py on ablation_plain_decoding.jsonl
+first), results/ocr_eval.jsonl, results/ablation_plain_decoding.jsonl,
+results/decoding_ablation.json (from compare_decoding.py).
 """
+import argparse
 import json
 from collections import defaultdict
 from pathlib import Path
@@ -29,7 +38,8 @@ OUT_DIR = REPO_ROOT / "paper" / "tables"
 
 ENGINES = [("tesseract", "Tesseract"), ("easyocr", "EasyOCR")]
 MODEL_NAMES = {"gemma-2b": "Gemma 2B", "llama3.2-1b": "Llama 3.2 1B",
-               "banglat5": "BanglaT5", "titullm-1b": "TituLLMs 1B"}
+               "banglat5": "BanglaT5", "titullm-1b": "TituLLMs 1B",
+               "qwen3-1.7b": "Qwen3 1.7B"}
 
 
 def mark(values: dict, key, text: str, lower_is_better=True) -> str:
@@ -49,13 +59,23 @@ def load_jsonl(path: Path):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--boot", type=Path, default=RESULTS / "bootstrap_plain.json")
+    parser.add_argument("--ext", type=Path, default=RESULTS / "extended_plain.json")
+    parser.add_argument("--corrections", type=Path,
+                        default=RESULTS / "ablation_plain_decoding.jsonl")
+    parser.add_argument("--decoding", type=Path, default=RESULTS / "decoding_ablation.json")
+    args = parser.parse_args()
+
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    boot = json.loads((RESULTS / "bootstrap_eval.json").read_text(encoding="utf-8"))
-    ext = json.loads((RESULTS / "extended_eval.json").read_text(encoding="utf-8"))
+    boot = json.loads(args.boot.read_text(encoding="utf-8"))
+    ext = json.loads(args.ext.read_text(encoding="utf-8"))
     ocr = {r["page_id"]: r for r in load_jsonl(RESULTS / "ocr_eval.jsonl")}
-    corrections = load_jsonl(RESULTS / "correction_eval.jsonl")
+    corrections = load_jsonl(args.corrections)
 
     b = {(r["engine"], r["model"], r["metric"]): r for r in boot["results"]}
+    models = [m for m in MODEL_ORDER if all((e, m, "cer") in b for e, _ in ENGINES)]
+    n_tests = 2 * len(ENGINES) * len(models)
     sig = {(r["engine"], r["model"], r["metric"]): r for r in ext["significance"]}
     cells = {(r["engine"], r["model"]): r for r in ext["cells"]}
     guard = {(r["engine"], r["model"]): r for r in ext["safeguard"]}
@@ -67,9 +87,9 @@ def main():
     # ---- baseline ----
     rows = []
     for e, name in ENGINES:
-        base = b[(e, MODEL_ORDER[0], "cer")]["baseline_mean"]
-        wbase = b[(e, MODEL_ORDER[0], "wer")]["baseline_mean"]
-        cbase = sig[(e, MODEL_ORDER[0], "cmer")]["baseline_mean"]
+        base = b[(e, models[0], "cer")]["baseline_mean"]
+        wbase = b[(e, models[0], "wer")]["baseline_mean"]
+        cbase = sig[(e, models[0], "cmer")]["baseline_mean"]
         rows.append(f"{name} & {base:.3f} & {wbase:.3f} & {cbase:.3f} \\\\")
     (OUT_DIR / "baseline.tex").write_text(
         "\\begin{table}[t]\n\\centering\n"
@@ -82,15 +102,15 @@ def main():
     # ---- full evaluation matrix ----
     body = []
     for i, (e, name) in enumerate(ENGINES):
-        cer_abs = {m: b[(e, m, "cer")]["corrected_mean"] for m in MODEL_ORDER}
-        wer_abs = {m: b[(e, m, "wer")]["corrected_mean"] for m in MODEL_ORDER}
-        cer_d = {m: b[(e, m, "cer")]["mean_delta"] for m in MODEL_ORDER}
-        wer_d = {m: b[(e, m, "wer")]["mean_delta"] for m in MODEL_ORDER}
-        tr = {m: trunc[(e, m)] / n_pages for m in MODEL_ORDER}
-        first = b[(e, MODEL_ORDER[0], "cer")]
+        cer_abs = {m: b[(e, m, "cer")]["corrected_mean"] for m in models}
+        wer_abs = {m: b[(e, m, "wer")]["corrected_mean"] for m in models}
+        cer_d = {m: b[(e, m, "cer")]["mean_delta"] for m in models}
+        wer_d = {m: b[(e, m, "wer")]["mean_delta"] for m in models}
+        tr = {m: trunc[(e, m)] / n_pages for m in models}
+        first = b[(e, models[0], "cer")]
         body.append(f"{name} & (no correction) & {first['baseline_mean']:.3f} & --- & --- & "
-                    f"{b[(e, MODEL_ORDER[0], 'wer')]['baseline_mean']:.3f} & --- & --- & --- \\\\")
-        for m in MODEL_ORDER:
+                    f"{b[(e, models[0], 'wer')]['baseline_mean']:.3f} & --- & --- & --- \\\\")
+        for m in models:
             c, w = b[(e, m, "cer")], b[(e, m, "wer")]
             cols = [
                 name, MODEL_NAMES[m],
@@ -107,7 +127,8 @@ def main():
             body.append("\\midrule")
     (OUT_DIR / "eval_matrix.tex").write_text(
         "\\begin{table*}[t]\n\\centering\n"
-        "\\caption{Full Evaluation Matrix: " + str(n_pages) + " Pages, 2 Engines, 4 Models}\n"
+        "\\caption{Full Evaluation Matrix: " + str(n_pages) + " Pages, 2 Engines, "
+        + str(len(models)) + " Models}\n"
         "\\label{tab:matrix}\n"
         "\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
         "\\begin{tabular}{llccccccc}\n\\toprule\n"
@@ -116,7 +137,8 @@ def main():
         + "\n".join(body) + "\n\\bottomrule\n\\end{tabular}\n"
         "\\par\\smallskip\n\\begin{minipage}{\\linewidth}\\footnotesize $\\Delta$ = corrected $-$ uncorrected (positive = worse). "
         "CI: paired bootstrap, 10{,}000 resamples, seed 403. "
-        "$p_{\\mathrm{Holm}}$: two-sided Wilcoxon signed-rank, Holm-corrected over the 16 tests. "
+        "$p_{\\mathrm{Holm}}$: two-sided Wilcoxon signed-rank, Holm-corrected over the "
+        + str(n_tests) + " tests. "
         "ns: not significant. Trunc.: pages whose output hit the token cap. "
         "\\colorbox{bestbg}{\\textbf{Shaded}}: best corrected model per engine.\\end{minipage}\n"
         "\\end{table*}\n", encoding="utf-8")
@@ -131,7 +153,7 @@ def main():
         for k in ("bengali", "latin", "other"):
             s[k].append(prof[k])
         s["ret"].append(token_retention(gt, out))
-    mean = {m: {k: sum(v) / len(v) for k, v in stats[m].items()} for m in MODEL_ORDER}
+    mean = {m: {k: sum(v) / len(v) for k, v in stats[m].items()} for m in models}
     ref_rows = []
     for e, name in ENGINES:
         prof = [script_profile(v[e]) for v in ocr.values()]
@@ -139,16 +161,16 @@ def main():
         avg = lambda k: sum(p[k] for p in prof) / len(prof)
         ref_rows.append(f"Raw {name} & --- & {avg('bengali'):.0%} & {avg('latin'):.0%} & "
                         f"{avg('other'):.0%} & {sum(ret) / len(ret):.0%} \\\\".replace("%", "\\%"))
-    len_dev = {m: abs(mean[m]["len"] - 1) for m in MODEL_ORDER}
+    len_dev = {m: abs(mean[m]["len"] - 1) for m in models}
     model_rows = []
-    for m in MODEL_ORDER:
+    for m in models:
         v = mean[m]
         cells_ = [
             mark(len_dev, m, f"{v['len']:.2f}$\\times$"),
-            mark({k: mean[k]["bengali"] for k in MODEL_ORDER}, m, f"{v['bengali']:.0%}", False),
-            mark({k: mean[k]["latin"] for k in MODEL_ORDER}, m, f"{v['latin']:.0%}"),
-            mark({k: mean[k]["other"] for k in MODEL_ORDER}, m, f"{v['other']:.0%}"),
-            mark({k: mean[k]["ret"] for k in MODEL_ORDER}, m, f"{v['ret']:.0%}", False),
+            mark({k: mean[k]["bengali"] for k in models}, m, f"{v['bengali']:.0%}", False),
+            mark({k: mean[k]["latin"] for k in models}, m, f"{v['latin']:.0%}"),
+            mark({k: mean[k]["other"] for k in models}, m, f"{v['other']:.0%}"),
+            mark({k: mean[k]["ret"] for k in models}, m, f"{v['ret']:.0%}", False),
         ]
         model_rows.append(f"{MODEL_NAMES[m]} & " + " & ".join(cells_).replace("%", "\\%") + " \\\\")
     (OUT_DIR / "diagnostics.tex").write_text(
@@ -164,15 +186,15 @@ def main():
     # ---- extended: damage vs fixes, change, safeguard ----
     rows = []
     for i, (e, name) in enumerate(ENGINES):
-        cm = {m: sig[(e, m, "cmer")]["corrected_mean"] for m in MODEL_ORDER}
-        broken = {m: cells[(e, m)]["pct_broken"] for m in MODEL_ORDER}
-        fixed = {m: cells[(e, m)]["pct_fixed"] for m in MODEL_ORDER}
-        ratio = {m: cells[(e, m)]["mean_change_ratio"] for m in MODEL_ORDER}
-        ins = {m: cells[(e, m)]["long_insert_char_share"] for m in MODEL_ORDER}
-        gcer = {m: guard[(e, m)]["cer_guard"] for m in MODEL_ORDER}
-        rows.append(f"{name} & (no correction) & {sig[(e, MODEL_ORDER[0], 'cmer')]['baseline_mean']:.3f} "
-                    f"& --- & --- & --- & --- & {guard[(e, MODEL_ORDER[0])]['cer_base']:.3f} \\\\")
-        for m in MODEL_ORDER:
+        cm = {m: sig[(e, m, "cmer")]["corrected_mean"] for m in models}
+        broken = {m: cells[(e, m)]["pct_broken"] for m in models}
+        fixed = {m: cells[(e, m)]["pct_fixed"] for m in models}
+        ratio = {m: cells[(e, m)]["mean_change_ratio"] for m in models}
+        ins = {m: cells[(e, m)]["long_insert_char_share"] for m in models}
+        gcer = {m: guard[(e, m)]["cer_guard"] for m in models}
+        rows.append(f"{name} & (no correction) & {sig[(e, models[0], 'cmer')]['baseline_mean']:.3f} "
+                    f"& --- & --- & --- & --- & {guard[(e, models[0])]['cer_base']:.3f} \\\\")
+        for m in models:
             g = guard[(e, m)]
             cols = [
                 name, MODEL_NAMES[m],
@@ -202,6 +224,38 @@ def main():
         "Invented runs: share of output characters in runs of $\\geq$6 characters with no counterpart in "
         "the raw OCR. Safeguard: raw OCR kept when output length is outside 0.35--2.8$\\times$ the input. "
         "\\colorbox{bestbg}{\\textbf{Shaded}}: best corrected model per engine.\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
+
+    # ---- decoding ablation (review item C1) ----
+    if args.decoding.exists():
+        abl = {(r["engine"], r["model"]): r
+               for r in json.loads(args.decoding.read_text(encoding="utf-8"))}
+        rows = []
+        for i, (e, name) in enumerate(ENGINES):
+            base = b[(e, models[0], "cer")]["baseline_mean"]
+            for m in [m for m in models if (e, m) in abl]:
+                r = abl[(e, m)]
+                rows.append(" & ".join([
+                    name, MODEL_NAMES[m], "%.3f" % base, "%.3f" % r["guarded_mean"],
+                    "%.3f" % r["plain_mean"],
+                    "%+.3f [%+.3f, %+.3f]" % (r["plain_minus_guarded"], r["ci_low"], r["ci_high"]),
+                    "%.3f" % r["plain_vs_input_median_cer"],
+                ]) + " \\\\")
+            if i == 0:
+                rows.append("\\midrule")
+        (OUT_DIR / "decoding.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n"
+            "\\caption{Decoding Ablation: Repetition Guards versus Plain Greedy Decoding (Mean CER)}\n"
+            "\\label{tab:decoding}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{llccccc}\n\\toprule\n"
+            "Engine & Model & Raw OCR & Guarded & Plain & Plain $-$ guarded [95\\% CI] & "
+            "\\shortstack{Plain output vs.\\\\its input (median CER)} \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize Guarded: \\texttt{repetition\\_penalty}=1.3 and "
+            "\\texttt{no\\_repeat\\_ngram\\_size}=4, as in the original runs; for decoder-only models both "
+            "also act on the prompt, so they penalise copying the OCR text. Plain: neither; greedy decoding "
+            "with only the length cap. CI: paired bootstrap, 10{,}000 resamples, seed 403. Last column: CER "
+            "of the plain output against its own OCR input (near 0 = the model returned its input almost "
+            "unchanged).\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
 
     print(f"Wrote tables to {OUT_DIR}")
 

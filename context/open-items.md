@@ -81,3 +81,7 @@ Note: TituLLMs plain on 279_34_D_26_0007 scored 0.956 in the local smoke test an
 - Median CER of plain output against its own OCR input: Gemma 0.005/0.012 (echoes), Llama 0.065/0.163 (light edits that hurt), TituLLMs 0.96, BanglaT5 0.84–0.88 (regenerates).
 
 **Newer model (E-a), 2026-10-10:** added `qwen3-1.7b` (Qwen/Qwen3-1.7B, ungated, thinking disabled via the chat template) to `correction/models.py`. To run on Colab with plain decoding, all 15 pages × both engines.
+
+**Qwen3 1.7B, plain, 15 pages × both engines (Colab CPU, 2026-10-10):** CER Tess 0.380 vs OCR 0.364 (+0.016 [−0.007, +0.047], n.s.); Easy 0.310 vs 0.297 (+0.013 [−0.005, +0.035], n.s.). WER slightly lower, n.s. Sample output is a near-copy of the OCR input, Latin-script garbage included. So a 2025 model behaves like Gemma: it mostly echoes and neither helps nor hurts. The negative result is not specific to 2024-era models.
+
+**Paper tables regenerated from the plain runs (2026-10-10).** `make_paper_tables.py` now defaults to the plain-decoding files and also writes `paper/tables/decoding.tex` (guarded vs plain; no Qwen row since Qwen has no guarded run). Correction to the note above: Llama's CER increase is significant by bootstrap CI but **not** after Holm-corrected Wilcoxon (Tess p=0.16, Easy p=0.36), the paper's primary test. Under that test only BanglaT5 and TituLLMs are significantly worse; Gemma, Qwen and Llama are not significantly different from raw OCR. `main.tex` text and the figures still describe the old guarded results; they need rewriting next.

@@ -23,7 +23,7 @@ from metrics import normalize, score_pair
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-MODEL_ORDER = ["gemma-2b", "llama3.2-1b", "banglat5", "titullm-1b"]
+MODEL_ORDER = ["gemma-2b", "qwen3-1.7b", "llama3.2-1b", "banglat5", "titullm-1b"]
 
 BENGALI_RANGE = (0x0980, 0x09FF)
 
@@ -117,7 +117,7 @@ def print_diagnostics(ocr, corrections):
               f"{'other':>7} {'GT retention':>13}")
     print(header)
     print("-" * len(header))
-    for m in MODEL_ORDER:
+    for m in [m for m in MODEL_ORDER if m in stats]:
         s = stats[m]
         mean = lambda k: sum(s[k]) / len(s[k])
         print(f"{m:<14} {mean('len_ratio'):>9.2f}x {mean('bengali'):>8.0%} "

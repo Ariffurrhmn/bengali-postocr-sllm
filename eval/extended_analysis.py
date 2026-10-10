@@ -50,7 +50,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_RESAMPLES = 10000
 DEFAULT_SEED = 403  # same convention as data/make_split.py and bootstrap.py
 
-MODEL_ORDER = ["gemma-2b", "llama3.2-1b", "banglat5", "titullm-1b"]
+MODEL_ORDER = ["gemma-2b", "qwen3-1.7b", "llama3.2-1b", "banglat5", "titullm-1b"]
 ENGINES = ["tesseract", "easyocr"]
 
 SAFEGUARD_MIN_RATIO = 0.35  # published thresholds (HIPE-OCRepair 2026,
@@ -228,6 +228,9 @@ def main():
     prefix = args.out_prefix or (REPO_ROOT / "results" / f"extended_{args.split}")
 
     pages, cells = load(ocr_path, correction_path)
+    # Only the models this results file has (the guarded runs have no Qwen3).
+    global MODEL_ORDER
+    MODEL_ORDER = [m for m in MODEL_ORDER if all((e, m) in cells for e in ENGINES)]
     rng = np.random.default_rng(args.seed)
 
     # Per-page measurements for every engine x model cell.
@@ -270,7 +273,8 @@ def main():
     p("=" * 100)
     p("A/B. SIGNIFICANCE: paired bootstrap of the mean + Wilcoxon signed-rank, Holm-corrected")
     p("     Delta = corrected - raw OCR (positive = correction made it worse). n = 15 pages per cell.")
-    p("     Holm families: the paper's 16 CER/WER tests; the 8 cMER tests separately.")
+    n_cw = 2 * len(ENGINES) * len(MODEL_ORDER)
+    p(f"     Holm families: the paper's {n_cw} CER/WER tests; the {n_cw // 2} cMER tests separately.")
     p("=" * 100)
     p(f"{'engine':<10}{'model':<13}{'metric':<6}{'base':>7}{'corr':>7}{'mean d':>8}"
       f"{'95% CI (mean)':>19}{'median d':>9}{'p Wilcoxon':>12}{'p Holm':>9}{'sig':>5}")
@@ -281,9 +285,9 @@ def main():
           f"{('yes' if s['significant_holm'] else 'no'):>5}")
     n_sig = sum(t[4]["significant_holm"] for t in tests if t[0] == "cer_wer")
     n_pos = sum(t[4]["mean_delta"] > 0 for t in tests if t[0] == "cer_wer")
-    p(f"\nCER/WER family: {n_pos}/16 deltas positive; {n_sig}/16 significant after Holm (Wilcoxon).")
+    p(f"\nCER/WER family: {n_pos}/{n_cw} deltas positive; {n_sig}/{n_cw} significant after Holm (Wilcoxon).")
     n_sig_c = sum(t[4]["significant_holm"] for t in tests if t[0] == "cmer")
-    p(f"cMER family:    {n_sig_c}/8 significant after Holm (Wilcoxon).")
+    p(f"cMER family:    {n_sig_c}/{n_cw // 2} significant after Holm (Wilcoxon).")
     p("Note: with n = 15 and every page in the same direction, the smallest possible exact two-sided")
     p("Wilcoxon p is 2/2^15 = 0.000061; Holm multiplies the smallest p by the family size.")
 
