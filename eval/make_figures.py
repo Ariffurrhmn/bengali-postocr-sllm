@@ -27,12 +27,13 @@ from metrics import score_pair
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Fixed order best-to-worst so every figure tells the story the same way.
-MODEL_ORDER = ["gemma-2b", "llama3.2-1b", "banglat5", "titullm-1b"]
+MODEL_ORDER = ["gemma-2b", "qwen3-1.7b", "llama3.2-1b", "banglat5", "titullm-1b"]
 MODEL_LABELS = {
     "gemma-2b": "Gemma 2B",
+    "qwen3-1.7b": "Qwen3 1.7B",
     "llama3.2-1b": "Llama 3.2 1B",
     "banglat5": "BanglaT5",
-    "titullm-1b": "TituLLM 1B",
+    "titullm-1b": "TituLLMs 1B",
 }
 ENGINE_LABELS = {"tesseract": "Tesseract", "easyocr": "EasyOCR"}
 ENGINE_COLORS = {"tesseract": "#4C72B0", "easyocr": "#DD8452"}
@@ -141,8 +142,8 @@ def fig2_bootstrap_ci(bootstrap_results, out_dir):
     ])
     ax.set_xlabel("Mean ΔCER (corrected − baseline); positive = correction made it worse")
     ax.set_title(
-        "Paired bootstrap: every model significantly increased CER\n"
-        "10,000 resamples over 15 pages, 95% percentile intervals",
+        "Change in CER after correction, with paired-bootstrap 95% intervals\n"
+        "10,000 resamples over 15 pages",
         fontsize=11,
     )
     handles = [
@@ -196,7 +197,7 @@ def fig3_per_page(baseline, cells, out_dir):
     axes[0].set_ylabel("CER (lower is better)")
     axes[0].legend(fontsize=8.5, framealpha=0.95)
     fig.suptitle(
-        "Per-page CER: correction sits above the baseline on essentially every page",
+        "Per-page CER after correction against the uncorrected baseline",
         fontsize=12,
     )
     fig.tight_layout()
@@ -321,6 +322,9 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     baseline, cells, flags = load(ocr_path, correction_path)
+    # Only the models this results file has (the guarded runs have no Qwen3).
+    global MODEL_ORDER
+    MODEL_ORDER = [m for m in MODEL_ORDER if all((e, m) in cells for e in ENGINE_LABELS)]
     bootstrap_results = json.loads(
         bootstrap_json.read_text(encoding="utf-8")
     )["results"]

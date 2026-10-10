@@ -105,7 +105,7 @@ Two open-source engines produce the noisy text: Tesseract~\cite{smith2007tessera
 \subsection{Correction layer}
 \textbf{Zero-shot.} Here, zero-shot evaluation uses no worked correction examples or task-specific weight updates. The decoder models receive an instruction and the OCR text; BanglaT5 receives the text alone, as detailed below. We chose this setting because we know of no large public set of Bengali OCR error pairs for training, and because it avoids the cost of task-specific training.
 
-\textbf{Prompt.} The three decoder models receive the same instruction, through each model's chat template:
+\textbf{Prompt.} The four decoder models receive the same instruction, through each model's chat template:
 \begin{quote}
 \small\itshape
 The following text was produced by OCR on a historical Bengali document and may contain recognition errors. Correct the OCR errors and output only the corrected Bengali text, with no explanation, preamble, or additional commentary.
@@ -114,16 +114,17 @@ The OCR text follows the instruction. BanglaT5 is not instruction-tuned and has 
 
 \textbf{Chunking.} Following Kanerva et al.~\cite{kanerva2025nofreelunches}, each page is divided into chunks of about 250 tokens of the model's own tokenizer before correction. Chunks are formed by grouping complete lines, so no chunk boundary falls inside a line. A page whose raw OCR is shorter than ten characters would be left unchanged, since the model would have almost nothing to work from; no evaluation page triggered this rule.
 
-\textbf{Decoding.} Decoding is greedy, so output is deterministic. We use a repetition penalty of 1.3 and forbid repeated four-grams, a guard added after a development-set run in which one model repeated a single phrase until it reached the length limit. The maximum number of new tokens is $\min(512,\max(64,1.5n))$, where $n$ is the token length of the input chunk. An output that reaches this limit is counted as truncated.
+\textbf{Decoding.} Decoding is greedy, so output is deterministic. The maximum number of new tokens is $\min(512,\max(64,1.5n))$, where $n$ is the token length of the input chunk, and an output that reaches this limit is counted as truncated. No other constraint is applied. Our first runs also used a repetition penalty of 1.3 and banned repeated four-grams. We added these two settings after a development-set run in which one model repeated a single phrase until it reached the length limit, so, unlike the prompt, they were chosen after seeing model output. In the generation function of the Transformers library~\cite{wolf2020transformers}, both settings act on the whole token sequence, which for a decoder-only model includes the prompt and therefore the OCR text being corrected. They penalise every token the model copies from its input and forbid it from reproducing any four-token run of that input. Because correction consists mostly of copying, we use the setting without them as the main condition and report the original setting as a decoding ablation (Section~\ref{sec:decoding}).
 
 \subsection{Choice of models}
-We planned five models and evaluated four, all small enough for CPU inference. Phi-3 Mini (3.8B) was implemented but not run to completion: even the four evaluated models took between about two and fourteen minutes per page on average, and up to 26 minutes for one page, and a 3.8-billion-parameter model did not fit the available budget.
+We evaluate five models, all small enough for CPU inference. The parameter counts below are computed from each checkpoint's configuration, with tied input and output embeddings counted once.
 \begin{itemize}
-\item \emph{Llama 3.2 1B}~\cite{meta2024llama32} and \emph{Gemma 2B}~\cite{gemma2024} are widely used open instruction-tuned models that represent general-purpose multilingual models. Bengali is a very small share of their pretraining data~\cite{zehady2026banglallama}.
+\item \emph{Llama 3.2 1B} (1.24B parameters)~\cite{meta2024llama32} and \emph{Gemma 2B} (2.51B)~\cite{gemma2024} are open instruction-tuned models that represent general-purpose multilingual models. Bengali is a very small share of their pretraining data~\cite{zehady2026banglallama}.
+\item \emph{Qwen3 1.7B} (1.72B)~\cite{yang2025qwen3} is a general-purpose model released in 2025, added in revision to test whether a more recent model behaves differently. It can produce a reasoning trace before its answer; we disable this through its chat template, so it answers directly.
 \item \emph{TituLLMs 1B}~\cite{nahin2025titullms} is a Bengali-pretrained model built on Llama 3.2 1B with an extended tokenizer. It has the same size and base architecture as Llama 3.2 1B, which supports a comparison at a similar parameter count. The extended tokenizer and possible differences in other training details prevent this comparison from isolating the effect of Bengali pretraining.
 \item \emph{BanglaT5} (about 248M parameters)~\cite{bhattacharjee2023banglat5} is a Bengali sequence-to-sequence model. Its text-to-text architecture provides a sequence-to-sequence baseline for correction. It is used as released, without fine-tuning.
 \end{itemize}
-BanglaBERT~\cite{bhattacharjee2022banglabert} was not considered because it is an encoder and cannot generate corrected text. All models are loaded with the Transformers library~\cite{wolf2020transformers} in bfloat16.
+Phi-3 Mini (3.8B) was implemented but not run to completion: the evaluated models took between about two and fourteen minutes per page on average, and up to 30 minutes for one page, and a 3.8-billion-parameter model did not fit the available budget. BanglaBERT~\cite{bhattacharjee2022banglabert} was not considered because it is an encoder and cannot generate corrected text. All models are loaded with the Transformers library~\cite{wolf2020transformers} in bfloat16.
 
 \subsection{Deployment setting}
 All models run in CPU-only mode on a free Google Colab runtime. This approximates the setting that motivates the work: institutions in Bangladesh that process large volumes of Bengali documents and typically lack GPU infrastructure. No paid API is used at any stage.
@@ -131,7 +132,7 @@ All models run in CPU-only mode on a free Google Colab runtime. This approximate
 \subsection{Evaluation protocol}
 \textbf{Normalisation and metrics.} Before scoring, reference and hypothesis are normalised to Unicode NFC and runs of whitespace are collapsed, because Bengali conjuncts and vowel signs can be encoded as different codepoint sequences that look identical. CER and WER are computed with jiwer~\cite{vaessen2022jiwer} for each page and averaged over pages, so every page counts equally regardless of its length. CER is unbounded: an output with more erroneous characters than the reference has characters scores above 1. We therefore also report the character match error rate, $\mathrm{cMER}=(S+D+I)/(H+S+D+I)$, which counts insertions in the denominator and is bounded in $[0,1]$~\cite{ehrmann2026hipeocrepair}. Here $H$, $S$, $D$ and $I$ are the numbers of matched, substituted, deleted and inserted characters.
 
-\textbf{Statistical testing.} For each engine and model, the unit of analysis is the per-page difference between the corrected and the uncorrected error rate. We report the mean difference with a 95\% percentile interval from a paired bootstrap of the 15 pages (10{,}000 resamples, seed 403). We also run a two-sided Wilcoxon signed-rank test~\cite{wilcoxon1945} on the same differences and adjust the $p$-values with the Holm procedure~\cite{holm1979} over the 16 CER and WER tests, which follows the reporting of Viana~\cite{viana2026reframing}.
+\textbf{Statistical testing.} For each engine and model, the unit of analysis is the per-page difference between the corrected and the uncorrected error rate. We report the mean difference with a 95\% percentile interval from a paired bootstrap of the 15 pages (10{,}000 resamples, seed 403). We also run a two-sided Wilcoxon signed-rank test~\cite{wilcoxon1945} on the same differences and adjust the $p$-values with the Holm procedure~\cite{holm1979} over the 20 CER and WER tests, which follows the reporting of Viana~\cite{viana2026reframing}.
 
 \textbf{Validation.} The held-out split was frozen before any model ran, and development pages are never scored. We used one fixed held-out evaluation set and did not perform cross-validation. No model was trained, and deterministic decoding was not repeated with different seeds. Each page is paired with its own uncorrected text.
 
@@ -147,83 +148,84 @@ The page lists, the correction prompt, and the OCR, correction, scoring and stat
 % =====================================================================
 \section{Results}
 
-Results compare each corrected output with its corresponding raw OCR baseline. We also examine differences between engines, variation across pages and results under the bounded error metric.
+Results compare each corrected output with its corresponding raw OCR baseline. Unless stated otherwise, they use plain greedy decoding (Section~\ref{sec:decoding} reports the original decoding setting). We also examine differences between engines, variation across pages and results under the bounded error metric.
 
 \subsection{Baseline OCR performance}
-Table~\ref{tab:baseline} gives the error rates of the raw OCR text before any correction. EasyOCR is better than Tesseract on all three metrics (CER 0.297 against 0.364). This agrees with the weakness of Tesseract on Bengali reported in earlier work~\cite{zulkarnain2023bbocr,rabby2024enhancement}. We did not find a published comparison of the two engines on historical Bengali print, and our pages are 19th-century books, several of them verse or title pages in ornate type, on which EasyOCR appears to degrade less. Both baselines are high in absolute terms: EasyOCR, the better engine, has a CER of 0.297 and a WER of 0.719.
+Table~\ref{tab:baseline} gives the error rates of the raw OCR text before any correction. EasyOCR is better than Tesseract on all three metrics (CER 0.297 against 0.364). This agrees with the high Tesseract error rates on Bengali reported in earlier work~\cite{zulkarnain2023bbocr,rabby2024enhancement}. We did not find a published comparison of the two engines on historical Bengali print. Both baselines are high in absolute terms: EasyOCR, the better engine, has a CER of 0.297 and a WER of 0.719.
 
 \input{tables/baseline}
 
 \subsection{Effect of correction}
-Table~\ref{tab:matrix} gives the full evaluation matrix, and Figs.~\ref{fig:cer} and~\ref{fig:ci} show the same result graphically. Both metrics increased in all eight engine-and-model combinations. Fifteen of the 16 resulting increases (two metrics per combination) are significant, both under the bootstrap and under the Holm-corrected Wilcoxon test. The one exception is Tesseract with BanglaT5 on WER, whose interval spans zero ($[-0.101,+0.397]$, Holm $p=0.15$). The largest effect is TituLLMs on EasyOCR output, where CER rises from 0.297 to 2.588, about nine times the baseline. A CER above 1 means the output contains more erroneous characters than the reference has characters.
+Table~\ref{tab:matrix} gives the full evaluation matrix, and Figs.~\ref{fig:cer} and~\ref{fig:ci} show the same result graphically. No model lowered the mean error rate significantly for either engine. Of the 20 CER and WER comparisons, six are significant after Holm correction, and all six are increases: BanglaT5 on CER and TituLLMs on CER and WER, for both engines. TituLLMs on EasyOCR output has the largest increase, from a CER of 0.297 to 1.029.
+
+The three general-purpose models stay close to the baseline. Gemma 2B ends at a CER of 0.360 on Tesseract output and 0.301 on EasyOCR output, against baselines of 0.364 and 0.297, and Qwen3 1.7B at 0.380 and 0.310; none of these differences is significant, and every bootstrap interval spans zero. Llama 3.2 1B raises CER to 0.430 and 0.337. Its bootstrap intervals lie above zero ($[+0.018,+0.116]$ and $[+0.005,+0.082]$), but the Holm-corrected Wilcoxon test does not reject the null hypothesis ($p=0.16$ and $p=0.36$). Its WER does not change significantly.
 
 \input{tables/eval_matrix}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig1_cer_by_model.png}
-\caption{Mean CER over the 15 pages after correction, by model and OCR engine. The dashed lines mark the uncorrected baselines (Tesseract 0.364, EasyOCR 0.297). Every bar lies above both baselines.}
+\caption{Mean CER over the 15 pages after correction, by model and OCR engine. The dashed lines mark the uncorrected baselines (Tesseract 0.364, EasyOCR 0.297).}
 \label{fig:cer}
 \end{figure}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig2_bootstrap_ci.png}
-\caption{Mean change in CER (corrected minus uncorrected) for each model and engine, with 95\% paired-bootstrap intervals over the 15 pages. A value above zero means correction made the text worse. Every interval lies to the right of zero, and the two engines nearly coincide for three of the four models.}
+\caption{Mean change in CER (corrected minus uncorrected) for each model and engine, with 95\% paired-bootstrap intervals over the 15 pages. A value above zero means correction made the text worse.}
 \label{fig:ci}
 \end{figure}
 
+\subsection{Effect of the decoding setting}
+\label{sec:decoding}
+Table~\ref{tab:decoding} compares the original decoding setting, with the repetition penalty and the four-gram ban, against plain greedy decoding. For the three decoder-only models that were run in both settings, removing the two constraints lowered CER significantly for both engines: by 0.22 for Gemma 2B, by 0.41 and 0.56 for Llama 3.2 1B, and by 1.07 and 1.56 for TituLLMs. Under the original setting Gemma 2B raised CER from 0.364 to 0.583 and from 0.297 to 0.517; under plain decoding it returns the input almost unchanged, with a median CER of 0.012 and 0.005 between its output and its own input. Most of the error increase that the original setting produced for these models is therefore attributable to the decoding constraints and not to the models' corrections. BanglaT5, an encoder-decoder model whose decoder does not see the input tokens as its own history, changed by 0.011 and 0.020. Qwen3 1.7B was added after this comparison and was run with plain decoding only.
+
+\input{tables/decoding}
+
 \subsection{The engine-agnostic question}
-Correction increased the error rate for both engines, although the size of the increase differed by model. For Gemma 2B and BanglaT5 the CER differences agree to within 0.01 (0.219 against 0.220, and 0.525 against 0.519), and for Llama 3.2 1B to within 0.12 (0.480 against 0.600). TituLLMs differs more (1.632 against 2.291), but is the worst model for both engines. The direction was consistent across the two engines; these descriptive comparisons do not establish equivalence in effect size.
+The ranking of the models is the same for both engines: Gemma 2B, Qwen3 1.7B, Llama 3.2 1B, BanglaT5 and TituLLMs, from lowest to highest corrected CER. The changes in CER agree closely for Gemma 2B ($-0.004$ against $+0.004$), Qwen3 1.7B ($+0.016$ against $+0.013$) and BanglaT5 ($+0.536$ against $+0.540$), and less closely for Llama 3.2 1B ($+0.066$ against $+0.040$) and TituLLMs ($+0.565$ against $+0.732$), Tesseract first. These are descriptive comparisons; they do not establish equivalence in effect size.
 
 \subsection{Per-page analysis}
-Across the 120 page-level cells (15 pages, 4 models, 2 engines), correction lowered CER in three (2.5\%). All three are on the same page, the Tesseract page with the highest baseline CER (0.882); the lowest corrected CER on that page is 0.803. On the bounded cMER, none of the 120 cells improved. Figure~\ref{fig:perpage} shows the baseline curve below every model on every page except that one.
+Across the 150 page-level cells (15 pages, 5 models, 2 engines), correction lowered CER in 27: 14 for Qwen3 1.7B, 9 for Gemma 2B and 4 for Llama 3.2 1B. BanglaT5 and TituLLMs lowered CER on no page. Figure~\ref{fig:perpage} shows that the general-purpose models track the baseline closely, while BanglaT5 and TituLLMs stay near or above a CER of 0.8 on most pages.
 
-The size of the increase also varies with page difficulty. When the pages are split into thirds by baseline CER, the increase in CER is smallest on the hardest third in each of the eight engine-and-model cells. For Llama 3.2 1B on Tesseract output, for example, the increase is $+0.69$ on the easiest third and $+0.23$ on the hardest. The HIPE-OCRepair task also reports over-correction of low-noise input~\cite{ehrmann2026hipeocrepair}.
+For the models that changed the text substantially, the increase depends on page difficulty. When the pages are split into thirds by baseline CER, BanglaT5 and TituLLMs have their smallest increase on the hardest third for both engines; for TituLLMs on Tesseract output, for example, the increase is $+0.85$ on the easiest third and $+0.26$ on the hardest. Llama 3.2 1B shows the same pattern on a smaller scale ($+0.10$ on the easiest third of Tesseract pages and $-0.002$ on the hardest). The changes for Gemma 2B and Qwen3 1.7B stay within 0.03 of zero in every third. The HIPE-OCRepair task also reports over-correction of low-noise input~\cite{ehrmann2026hipeocrepair}.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/fig3_per_page.png}
-\caption{CER per evaluation page, with pages sorted from easiest to hardest by baseline CER, for Tesseract (left) and EasyOCR (right). The solid black line is the uncorrected baseline; each dashed line is one correction model. The baseline lies below every model on every page except the hardest Tesseract page, where three models end below it.}
+\caption{CER per evaluation page, with pages sorted from easiest to hardest by baseline CER, for Tesseract (left) and EasyOCR (right). The solid black line is the uncorrected baseline; each dashed line is one correction model.}
 \label{fig:perpage}
 \end{figure*}
 
 \subsection{Bounded error rate}
-Because CER can exceed 1, we repeated the analysis with cMER (Table~\ref{tab:damage}). The baseline cMER is 0.336 for Tesseract and 0.257 for EasyOCR, and the corrected values range from 0.471 to 0.889. TituLLMs, whose CER reached 2.588, has a cMER of 0.876 on Tesseract text and 0.880 on EasyOCR text. The two scales therefore differ most for TituLLMs, but the conclusion is the same on both: all eight cMER tests are significant after Holm correction.
+Because CER can exceed 1, we repeated the analysis with cMER (Table~\ref{tab:damage}). The baseline cMER is 0.336 for Tesseract and 0.257 for EasyOCR. Six of the ten cMER tests are significant after Holm correction, all of them increases: Llama 3.2 1B (0.416 and 0.306), BanglaT5 (0.900 and 0.835) and TituLLMs (0.703 and 0.669). Gemma 2B (0.336 and 0.262) and Qwen3 1.7B (0.353 and 0.272) do not differ significantly from the baseline. The two metrics therefore agree except for Llama 3.2 1B, whose CER increase is not significant after Holm correction but whose cMER increase is.
 
 % =====================================================================
 \section{Failure Analysis}
 
-To characterize the observed error increases, we examine word retention, edit operations and truncation. We then evaluate whether a length-based fallback reduces those increases.
+To characterize what correction changed, we examine word retention, edit operations and truncation. We then evaluate whether a length-based fallback reduces the error increases.
 
 \subsection{Word retention and word-level changes}
-Table~\ref{tab:diagnostics} reports how many ground-truth words each output retains. Raw Tesseract output keeps 46\% of the distinct ground-truth words and raw EasyOCR output 55\%. After correction, retention falls to 13\% for Gemma 2B and to between 2\% and 4\% for the other three models. The word-level counts in Table~\ref{tab:damage} separate correct words that were changed from wrong words that were fixed. Of the words that the raw OCR had read correctly, the models broke between 76\% and 99.5\%, and of the words it had read wrongly they fixed between 0.9\% and 5.5\%. The change ratio is above 1 for every model: it is 1.7 to 1.9 for Gemma 2B and 10.0 to 14.2 for TituLLMs.
+Table~\ref{tab:diagnostics} reports how many ground-truth words each output retains. Raw Tesseract output keeps 46\% of the distinct ground-truth words and raw EasyOCR output 55\%. Pooled over both engines, Gemma 2B and Qwen3 1.7B keep 49\% and 50\%, Llama 3.2 1B 45\%, TituLLMs 17\% and BanglaT5 2\%. The word-level counts in Table~\ref{tab:damage} separate correct words that were changed from wrong words that were fixed. Gemma 2B broke 1\% and 3\% of the words the raw OCR had right and fixed almost none of those it had wrong (0.4\% and 0.0\%). Qwen3 1.7B is the only model whose repairs come close to its damage: on Tesseract text it fixed 47 wrong words and broke 62 correct ones, and on EasyOCR text 42 and 45. Llama 3.2 1B broke 15\% and 10\% and fixed 0.8\% and 1.8\%. BanglaT5 and TituLLMs broke between 76\% and 99\% of the correct words. The change ratio is below 1 for the three general-purpose models (0.1 for Gemma 2B, 0.3 to 0.4 for Qwen3 1.7B and 0.5 to 0.8 for Llama 3.2 1B) and above 4 for BanglaT5 and TituLLMs.
 
 \input{tables/diagnostics}
 
 \input{tables/damage}
 
 \subsection{Edit profiles by model}
-The models differ in which edit operations increase. The counts below are per page, measured against the ground truth.
+The models differ in which edit operations change. The counts below are per page, measured against the ground truth.
 
-\emph{BanglaT5.} Its output is on average 0.34 times the reference length. Deletions rise from 72 to 667 per page on Tesseract text and from 64 to 524 on EasyOCR text, and insertions fall to near zero. The output is often a short string of punctuation and digits. BanglaT5 is not instruction-tuned and was not fine-tuned for correction, which may account for this, but we did not test it.
+\emph{BanglaT5.} Its output is on average 0.33 times the reference length. Deletions rise from 72 to 671 per page on Tesseract text and from 64 to 537 on EasyOCR text, and insertions fall to near zero. Over a third of its non-space output characters are neither Bengali nor Latin letters, that is, punctuation, ASCII digits and other symbols. BanglaT5 is not instruction-tuned and was not fine-tuned for correction, which may account for this, but we did not test it.
 
-\emph{TituLLMs.} Its output is 2.58 times the reference length, 40\% of its characters are Bengali and 34\% are Latin, and it reached the generation limit on all 30 pages (15 per engine). Insertions rise from 37 to 1{,}106 per page on Tesseract text and from 72 to 1{,}604 on EasyOCR text; between 44\% and 52\% of its output consists of runs of at least six characters absent from the input. On one devotional page (14076\_a\_2\_0006) the output is English commentary on a word from the first line instead of corrected Bengali text. It begins by explaining the word as meaning to be at war against one's enemies and as an epithet of Indra, goes on to discuss figures from Sanatan mythology that do not appear in the input, and continues in English for several more sentences. The prompt asked for the corrected Bengali text only.
+\emph{TituLLMs.} Its output is 1.40 times the reference length, and it reached the generation limit on all 30 pages (15 per engine). Substitutions rise from 135 to 468 per page on Tesseract text and from 93 to 405 on EasyOCR text, and insertions from 37 to 318 and from 72 to 444. In 17 of its 30 outputs, a segment of at least 20 characters (split at danda, line breaks and vertical bars) recurs three or more times; no other model produced such a repetition. Under the original decoding setting the same model produced English commentary instead (34\% of its output characters were Latin, against 1\% with plain decoding). On one devotional page (14076\_a\_2\_0006) that output explained a word from the first line as meaning to be at war against one's enemies and as an epithet of Indra, and went on to discuss figures from Sanatan mythology that do not appear in the input.
 
-\emph{Llama 3.2 1B.} Substitutions more than triple, from 135 to 447 per page on Tesseract text and from 93 to 414 on EasyOCR text, and it reached the generation limit on 19 of the 30 pages. \emph{Gemma 2B} has the output length closest to the reference (0.88 times) and never reached the generation limit. It has the smallest CER increase, but its edit counts also rise: on Tesseract text, substitutions go from 135 to 193 and deletions from 72 to 206 per page.
+\emph{Llama 3.2 1B.} Deletions more than double, from 72 to 174 per page on Tesseract text and from 64 to 115 on EasyOCR text, while insertions fall. Its output is 0.88 times the reference length. \emph{Gemma 2B} and \emph{Qwen3 1.7B} have output lengths close to the reference (0.98 and 1.04 times) and change little: the CER between Gemma's output and its own input averages 0.02 for both engines, and for Qwen3 1.7B 0.09 and 0.04. Gemma 2B leaves the per-page substitution, deletion and insertion counts nearly unchanged (135 to 134, 72 to 75 and 37 to 32 on Tesseract text).
 
 \subsection{Truncation}
-Across the eight engine-and-model conditions, the rate of truncation correlates with mean CER at $r=0.84$ (Fig.~\ref{fig:trunc}). Truncation may be a symptom of degenerate output and not an independent cause, but we did not test this. BanglaT5 reached the generation limit on only one page of 15 per engine, yet its CER on Tesseract text is 0.889, so a high error rate does not require truncation.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{figures/fig4_truncation.png}
-\caption{Truncation rate against mean CER for the eight engine-and-model conditions. Each point is one condition; the horizontal axis is the percentage of pages on which the output reached the generation limit, and the vertical axis is the mean CER of the corrected text. The correlation is $r=0.84$.}
-\label{fig:trunc}
-\end{figure}
+TituLLMs reached the generation limit on every page. The other models reached it on at most two of the 15 pages per engine: never for Gemma 2B, on one page for Qwen3 1.7B and Llama 3.2 1B, and on two for BanglaT5.
 
 \subsection{Effect of the length safeguard}
-The last column of Table~\ref{tab:damage} applies the length safeguard. The safeguard reduces some errors associated with large changes in output length: TituLLMs falls back to the raw OCR on 5 to 7 of 15 pages, and BanglaT5 on Tesseract text on 13 of 15, which cuts its CER from 0.889 to 0.434. Even so, no model beats the uncorrected text. In seven of the eight conditions, the safeguarded output is still significantly worse than the raw OCR after Holm correction. The exception is BanglaT5 on Tesseract text, which ends 0.07 above the baseline (not significant after Holm correction); 13 of its 15 pages revert to the raw OCR, so most outputs in that condition are unchanged OCR text. Gemma 2B triggers the safeguard on at most one page, since its outputs stay close to the input length.
+The last column of Table~\ref{tab:damage} applies the length safeguard. Only BanglaT5 triggers it, on 13 of 15 Tesseract pages and 7 of 15 EasyOCR pages. Its safeguarded CER falls from 0.900 to 0.429 and from 0.837 to 0.559, which is still above the baseline but no longer significantly different from it after Holm correction ($p=0.72$ and $p=0.09$); on Tesseract text most of its pages simply revert to the raw OCR. TituLLMs never triggers the safeguard, because its outputs stay within the 0.35 to 2.8 length range, and it remains significantly worse than the raw OCR ($p<0.001$ for both engines). The outputs of the other three models are never replaced, so their scores do not change. No safeguarded output is significantly better than the raw OCR.
 
 % =====================================================================
 \section{Discussion}
