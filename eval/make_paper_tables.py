@@ -19,10 +19,18 @@ The best corrected model per engine and column is marked with \\best{}
 Main tables use the plain-decoding runs (repetition_penalty 1.0, no n-gram
 ban); the original guarded runs appear only in decoding.tex.
 
-Inputs (defaults): results/bootstrap_plain.json, results/extended_plain.json
-(run bootstrap.py and extended_analysis.py on ablation_plain_decoding.jsonl
-first), results/ocr_eval.jsonl, results/ablation_plain_decoding.jsonl,
-results/decoding_ablation.json (from compare_decoding.py).
+  paper/tables/dataset.tex      - evaluation pages (review item T1)
+  paper/tables/models.tex       - models and configuration (T2)
+  paper/tables/editops.tex      - edit operations per page (T3)
+  paper/tables/clean.tex        - clean-text control (E1)
+
+Main tables use the 40-page GPU run with plain decoding. The decoding
+ablation (decoding.tex) uses the 15-page CPU runs, where both settings exist.
+
+Inputs (defaults, all in results/): ocr_eval40.jsonl, gpu_eval40_ocr.jsonl,
+bootstrap_gpu40.json (bootstrap.py), extended_gpu40.json (extended_analysis.py),
+revision_gpu40.json (revision_analysis.py), model_profile.json
+(model_profile.py), decoding_ablation.json (compare_decoding.py).
 """
 import argparse
 import json
@@ -37,11 +45,19 @@ RESULTS = REPO_ROOT / "results"
 OUT_DIR = REPO_ROOT / "paper" / "tables"
 
 ENGINES = [("tesseract", "Tesseract"), ("easyocr", "EasyOCR")]
-MODEL_NAMES = {"gemma-2b": "Gemma 2B", "llama3.2-1b": "Llama 3.2 1B",
+MODEL_NAMES = {"symspell": "SymSpell (dictionary)", "gemma-2b": "Gemma 2B", "llama3.2-1b": "Llama 3.2 1B",
                "banglat5": "BanglaT5", "titullm-1b": "TituLLMs 1B",
                "qwen3-1.7b": "Qwen3 1.7B", "phi4-mini": "Phi-4-mini",
                "titullm-1b-instruct": "TituLLMs 1B Instruct",
                "titullm-3b-instruct": "TituLLMs 3B Instruct"}
+# Computed from each checkpoint's configuration, tied embeddings counted once
+# (BanglaT5's input and output embeddings are not tied in the checkpoint).
+PARAMS_B = {"gemma-2b": 2.51, "qwen3-1.7b": 1.72, "phi4-mini": 3.84, "llama3.2-1b": 1.24,
+            "banglat5": 0.25, "titullm-1b": 1.24, "titullm-1b-instruct": 1.32,
+            "titullm-3b-instruct": 3.34}
+# Precision on the T4 (correction/models.py: GPU_FLOAT16_MODELS).
+GPU_DTYPE = {m: "fp16" if m in ("phi4-mini", "titullm-3b-instruct") else "fp32"
+             for m in PARAMS_B}
 
 
 def mark(values: dict, key, text: str, lower_is_better=True) -> str:
@@ -62,17 +78,20 @@ def load_jsonl(path: Path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--boot", type=Path, default=RESULTS / "bootstrap_plain.json")
-    parser.add_argument("--ext", type=Path, default=RESULTS / "extended_plain.json")
+    parser.add_argument("--ocr", type=Path, default=RESULTS / "ocr_eval40.jsonl")
+    parser.add_argument("--boot", type=Path, default=RESULTS / "bootstrap_gpu40.json")
+    parser.add_argument("--ext", type=Path, default=RESULTS / "extended_gpu40.json")
     parser.add_argument("--corrections", type=Path,
-                        default=RESULTS / "ablation_plain_decoding.jsonl")
+                        default=RESULTS / "eval40_ocr.jsonl")
+    parser.add_argument("--revision", type=Path, default=RESULTS / "revision_gpu40.json")
+    parser.add_argument("--profile", type=Path, default=RESULTS / "model_profile.json")
     parser.add_argument("--decoding", type=Path, default=RESULTS / "decoding_ablation.json")
     args = parser.parse_args()
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     boot = json.loads(args.boot.read_text(encoding="utf-8"))
     ext = json.loads(args.ext.read_text(encoding="utf-8"))
-    ocr = {r["page_id"]: r for r in load_jsonl(RESULTS / "ocr_eval.jsonl")}
+    ocr = {r["page_id"]: r for r in load_jsonl(args.ocr)}
     corrections = load_jsonl(args.corrections)
 
     b = {(r["engine"], r["model"], r["metric"]): r for r in boot["results"]}
@@ -227,17 +246,100 @@ def main():
         "the raw OCR. Safeguard: raw OCR kept when output length is outside 0.35--2.8$\\times$ the input. "
         "\\colorbox{bestbg}{\\textbf{Shaded}}: best corrected model per engine.\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
 
+    # ---- dataset statistics (review item T1) ----
+    if args.revision.exists():
+        rev = json.loads(args.revision.read_text(encoding="utf-8"))
+        d = rev["dataset"]
+        rows = [
+            f"Pages & {d['pages']} \\\\",
+            f"Books & {d['books']} (at most {d['pages_per_book_max']} pages per book) \\\\",
+            f"Reference characters per page & median {d['gt_chars_median']:.0f} "
+            f"(range {d['gt_chars_min']}--{d['gt_chars_max']}) \\\\",
+            f"Reference words per page & median {d['gt_words_median']:.0f} \\\\",
+        ] + [f"Raw {name} length / reference & mean {d[f'{e}_len_ratio_mean']:.2f}, "
+             f"median {d[f'{e}_len_ratio_median']:.2f} \\\\" for e, name in ENGINES]
+        (OUT_DIR / "dataset.tex").write_text(
+            "\\begin{table}[t]\n\\centering\n\\caption{Evaluation Pages}\n\\label{tab:dataset}\n"
+            "\\begin{tabular}{ll}\n\\toprule\n" + "\n".join(rows) + "\n\\bottomrule\n"
+            "\\end{tabular}\n\\par\\smallskip\n\\begin{minipage}{\\linewidth}\\footnotesize "
+            "Book: page identifier without its page number. Lengths after Unicode NFC "
+            "normalisation and whitespace collapsing.\\end{minipage}\n\\end{table}\n",
+            encoding="utf-8")
+
+        # ---- clean-text control (review item E1) ----
+        clean = {r["model"]: r for r in rev["micro"] if r["engine"] == "clean"}
+        if clean:
+            rows = []
+            for m in [m for m in models if m in clean]:
+                r = clean[m]
+                rows.append(f"{MODEL_NAMES[m]} & {r['mean_cer']:.3f} & {r['pooled_cer']:.3f} & "
+                            f"{r['pages_exact']}/{r['n']} \\\\")
+            (OUT_DIR / "clean.tex").write_text(
+                "\\begin{table}[t]\n\\centering\n"
+                "\\caption{Clean-Text Control: Ground Truth Given as Input}\n\\label{tab:clean}\n"
+                "\\begin{tabular}{lccc}\n\\toprule\n"
+                "Model & Mean CER & Pooled CER & Pages unchanged \\\\\n\\midrule\n"
+                + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+                "\\begin{minipage}{\\linewidth}\\footnotesize Each model receives the reference "
+                "text itself, with the same prompt and decoding. CER is measured against that "
+                "reference, so any value above 0 is damage to correct text. Pages unchanged: "
+                "CER exactly 0 after normalisation.\\end{minipage}\n\\end{table}\n",
+                encoding="utf-8")
+
+    # ---- edit operations (review item T3) ----
+    rows = []
+    for i, (e, name) in enumerate(ENGINES):
+        raw = cells[(e, models[0])]["edit_ops_vs_gt_raw_ocr"]
+        rows.append(f"{name} & (no correction) & {raw['S']:.0f} & {raw['D']:.0f} & {raw['I']:.0f} \\\\")
+        for m in models:
+            c = cells[(e, m)]["edit_ops_vs_gt_corrected"]
+            rows.append(f"{name} & {MODEL_NAMES[m]} & {c['S']:.0f} & {c['D']:.0f} & {c['I']:.0f} \\\\")
+        if i == 0:
+            rows.append("\\midrule")
+    (OUT_DIR / "editops.tex").write_text(
+        "\\begin{table}[t]\n\\centering\n"
+        "\\caption{Mean Edit Operations per Page Against the Reference}\n\\label{tab:editops}\n"
+        "\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+        "\\begin{tabular}{llccc}\n\\toprule\n"
+        "Engine & Model & Subst. & Del. & Ins. \\\\\n\\midrule\n"
+        + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n", encoding="utf-8")
+
+    # ---- model and configuration details (review item T2) ----
+    if args.profile.exists():
+        prof = {r["model"]: r for r in json.loads(args.profile.read_text(encoding="utf-8"))}
+        rows = []
+        for m in [m for m in models if m in prof]:
+            r = prof[m]
+            cpu = "%.1f" % r["cpu_min_per_page"] if r["cpu_min_per_page"] is not None else "---"
+            gpu = "%.2f" % r["gpu_min_per_page"]
+            rows.append(f"{MODEL_NAMES[m]} & \\texttt{{{r['checkpoint'].replace('_', chr(92) + '_')}}} & "
+                        f"{PARAMS_B[m]:.2f} & {GPU_DTYPE[m]} & {r['tokens_per_char']:.2f} & "
+                        f"{r['mean_chars_per_chunk']:.0f} & {cpu} & {gpu} \\\\")
+        (OUT_DIR / "models.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n\\caption{Models and Configuration}\n"
+            "\\label{tab:models}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{llcccccc}\n\\toprule\n"
+            "Model & Checkpoint & Params (B) & GPU precision & Tokens/char & Chars/chunk & "
+            "CPU min/page & GPU min/page \\\\\n\\midrule\n" + "\n".join(rows) + "\n"
+            "\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n\\begin{minipage}{\\linewidth}"
+            "\\footnotesize Parameters from each checkpoint's configuration, tied embeddings "
+            "counted once. Tokens/char: each tokenizer on the 40 reference texts. Chars/chunk: "
+            "mean characters per chunk of about 250 tokens on raw Tesseract text. Decoding for "
+            "all models: greedy, at most $\\min(512,\\max(64,1.5n))$ new tokens, no repetition "
+            "penalty or n-gram ban. CPU: free Colab runtime, bfloat16, 15 pages (---: not run on "
+            "CPU). GPU: NVIDIA T4, 40 pages. Times are per page and engine.\\end{minipage}\n"
+            "\\end{table*}\n", encoding="utf-8")
+
     # ---- decoding ablation (review item C1) ----
     if args.decoding.exists():
         abl = {(r["engine"], r["model"]): r
                for r in json.loads(args.decoding.read_text(encoding="utf-8"))}
         rows = []
         for i, (e, name) in enumerate(ENGINES):
-            base = b[(e, models[0], "cer")]["baseline_mean"]
             for m in [m for m in models if (e, m) in abl]:
                 r = abl[(e, m)]
                 rows.append(" & ".join([
-                    name, MODEL_NAMES[m], "%.3f" % base, "%.3f" % r["guarded_mean"],
+                    name, MODEL_NAMES[m], "%.3f" % r["ocr_mean"], "%.3f" % r["guarded_mean"],
                     "%.3f" % r["plain_mean"],
                     "%+.3f [%+.3f, %+.3f]" % (r["plain_minus_guarded"], r["ci_low"], r["ci_high"]),
                     "%.3f" % r["plain_vs_input_median_cer"],

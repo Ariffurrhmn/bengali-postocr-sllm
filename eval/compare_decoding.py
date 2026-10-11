@@ -81,6 +81,7 @@ def main():
               f"  | plain output vs its input: median CER {np.median(changed):.3f}")
         summary.append({
             "engine": engine, "model": model, "approach": approach, "n_pages": len(rows),
+            "ocr_mean": float(np.mean([r[1] for r in rows])),
             "guarded_mean": float(np.mean([r[2] for r in rows])),
             "plain_mean": float(np.mean([r[3] for r in rows])),
             "plain_minus_guarded": mean_delta, "ci_low": lo, "ci_high": hi,

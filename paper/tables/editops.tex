@@ -1,0 +1,34 @@
+\begin{table}[t]
+\centering
+\caption{Mean Edit Operations per Page Against the Reference}
+\label{tab:editops}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{llccc}
+\toprule
+Engine & Model & Subst. & Del. & Ins. \\
+\midrule
+Tesseract & (no correction) & 92 & 60 & 69 \\
+Tesseract & SymSpell (dictionary) & 111 & 71 & 66 \\
+Tesseract & Gemma 2B & 93 & 76 & 64 \\
+Tesseract & Qwen3 1.7B & 92 & 66 & 64 \\
+Tesseract & Phi-4-mini & 102 & 70 & 68 \\
+Tesseract & Llama 3.2 1B & 90 & 110 & 53 \\
+Tesseract & BanglaT5 & 126 & 503 & 5 \\
+Tesseract & TituLLMs 1B & 370 & 19 & 384 \\
+Tesseract & TituLLMs 1B Instruct & 344 & 33 & 797 \\
+Tesseract & TituLLMs 3B Instruct & 170 & 432 & 88 \\
+\midrule
+EasyOCR & (no correction) & 84 & 58 & 70 \\
+EasyOCR & SymSpell (dictionary) & 108 & 68 & 64 \\
+EasyOCR & Gemma 2B & 83 & 71 & 67 \\
+EasyOCR & Qwen3 1.7B & 92 & 62 & 72 \\
+EasyOCR & Phi-4-mini & 98 & 68 & 64 \\
+EasyOCR & Llama 3.2 1B & 87 & 93 & 59 \\
+EasyOCR & BanglaT5 & 181 & 434 & 1 \\
+EasyOCR & TituLLMs 1B & 352 & 22 & 385 \\
+EasyOCR & TituLLMs 1B Instruct & 350 & 30 & 722 \\
+EasyOCR & TituLLMs 3B Instruct & 135 & 458 & 50 \\
+\bottomrule
+\end{tabular}
+\end{table}
