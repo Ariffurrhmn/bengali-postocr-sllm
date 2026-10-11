@@ -32,3 +32,24 @@ def chunk_text(text: str, tokenizer, chunk_tokens: int = DEFAULT_CHUNK_TOKENS):
         chunks.append("\n".join(current_lines))
 
     return chunks
+
+
+DEFAULT_CHUNK_CHARS = 300
+
+
+def chunk_text_chars(text: str, chunk_chars: int = DEFAULT_CHUNK_CHARS):
+    """Model-independent alternative (review item M3): group complete lines
+    into chunks of at most chunk_chars characters, so every model sees the
+    same chunks whatever its tokenizer. A single longer line is its own chunk."""
+    lines = [l for l in text.split("\n") if l.strip()]
+    if not lines:
+        return [text]
+    chunks, current, size = [], [], 0
+    for line in lines:
+        if current and size + len(line) + 1 > chunk_chars:
+            chunks.append("\n".join(current))
+            current, size = [], 0
+        current.append(line)
+        size += len(line) + 1
+    chunks.append("\n".join(current))
+    return chunks

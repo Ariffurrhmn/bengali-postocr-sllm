@@ -22,8 +22,8 @@ from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
-from chunking import chunk_text
-from models import DECODING_PRESETS, MODEL_IDS, correct_text, load_model  # noqa: E402 (also sets CPU threads)
+from chunking import chunk_text, chunk_text_chars
+from models import DECODING_PRESETS, MODEL_IDS, PROMPTS, correct_text, load_model  # noqa: E402 (also sets CPU threads)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -31,7 +31,9 @@ ALL_MODELS = list(MODEL_IDS.keys())
 ALL_ENGINES = ["tesseract", "easyocr"]
 # "ground_truth" is also accepted as an engine: the model then receives the
 # reference text itself (clean-text control, review item E1).
-ALL_APPROACHES = ["whole", "chunked"]
+# chunked: ~250 tokens of each model's tokenizer; chunked_chars: <=300
+# characters, the same chunks for every model (review item M3).
+ALL_APPROACHES = ["whole", "chunked", "chunked_chars"]
 
 
 def load_done_keys(out_path: Path) -> set:
@@ -47,22 +49,25 @@ def load_done_keys(out_path: Path) -> set:
             r = json.loads(line)
         except json.JSONDecodeError:
             continue  # tolerate a truncated last line from a mid-write disconnect
-        done.add((r["page_id"], r["engine"], r["model_key"], r["approach"]))
+        done.add((r["page_id"], r["engine"], r["model_key"], r["approach"],
+                  r.get("prompt", "en")))
     return done
 
 
-def correct_whole(model_key, tokenizer, model, ocr_text, decoding):
-    result = correct_text(model_key, tokenizer, model, ocr_text, decoding=decoding)
+def correct_whole(model_key, tokenizer, model, ocr_text, decoding, prompt):
+    result = correct_text(model_key, tokenizer, model, ocr_text, decoding=decoding,
+                          prompt=prompt)
     return result.raw_output, result.truncated, result.skipped
 
 
-def correct_chunked(model_key, tokenizer, model, ocr_text, decoding):
-    chunks = chunk_text(ocr_text, tokenizer)
+def correct_chunked(model_key, tokenizer, model, ocr_text, decoding, prompt, by_chars=False):
+    chunks = chunk_text_chars(ocr_text) if by_chars else chunk_text(ocr_text, tokenizer)
     outputs = []
     any_truncated = False
     all_skipped = True
     for chunk in chunks:
-        result = correct_text(model_key, tokenizer, model, chunk, decoding=decoding)
+        result = correct_text(model_key, tokenizer, model, chunk, decoding=decoding,
+                              prompt=prompt)
         outputs.append(result.raw_output)
         any_truncated = any_truncated or result.truncated
         all_skipped = all_skipped and result.skipped
@@ -97,6 +102,12 @@ def main():
     )
     parser.add_argument(
         "--pages", default=None, help="Comma-separated page_ids to restrict to"
+    )
+    parser.add_argument(
+        "--prompt",
+        choices=list(PROMPTS),
+        default="en",
+        help="Prompt variant (review item M4); en is the original prompt",
     )
     parser.add_argument(
         "--stop-after-minutes",
@@ -148,7 +159,7 @@ def main():
             for engine in engines:
                 for approach in approaches:
                     for page in pages:
-                        key = (page["page_id"], engine, model_key, approach)
+                        key = (page["page_id"], engine, model_key, approach, args.prompt)
                         if key in done:
                             continue
                         if (args.stop_after_minutes is not None
@@ -163,10 +174,15 @@ def main():
                         )
                         t0 = time.time()
                         try:
-                            fn = correct_whole if approach == "whole" else correct_chunked
-                            raw_output, truncated, skipped = fn(
-                                model_key, tokenizer, model, page[engine], args.decoding
-                            )
+                            if approach == "whole":
+                                raw_output, truncated, skipped = correct_whole(
+                                    model_key, tokenizer, model, page[engine],
+                                    args.decoding, args.prompt)
+                            else:
+                                raw_output, truncated, skipped = correct_chunked(
+                                    model_key, tokenizer, model, page[engine],
+                                    args.decoding, args.prompt,
+                                    by_chars=(approach == "chunked_chars"))
                             error = None
                         except Exception as e:
                             raw_output, truncated, skipped = "", False, False
@@ -180,6 +196,7 @@ def main():
                             "model_key": model_key,
                             "approach": approach,
                             "decoding": args.decoding,
+                            "prompt": args.prompt,
                             "device": str(model.device),
                             "raw_output": raw_output,
                             "truncated": truncated,

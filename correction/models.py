@@ -10,8 +10,10 @@ Two loading/inference paths, matching how each model actually works:
 Greedy decoding (do_sample=False) is used throughout: this is a correction
 task, not creative generation, and determinism matters for reproducibility.
 """
+import json
 import os
 from dataclasses import dataclass
+from pathlib import Path
 
 
 def _configure_cpu_threads():
@@ -64,6 +66,43 @@ CORRECTION_INSTRUCTION = (
     "only the corrected Bengali text, with no explanation, preamble, or "
     "additional commentary.\n\nOCR text:\n{ocr_text}"
 )
+
+# Prompt variants for the revision (review item M4). "en" is the original
+# prompt; the others change one thing each.
+PROMPTS = {
+    "en": CORRECTION_INSTRUCTION,
+    # The reviewer's wording: preserve historical spelling, leave it if unsure.
+    "en_preserve": (
+        "The following text was produced by OCR on a historical Bengali document "
+        "and may contain recognition errors. Correct the OCR errors and output "
+        "only the corrected Bengali text, with no explanation, preamble, or "
+        "additional commentary. Preserve the historical spelling of the original "
+        "text; if you are not sure whether something is an error, leave it "
+        "unchanged.\n\nOCR text:\n{ocr_text}"
+    ),
+    # The original instruction in Bengali.
+    "bn": (
+        "নিচের লেখাটি একটি ঐতিহাসিক বাংলা নথি থেকে OCR দিয়ে তৈরি করা হয়েছে এবং "
+        "এতে শনাক্তকরণের ভুল থাকতে পারে। OCR-এর ভুলগুলো সংশোধন করুন এবং শুধু "
+        "সংশোধিত বাংলা লেখাটি দিন; কোনো ব্যাখ্যা, ভূমিকা বা বাড়তি মন্তব্য দেবেন না।"
+        "\n\nOCR লেখা:\n{ocr_text}"
+    ),
+    # The original instruction plus three worked examples from development
+    # pages (data/make_fewshot.py writes data/fewshot_examples.json).
+    "fewshot": None,
+}
+FEWSHOT_PATH = Path(__file__).resolve().parent.parent / "data" / "fewshot_examples.json"
+
+
+def build_prompt(prompt_key: str, ocr_text: str) -> str:
+    if prompt_key != "fewshot":
+        return PROMPTS[prompt_key].format(ocr_text=ocr_text)
+    examples = json.loads(FEWSHOT_PATH.read_text(encoding="utf-8"))
+    head, tail = CORRECTION_INSTRUCTION.split("\n\nOCR text:\n")
+    shots = "".join(f"\n\nOCR text:\n{ex['ocr']}\nCorrected text:\n{ex['corrected']}"
+                    for ex in examples)
+    return (head + "\n\nExamples:" + shots
+            + "\n\nNow correct the following text.\n\nOCR text:\n" + tail.format(ocr_text=ocr_text))
 
 
 MIN_OCR_CHARS_FOR_CORRECTION = 10  # below this, OCR output is treated as too
@@ -179,6 +218,7 @@ def correct_text(
     ocr_text: str,
     max_new_tokens: int | None = None,
     decoding: str = "guarded",
+    prompt: str = "en",
 ) -> CorrectionResult:
     import torch
 
@@ -192,8 +232,7 @@ def correct_text(
         # text-to-text framing instead of a "please fix this" instruction.
         inputs = tokenizer(ocr_text, return_tensors="pt", truncation=True)
     else:
-        prompt = CORRECTION_INSTRUCTION.format(ocr_text=ocr_text)
-        messages = [{"role": "user", "content": prompt}]
+        messages = [{"role": "user", "content": build_prompt(prompt, ocr_text)}]
         # apply_chat_template(..., return_dict=True) returns a BatchEncoding
         # (dict-like, with attention_mask) rather than a bare tensor — needed
         # so **inputs below passes attention_mask to generate() too, not
