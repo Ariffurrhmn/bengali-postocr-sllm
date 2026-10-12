@@ -273,7 +273,8 @@ def main():
 
     p("=" * 100)
     p("A/B. SIGNIFICANCE: paired bootstrap of the mean + Wilcoxon signed-rank, Holm-corrected")
-    p("     Delta = corrected - raw OCR (positive = correction made it worse). n = 15 pages per cell.")
+    n_cell = len(measures[(ENGINES[0], MODEL_ORDER[0])])
+    p(f"     Delta = corrected - raw OCR (positive = correction made it worse). n = {n_cell} pages per cell.")
     n_cw = 2 * len(ENGINES) * len(MODEL_ORDER)
     p(f"     Holm families: the paper's {n_cw} CER/WER tests; the {n_cw // 2} cMER tests separately.")
     p("=" * 100)
@@ -289,8 +290,8 @@ def main():
     p(f"\nCER/WER family: {n_pos}/{n_cw} deltas positive; {n_sig}/{n_cw} significant after Holm (Wilcoxon).")
     n_sig_c = sum(t[4]["significant_holm"] for t in tests if t[0] == "cmer")
     p(f"cMER family:    {n_sig_c}/{n_cw // 2} significant after Holm (Wilcoxon).")
-    p("Note: with n = 15 and every page in the same direction, the smallest possible exact two-sided")
-    p("Wilcoxon p is 2/2^15 = 0.000061; Holm multiplies the smallest p by the family size.")
+    p(f"Note: with n = {n_cell} and every page in the same direction, the smallest possible exact two-sided")
+    p(f"Wilcoxon p is 2/2^{n_cell} = {2 / 2 ** n_cell:.2g}; Holm multiplies the smallest p by the family size.")
 
     # ---- C, D, E per cell ----
     p("\n" + "=" * 100)
@@ -360,7 +361,7 @@ def main():
             s = paired_summary(d, rng, args.resamples)
             s.update({
                 "engine": engine, "model": model,
-                "fallbacks": int(sum(v["fell_back"] for v in m)),
+                "fallbacks": int(sum(v["fell_back"] for v in m)), "n": len(m),
                 "cer_base": float(np.mean([v["base_cer"] for v in m])),
                 "cer_corr": float(np.mean([v["corr_cer"] for v in m])),
                 "cer_guard": float(np.mean([v["guard_cer"] for v in m])),
@@ -370,7 +371,7 @@ def main():
             guard_tests.append(s)
     for s, a in zip(guard_tests, holm([g["wilcoxon_p"] for g in guard_tests])):
         s["wilcoxon_p_holm"] = a
-        p(f"{s['engine']:<10}{s['model']:<13}{s['fallbacks']:>7}/15{s['cer_base']:>9.3f}{s['cer_corr']:>9.3f}"
+        p(f"{s['engine']:<10}{s['model']:<13}{s['fallbacks']:>7}/{s['n']}{s['cer_base']:>9.3f}{s['cer_corr']:>9.3f}"
           f"{s['cer_guard']:>10.3f}{s['mean_delta']:>+8.3f}  [{s['ci_low']:+.3f}, {s['ci_high']:+.3f}]"
           f"{a:>9.4f}{s['cmer_guard']:>11.3f}")
     p("A positive d guard means the safeguarded output is still worse than doing nothing.")
@@ -397,13 +398,17 @@ def main():
 
     # ---- H: difficulty bands ----
     p("\n" + "=" * 100)
-    p("H. CER CHANGE BY PAGE DIFFICULTY (pages split into thirds by baseline CER, per engine; 5 pages each)")
+    n_pages = len(measures[(ENGINES[0], MODEL_ORDER[0])])
+    third = n_pages // 3  # 5 for the 15-page sample; the remainder goes to the hardest band
+    p(f"H. CER CHANGE BY PAGE DIFFICULTY (pages split into thirds by baseline CER, per engine; "
+      f"{third}/{third}/{n_pages - 2 * third} pages)")
     p("=" * 100)
     band_records = []
     for engine in ENGINES:
         base = {pid: v["base_cer"] for pid, v in measures[(engine, MODEL_ORDER[0])].items()}
         ordered = sorted(base, key=base.get)
-        bands = {"easy": ordered[:5], "medium": ordered[5:10], "hard": ordered[10:]}
+        bands = {"easy": ordered[:third], "medium": ordered[third:2 * third],
+                 "hard": ordered[2 * third:]}
         desc = ", ".join(f"{b} {min(base[x] for x in ids):.2f}-{max(base[x] for x in ids):.2f}"
                          for b, ids in bands.items())
         p(f"  {engine}: baseline CER bands -> {desc}")

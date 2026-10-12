@@ -34,7 +34,7 @@ from scipy import stats
 
 # Imported from one module only: extended_analysis rewraps sys.stdout for
 # UTF-8 on import, and a second module doing the same would close it.
-from extended_analysis import DEFAULT_RESAMPLES, DEFAULT_SEED, MODEL_ORDER
+from extended_analysis import DEFAULT_RESAMPLES, DEFAULT_SEED, MODEL_ORDER, holm
 from metrics import cer, normalize
 
 ENGINES = ["tesseract", "easyocr"]
@@ -201,6 +201,27 @@ def main():
         for m in models:
             if ("ground_truth", m) in out_by:
                 score_row("clean", m, out_by[("ground_truth", m)])
+
+    # ---- M7: is the grapheme-CER change significant? ----
+    p("=" * 90)
+    p("M7: change in grapheme CER (corrected - raw OCR): paired bootstrap 95% CI, "
+      "Wilcoxon, Holm over all engine x method tests")
+    tests = []
+    for e in ENGINES:
+        for m in models:
+            pids = sorted(out_by[(e, m)])
+            d = np.array([grapheme_cer(pages[q]["ground_truth"], out_by[(e, m)][q])
+                          - grapheme_cer(pages[q]["ground_truth"], pages[q][e]) for q in pids])
+            idx = rng.integers(0, len(d), (args.resamples, len(d)))
+            lo, hi = np.percentile(d[idx].mean(axis=1), [2.5, 97.5])
+            pv = float(stats.wilcoxon(d).pvalue) if np.any(d != 0) else 1.0
+            tests.append({"engine": e, "model": m, "mean_delta": float(d.mean()),
+                          "ci": [float(lo), float(hi)], "wilcoxon_p": pv})
+    for t, a in zip(tests, holm([t["wilcoxon_p"] for t in tests])):
+        t["wilcoxon_p_holm"] = float(a)
+        p(f"  {t['engine']:<10}{t['model']:<22}{t['mean_delta']:+.3f} "
+          f"[{t['ci'][0]:+.3f}, {t['ci'][1]:+.3f}]  p Holm {a:.4f}")
+    res["grapheme_tests"] = tests
 
     # ---- M6: cluster bootstrap by book ----
     p("=" * 90)

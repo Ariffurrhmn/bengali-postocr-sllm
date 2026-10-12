@@ -92,6 +92,7 @@ def main():
     parser.add_argument("--revision", type=Path, default=RESULTS / "revision_gpu40.json")
     parser.add_argument("--profile", type=Path, default=RESULTS / "model_profile.json")
     parser.add_argument("--decoding", type=Path, default=RESULTS / "decoding_ablation.json")
+    parser.add_argument("--variants", type=Path, default=RESULTS / "variants_gpu40.json")
     args = parser.parse_args()
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -336,6 +337,39 @@ def main():
             "penalty or n-gram ban. CPU: free Colab runtime, bfloat16, 15 pages (---: not run on "
             "CPU). GPU: NVIDIA T4, 40 pages. Times are per page and engine.\\end{minipage}\n"
             "\\end{table*}\n", encoding="utf-8")
+
+    # ---- prompt and chunking variants (review items M3, M4) ----
+    if args.variants.exists():
+        var = json.loads(args.variants.read_text(encoding="utf-8"))
+        cell = {(r["engine"], r["model"], r["variant"]): r for r in var}
+        labels = list(dict.fromkeys(r["variant"] for r in var))
+        vmodels = list(dict.fromkeys(r["model"] for r in var))
+        rows = []
+        for m in vmodels:
+            for i, v in enumerate(labels):
+                cols = [MODEL_NAMES[m] if i == 0 else "", v]
+                for e, _ in ENGINES:
+                    r = cell[(e, m, v)]
+                    star = ("$^{*}$" if r.get("wilcoxon_p_holm", 1) < 0.05 else "")
+                    cols.append("%.3f%s" % (r["mean_cer"], star))
+                rows.append(" & ".join(cols) + " \\\\")
+            if m != vmodels[-1]:
+                rows.append("\\midrule")
+        base = {e: b[(e, models[0], "cer")]["baseline_mean"] for e, _ in ENGINES}
+        (OUT_DIR / "variants.tex").write_text(
+            "\\begin{table}[t]\n\\centering\n"
+            "\\caption{Prompt and Chunking Variants (Mean CER, 40 Pages)}\n\\label{tab:variants}\n"
+            "\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{llcc}\n\\toprule\n"
+            "Model & Variant & Tesseract & EasyOCR \\\\\n\\midrule\n"
+            f" & Raw OCR & {base['tesseract']:.3f} & {base['easyocr']:.3f} \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize Original: English prompt, chunks of about "
+            "250 tokens. Each variant changes one thing: the preserve-spelling instruction, the "
+            "prompt in Bengali, three worked examples, or chunks of at most 300 characters. "
+            "$^{*}$: differs from the original setting, two-sided Wilcoxon signed-rank test, "
+            "Holm-corrected over the 32 variant comparisons.\\end{minipage}\n\\end{table}\n",
+            encoding="utf-8")
 
     # ---- decoding ablation (review item C1) ----
     if args.decoding.exists():
