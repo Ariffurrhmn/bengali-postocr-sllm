@@ -93,6 +93,7 @@ def main():
     parser.add_argument("--profile", type=Path, default=RESULTS / "model_profile.json")
     parser.add_argument("--decoding", type=Path, default=RESULTS / "decoding_ablation.json")
     parser.add_argument("--variants", type=Path, default=RESULTS / "variants_gpu40.json")
+    parser.add_argument("--gated", type=Path, default=RESULTS / "gated_gpu40.json")
     args = parser.parse_args()
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -337,6 +338,39 @@ def main():
             "penalty or n-gram ban. CPU: free Colab runtime, bfloat16, 15 pages (---: not run on "
             "CPU). GPU: NVIDIA T4, 40 pages. Times are per page and engine.\\end{minipage}\n"
             "\\end{table*}\n", encoding="utf-8")
+
+    # ---- confidence-gated correction (review item E4) ----
+    if args.gated.exists():
+        gated = {(r["engine"], r["model"], r["threshold"]): r
+                 for r in json.loads(args.gated.read_text(encoding="utf-8"))}
+        thr = {e: sorted({t for (ee, _, t) in gated if ee == e}) for e, _ in ENGINES}
+        rows = [" & ".join(["Raw OCR"] + [f"{b[(e, models[0], 'cer')]['baseline_mean']:.3f}"
+                                          for e, _ in ENGINES for _t in thr[e]]) + " \\\\",
+                "\\midrule"]
+        for m in [m for m in models if (ENGINES[0][0], m, thr[ENGINES[0][0]][0]) in gated]:
+            cols = [MODEL_NAMES[m]]
+            for e, _ in ENGINES:
+                for t in thr[e]:
+                    r = gated[(e, m, t)]
+                    star = ""
+                    if r["wilcoxon_p_holm"] < 0.05:
+                        star = "$^{-}$" if r["mean_delta"] < 0 else "$^{+}$"
+                    cols.append("%.3f%s" % (r["mean_cer"], star))
+            rows.append(" & ".join(cols) + " \\\\")
+        head = " & ".join(["Method"] + [str(t) for e, _ in ENGINES for t in thr[e]])
+        (OUT_DIR / "gated.tex").write_text(
+            "\\begin{table}[t]\n\\centering\n"
+            "\\caption{Confidence-Gated Correction (Mean CER, 40 Pages)}\n\\label{tab:gated}\n"
+            "\\setlength{\\tabcolsep}{3pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lcccccc}\n\\toprule\n"
+            " & \\multicolumn{3}{c}{Tesseract (word conf.)} & \\multicolumn{3}{c}{EasyOCR (box conf.)} \\\\\n"
+            "\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}\n" + head + " \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize A model's edit is kept only where every "
+            "OCR word it changes has a confidence below the threshold (column header); elsewhere "
+            "the raw OCR is kept. $^{+}$/$^{-}$: significantly higher/lower than the raw OCR, "
+            "Wilcoxon signed-rank test, Holm-corrected over the 54 gated tests.\\end{minipage}\n"
+            "\\end{table}\n", encoding="utf-8")
 
     # ---- prompt and chunking variants (review items M3, M4) ----
     if args.variants.exists():
