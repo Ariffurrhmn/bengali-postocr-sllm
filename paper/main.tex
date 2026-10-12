@@ -241,7 +241,9 @@ Table~\ref{tab:diagnostics} reports how many ground-truth words each output reta
 \input{tables/damage}
 
 \subsection{Edit profiles by model}
-The methods differ in which edit operations increase (Table~\ref{tab:editops}; counts per page against the reference).
+The methods differ in which edit operations increase (Table~\ref{tab:editops}; counts per page against the reference). Table~\ref{tab:examples} shows two reference lines with every method's output. On the first, Gemma 2B and Llama 3.2 1B return the Tesseract text unchanged, Qwen3 1.7B repairs one broken word, the dictionary replaces a historical form with a modern word, and the Bengali-specific models produce unrelated text or none. On the second, Qwen3 1.7B repairs one word and breaks another.
+
+\input{tables/examples}
 
 \input{tables/editops}
 

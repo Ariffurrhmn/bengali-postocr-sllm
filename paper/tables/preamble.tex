@@ -5,3 +5,16 @@
 \definecolor{bestbg}{RGB}{226,239,218}
 % Best corrected model per engine and column (reviewer item #42: "color the best").
 \newcommand{\best}[1]{\cellcolor{bestbg}\textbf{#1}}
+% Bengali text (example table, review item T4). Needs XeLaTeX and the bundled
+% font fonts/NotoSerifBengali-Regular.ttf (Noto, SIL Open Font License).
+% Under pdfLaTeX the Bengali text is replaced by a placeholder so the paper
+% still compiles.
+\usepackage{iftex}
+\ifXeTeX
+  \usepackage{fontspec}
+  \setmainfont{TeX Gyre Termes}  % Times, as IEEEtran uses under pdfLaTeX
+  \newfontfamily\bnfont[Script=Bengali, Path=fonts/, Extension=.ttf]{NotoSerifBengali-Regular}
+  \newcommand{\bn}[1]{{\bnfont #1}}
+\else
+  \newcommand{\bn}[1]{\textit{[Bengali text: compile with XeLaTeX]}}
+\fi
