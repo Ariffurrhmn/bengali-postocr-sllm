@@ -48,3 +48,11 @@ All dates 2026. Commit hashes refer to `master`.
 - **Oct 4:** Feedback transcribed; references checked; 14 candidate papers reviewed; extended analysis run (D27).
 - **Oct 4:** Paper assets generated in `paper/` (method + dataset figures, 5 LaTeX tables, references.bib) (D28).
 - **Oct 5:** Full revised draft written (`paper/main.tex`, D29); verification checklist in `paper/CHECK-BEFORE-SUBMITTING.md`.
+- **Oct 8:** Second review returned as a 54-item checklist (Bijon Sir): decoding confound, title, model sizes, coverage, baselines, methodology gaps, new models and evaluations, tables, figures, checks, writing and references.
+
+## Revision (October 2026)
+- **Oct 9:** Decoding ablation switch added (`a07c202`). Smoke test showed the repetition penalty and n-gram ban, which act on the prompt, caused most of the damage.
+- **Oct 9–10:** Plain-decoding reruns of the four original models on the 15-page sample on Colab CPU; Qwen3 1.7B added (`b0c75c9`, `d1e4baa`). Methods/Results first rewritten for plain decoding (`df32339`).
+- **Oct 10:** GPU support (`845d0ba`); decision to run the 40-page study on a free GPU (D30). OCR of the 25 new pages on Colab CPU; OCR drift found (August Tesseract output not reproducible), so all 40 pages use October OCR.
+- **Oct 11:** Phi-4-mini and the TituLLMs Instruct checkpoints added; the original TituLLMs found to be a base model (D31) (`0fe934f`, `640c6d2`). Kaggle T4 run: 960/960 results in one background session. 40-page analyses, SymSpell baseline, new tables and figures (`e0341ec`). Prompt and chunking variants set up (`34b5e2d`, D32).
+- **Oct 12:** Variants run (1,280 results) and comparison (`f9bfabb`). Methodology, Results, Failure Analysis, Discussion and Conclusion rewritten (`66399c6`, `35ea653`, `aafb615`); difficulty-band bug fixed. Confidence-gated correction from a re-OCR with confidences (D33; `bcef0ac`, `787ca72`). Title, abstract and introduction (`36ab1ed`), Related Work and references (`5f9779f`), Bengali example table and font (`26c8cf9`). Repo and context docs cleaned up.

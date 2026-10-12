@@ -1,26 +1,25 @@
 # bengali-postocr-sllm
 
-OCR-engine-agnostic post-OCR correction for Bengali text using small open-weight language models (zero-shot, CPU-only).
+Does zero-shot post-correction with small open language models help OCR of historical Bengali print? This repository holds the code, frozen page lists, prompts and paper source for an evaluation of eight models (0.25–3.8B parameters) and a dictionary baseline on the output of Tesseract and EasyOCR. Short answer: no model significantly lowers the character error rate; see [context/results.md](context/results.md).
 
-Current status and which file is latest: see [STATUS.md](STATUS.md). Decision log: [context/](context/).
+Current status and which file is latest: [STATUS.md](STATUS.md). Decision log: [context/](context/).
 
 ## Layout
 
-- `data/` — dataset lives outside the repo (`D:\Competition_dataset_ImagesPAGEXML`, British Library historical Bengali corpus, 81 image+PAGE-XML page pairs). This folder is a placeholder for local staging only; large files are not committed.
-- `ocr/` — Tesseract / EasyOCR wrappers.
-- `correction/` — per-model zero-shot correction harness (Phi-3 Mini, Llama 3.2 1B, Gemma 2B, TituLLMs 1B, BanglaT5).
-- `eval/` — CER/WER scoring, NFC normalization, paired bootstrap significance testing, figures, qualitative failure-mode diagnostics.
-- `results/` — logged per-page outcome data (CSV/JSON), not committed except for structure.
-- `notebooks/` — Colab notebook(s).
-- `paper/` — current paper source (`main.tex`), tables, figures, bibliography; `archive/` holds superseded versions.
-- `reviewer-feedback/` — transcribed review comments, literature notes, rewrite plan.
-- `context/` — decision log, results, timeline, open items.
+- `data/`: frozen split lists and the scripts that made them; the dataset itself is not committed.
+- `ocr/`: Tesseract / EasyOCR runs, including word-level confidences.
+- `correction/`: zero-shot correction harness (models, prompts, chunking, decoding), the resumable sweep, and the SymSpell baseline.
+- `eval/`: scoring (NFC-normalised CER/WER/cMER), paired bootstrap and Holm-corrected Wilcoxon tests, the revision analyses, and the generators for every paper table and figure.
+- `notebooks/`: the original Colab CPU notebook and the Kaggle GPU notebooks used for the 40-page runs.
+- `results/`: run outputs, gitignored.
+- `paper/`: paper source (`main.tex`), generated tables and figures, bibliography, and the bundled Bengali font; `archive/` holds a superseded version.
+- `context/`: decision log, results, timeline, engineering notes, open items.
 
 ## Dataset
 
 Ground-truth transcriptions for OCR of historical Bengali printed texts, released for the **ICDAR 2019
-Competition on Recognition of Early Indian Printed Documents (REID2019)** — organised by the British
+Competition on Recognition of Early Indian Printed Documents (REID2019)**, organised by the British
 Library's *Two Centuries of Indian Print* project with PRImA Research Lab and Jadavpur University.
 Source books date from 1713–1914. Images are out of copyright; transcriptions are public domain.
 
-Not included in this repo. Supply locally at a fixed path, or mount/copy into the Colab runtime at the start of each session.
+Not included in this repo. Supply it locally, or unzip it into the Colab/Kaggle runtime at the start of each session (see the notebooks and [SETUP.md](SETUP.md)).

@@ -34,3 +34,18 @@ The sweep only printed a line *after* each page finished, so a 7-minute page loo
 - Results go to `My Drive/bengali-postocr-results/` so they survive a runtime reset.
 - **Colab's "Save a copy in GitHub" commits directly to `master`** (with cell outputs). Always `git pull` locally before pushing, and `git pull` inside Colab after pushing a fix.
 - Free tier: ~90-min idle disconnect and session caps. Plan for resume, not for an unattended overnight run.
+
+## Revision (October 2026)
+
+8. **Repetition guards act on the prompt.** In Transformers `generate`, `repetition_penalty` and `no_repeat_ngram_size` see the whole sequence, which for decoder-only models includes the prompt. For a copy-heavy task like correction they penalise copying the input. Rule: never use them for correction; if a loop guard is needed, rely on the length cap.
+9. **Hard-coded page counts.** `extended_analysis.py` split difficulty bands as pages [:5], [5:10], [10:], correct only for 15 pages. Fixed to thirds of the page count. Rule: derive counts from the data; grep for literal 15/16 when the sample size changes.
+10. **OCR is not reproducible across months.** Colab's apt Tesseract changed between August and October 2026; re-OCR of the same 15 pages changed the Tesseract text on all of them (EasyOCR almost unchanged). Rule: record engine versions in every OCR file; never mix OCR runs from different dates.
+11. **Model size vs T4 memory.** Models above ~3B do not fit the T4's 15 GB in float32; they run in float16 (`GPU_FLOAT16_MODELS`). Gemma is known to overflow in float16, so it stays in float32.
+
+## Environment gotchas (added)
+
+- **Local disk C: is nearly full.** Hugging Face downloads default to C:; set `HF_HUB_CACHE=G:/hf-cache`. Google Drive streams files by caching them on C:, so reading a large Drive file can fail with "No space left on device".
+- **Local RAM (16 GB) cannot load Gemma 2B;** run models on Colab/Kaggle.
+- **Kaggle background runs:** use Save Version → Save & Run All; the notebook stops starting new pages after 11 h so the output is saved. Kaggle's Download button may only show the file in a browser tab; copying that text into a file worked and was validated (line count, JSON parse, no U+FFFD, size).
+- **Bash heredocs collapse double backslashes** in this Windows setup, breaking Python or LaTeX edit scripts. Write such scripts to a file first.
+- **BanglaT5 tokenizer** needs protobuf for the fast conversion in Transformers 5; `eval/model_profile.py` reads its SentencePiece model directly.

@@ -1,26 +1,28 @@
-# Status (2026-10-09)
+# Status (2026-10-12)
 
 **Read this first.** One page on where the project is and which file is current.
 
 ## Where we are
-Experiments are finished and the paper is a complete draft. Result: zero-shot correction with four small models (Gemma 2B, Llama 3.2 1B, TituLLMs 1B, BanglaT5) made Bengali OCR output worse on both Tesseract and EasyOCR (15 of 16 comparisons significant). The first submission (Aug 2026) was rejected by the reviewer; the revised draft responds to all 50 comments.
+The revision is complete. All experiments for the reviewer's 54-item checklist are done (48 addressed, 6 deliberately out of scope), and the whole paper has been rewritten around the 40-page results. What remains is for the author: compile on Overleaf with XeLaTeX and read it through (see `context/open-items.md`).
+
+Result in one line: none of eight small models, prompted zero-shot, nor a dictionary spell-checker significantly lowered the character error rate of historical Bengali OCR; the general models mostly copy their input, the Bengali-specific ones regenerate it.
 
 ## What is current
 | Thing | Current file |
 |---|---|
-| Paper source | `paper/main.tex` (+ `paper/tables/`, `paper/figures/`, `paper/references.bib`) |
-| Compiled paper | `paper/Draft_Paper_02.pdf` |
-| Numbers | `results/` (local only; `extended_eval.txt` is the latest analysis) |
+| Paper source | `paper/main.tex` (+ `paper/tables/`, `paper/figures/`, `paper/fonts/`, `paper/references.bib`) |
+| How to compile and regenerate | `paper/README.md` |
+| Numbers | `context/results.md` (from local `results/`) |
 | Decisions and reasons | `context/decisions.md` |
 | What is left to do | `context/open-items.md` |
-| Reviewer comments and responses | `reviewer-feedback/` |
 
 ## What is NOT current (do not edit)
-- `paper/archive/`: older sources and Overleaf zips.
-- The August submission PDF (kept outside this repo).
+- `paper/archive/`: older source and Overleaf zips.
+- `paper/Draft_Paper_02.pdf` (local): the draft the reviewer marked up.
+- `results/correction_eval.jsonl`, `bootstrap_eval.json`, `extended_eval.*`: the first version's 15-page runs, kept for the decoding ablation and the record.
 
 ## Repo map
 - `ocr/`, `correction/`, `eval/`, `notebooks/`: code. `data/`: split lists only (dataset not in repo).
 - `results/`: run outputs, gitignored.
-- `paper/`: the paper. `reviewer-feedback/`: the review and our response material.
+- `paper/`: the paper.
 - `context/`: the decision log.

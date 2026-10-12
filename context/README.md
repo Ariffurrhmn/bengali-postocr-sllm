@@ -2,32 +2,32 @@
 
 Working memory for this project, so decisions and the reasons behind them survive between sessions (human or AI). Code comments say *what* the code does; these files say *why* the project is shaped the way it is.
 
-Last updated: 2026-10-09. See also `../STATUS.md`.
+Last updated: 2026-10-12. See also `../STATUS.md`.
 
 ## Files
 
-- [decisions.md](decisions.md): every design decision, with the reasoning, the alternatives considered, and its consequences. **Start here.**
-- [results.md](results.md): the numbers (dev set and the final 15-page eval), taken from the result files.
+- [decisions.md](decisions.md): every design decision, with the reasoning, the alternatives considered, and its consequences. **Start here.** D30–D33 cover the October revision.
+- [results.md](results.md): the numbers, current study first, the superseded first version after.
 - [timeline.md](timeline.md): dated history with commit hashes.
 - [engineering-notes.md](engineering-notes.md): bugs found and fixed, plus environment gotchas that will bite again.
-- [open-items.md](open-items.md): what is unfinished, known inconsistencies, and the post-submission feedback.
+- [open-items.md](open-items.md): review-checklist status and what is left.
 
 ## Status in one paragraph
 
-The study asked whether a small open-weight language model, used zero-shot on CPU as a post-processing layer, can reduce CER/WER on Bengali OCR output, and whether the effect holds across OCR engines. It can't. On 15 held-out pages of historical Bengali print, all 4 evaluated models made both CER and WER worse on both engines (16 of 16 conditions worse, 15 significant by paired bootstrap). The effect was similar across Tesseract and EasyOCR. The first draft paper (9 pages, IEEE two-column) was submitted in August 2026 and came back with corrections and suggestions (see [open-items.md](open-items.md)).
+The study asks whether small open language models, used zero-shot as a post-processing layer, can reduce the error rate of OCR output for historical Bengali print, and whether the effect is the same across OCR engines. On all 40 evaluation pages, none of eight models (0.25–3.8B parameters) nor a dictionary spell-checker significantly lowered CER on Tesseract or EasyOCR output. General-purpose models mostly copy their input; Bengali-specific models regenerate it; every method damages correct text. A repetition penalty that also acts on the prompt had made the first version's models look far more harmful than they are. The first draft (August 2026, 15 pages) was rejected; the revised paper (`paper/main.tex`) answers the reviewer's 54-item checklist.
 
 ## Where things live
 
 - **Code:** this repo, public at https://github.com/Ariffurrhmn/bengali-postocr-sllm (branch `master`).
-- **Dataset:** not in the repo. Locally at `D:\Competition_dataset_ImagesPAGEXML`; on Google Drive as `My Drive/Dataset/REID2019.zip` (identical content, wrapped in one subfolder).
+- **Dataset:** not in the repo. On Google Drive as `My Drive/Dataset/REID2019.zip`; the 40 evaluation pages are extracted locally in `data/REID2019/` (gitignored).
 - **Frozen split:** `data/split_dev.txt` (10), `data/split_eval.txt` (40), `data/excluded_no_ground_truth.txt` (29).
-- **Run outputs:** `results/` (gitignored, so NOT on GitHub). Colab runs wrote to `My Drive/bengali-postocr-results/`. Local copies: `results/ocr_eval.jsonl`, `results/correction_eval.jsonl`, `results/bootstrap_eval.json`, `results/figures/`, `results/examples_*.txt`.
-- **Paper, proposal, literature, related papers:** kept outside this repo. The current paper source is `paper/main.tex`; it was written in Overleaf.
-- **Compute:** free Google Colab, CPU runtime, via `notebooks/setup_and_dry_run.ipynb`. The local machine is for code and tests only (see decisions D17).
+- **Run outputs:** `results/` (gitignored). Colab and Kaggle runs write to, or are copied into, `My Drive/bengali-postocr-results/`. Current files: `ocr_eval40.jsonl`, `gpu_eval40.jsonl`, `gpu_variants40.jsonl`, `dict_eval40.jsonl`, `ocr_conf40.jsonl`, and the analyses derived from them.
+- **Paper:** `paper/main.tex`, compiled in Overleaf with XeLaTeX (see `paper/README.md`).
+- **Compute:** model runs on a free Kaggle T4 GPU (`notebooks/kaggle_*.ipynb`); OCR on a free Colab CPU runtime; analysis on the local machine (D30).
 
 ## Conventions
 
-- Random seed **403** everywhere (split, eval subsample, bootstrap).
+- Random seed **403** everywhere (split, sample, bootstrap).
 - Scoring always goes through `eval/metrics.py` (NFC + whitespace collapse).
 - Every sweep writes one JSON line per result and flushes immediately; re-running the same command resumes.
 - Scripts that print Bengali re-wrap stdout as UTF-8 (Windows console).
