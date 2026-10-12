@@ -38,7 +38,7 @@ plt.rcParams.update({"font.family": "serif",
 
 FILL = {"data": "#e8eef7", "ocr": "#eef5e9", "model": "#fbefe3", "eval": "#f1ecf7", "plain": "#f4f4f4"}
 EDGE = "#333333"
-TITLE_FS, BODY_FS = 7.2, 6.3
+TITLE_FS, BODY_FS = 8.4, 7.4  # enlarged for column-width legibility (review item F4)
 PAD_X, PAD_Y, TITLE_GAP = 5.0, 4.0, 2.5
 
 
@@ -97,15 +97,15 @@ class Diagram:
 def method_figure():
     fig = plt.figure(figsize=(7.16, 1.85))
     d = Diagram(fig, [0, 0, 1, 1])
-    ocr_a = ("Tesseract 5", "Bengali, tessdata_best\ndefault settings")
-    ocr_b = ("EasyOCR 1.7", "Bengali\ndefault settings")
+    ocr_a = ("Tesseract 5.3.4", "tessdata_best\ndefault settings")
+    ocr_b = ("EasyOCR 1.7.2", "Bengali\ndefault settings")
     nodes = [
-        ("img", "Page image", "British Library\nhistorical Bengali print\n(REID2019)\n15 held-out pages", "data"),
+        ("img", "Page image", "historical Bengali\nprint (REID2019)\n40 evaluation\npages", "data"),
         ("ocr", None, None, "ocr"),
-        ("raw", "Raw OCR text", "one per page\nper engine", "plain"),
-        ("chunk", "Chunking", "~250 tokens,\nsplit at line breaks;\ninputs < 10 chars\nkept unchanged", "plain"),
-        ("model", "Zero-shot correction", "one fixed instruction\n(BanglaT5: text only)\ngreedy decoding\nCPU only, bf16\n\nGemma 2B, Llama 3.2 1B,\nTituLLMs 1B, BanglaT5", "model"),
-        ("eval", "Evaluation", "vs PAGE-XML ground truth\nNFC + whitespace normalised\nCER, WER, cMER\npaired bootstrap,\nWilcoxon + Holm\nfailure diagnostics", "eval"),
+        ("raw", "Raw OCR", "one per page\nper engine", "plain"),
+        ("chunk", "Chunking", "~250 tokens\n(or 300 chars),\nwhole lines", "plain"),
+        ("model", "Zero-shot correction", "8 models, 0.25-3.8B\nfixed instruction\ngreedy decoding\n+ SymSpell baseline", "model"),
+        ("eval", "Evaluation", "vs ground truth\nCER, WER, cMER\nbootstrap, Holm\nclean-text control", "eval"),
     ]
     widths = [max(d.size(*ocr_a)[0], d.size(*ocr_b)[0]) if key == "ocr" else d.size(title, body)[0]
               for key, title, body, _ in nodes]
@@ -134,7 +134,7 @@ def method_figure():
     (rx, ry), (ex, ey) = d.anchor("raw", "t"), d.anchor("eval", "t")
     # arc3 is a quadratic curve; its apex sits half the control-point offset above the chord.
     apex_y = max(ry, ey) + 0.5 * 0.16 * (ex - rx)
-    d.ax.text((rx + ex) / 2, apex_y + 2, "no-correction baseline: raw OCR scored directly",
+    d.ax.text((rx + ex) / 2, apex_y + 2, "baseline: raw OCR scored directly",
               ha="center", va="bottom", fontsize=BODY_FS, style="italic")
 
     for ext in ("pdf", "png"):
@@ -167,7 +167,7 @@ def dataset_figure(page_image: Path, page_xml: Path):
     dev = read_ids(REPO_ROOT / "data" / "split_dev.txt")
     eval_ids = read_ids(REPO_ROOT / "data" / "split_eval.txt")
     scored = [json.loads(l)["page_id"] for l in
-              (REPO_ROOT / "results" / "ocr_eval.jsonl").read_text(encoding="utf-8").splitlines()]
+              (REPO_ROOT / "results" / "ocr_eval40.jsonl").read_text(encoding="utf-8").splitlines()]
     usable = TOTAL_PAGES - len(excluded)
     pool = len(dev) + len(eval_ids)
 
@@ -182,11 +182,11 @@ def dataset_figure(page_image: Path, page_xml: Path):
     d.add("pool", main_x, H * 0.57, f"{pool}-page pool")
     d.add("drop", side_x, H * 0.65, f"{usable - pool} dropped", "thinnest\ntranscriptions")
     d.add("dev", W * 0.19, H * 0.36, f"{len(dev)} development pages",
-          "pipeline debugging only;\nnever used for any\nreported number")
+          "pipeline debugging and\nfew-shot examples;\nnever scored")
     d.add("eval", W * 0.63, H * 0.36, f"{len(eval_ids)} evaluation pages",
-          "held out; split frozen and\ncommitted before any\ncorrection model was run", "data")
-    d.add("scored", W * 0.63, H * 0.10, f"{len(scored)} evaluation pages scored",
-          "random sample, seed 403;\n2 OCR engines x 4 models", "eval")
+          "split frozen and committed\nbefore any correction\nmodel was run", "data")
+    d.add("scored", W * 0.63, H * 0.10, f"all {len(scored)} pages scored",
+          "2 OCR engines x 8 models\n+ spell-checker baseline", "eval")
     d.arrow(d.anchor("all", "b"), d.anchor("usable", "t"))
     d.arrow(d.anchor("usable", "b"), d.anchor("pool", "t"))
     d.arrow(d.anchor("all", "r"), d.anchor("excl", "l"))

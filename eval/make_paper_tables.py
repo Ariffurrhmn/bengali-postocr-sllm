@@ -55,6 +55,12 @@ MODEL_NAMES = {"symspell": "SymSpell (dictionary)", "gemma-2b": "Gemma 2B", "lla
 PARAMS_B = {"gemma-2b": 2.51, "qwen3-1.7b": 1.72, "phi4-mini": 3.84, "llama3.2-1b": 1.24,
             "banglat5": 0.25, "titullm-1b": 1.24, "titullm-1b-instruct": 1.32,
             "titullm-3b-instruct": 3.34}
+# Hugging Face revision of each checkpoint used in the runs (each was last
+# modified before the runs, 10-12 October 2026, so the default branch then
+# was this commit).
+REVISIONS = {"gemma-2b": "9698841", "qwen3-1.7b": "70d244c", "phi4-mini": "cfbefac",
+             "llama3.2-1b": "9213176", "banglat5": "76b135c", "titullm-1b": "521da71",
+             "titullm-1b-instruct": "039dbd2", "titullm-3b-instruct": "6a96004"}
 # Precision on the T4 (correction/models.py: GPU_FLOAT16_MODELS).
 GPU_DTYPE = {m: "fp16" if m in ("phi4-mini", "titullm-3b-instruct") else "fp32"
              for m in PARAMS_B}
@@ -312,7 +318,7 @@ def main():
             r = prof[m]
             cpu = "%.1f" % r["cpu_min_per_page"] if r["cpu_min_per_page"] is not None else "---"
             gpu = "%.2f" % r["gpu_min_per_page"]
-            rows.append(f"{MODEL_NAMES[m]} & \\texttt{{{r['checkpoint'].replace('_', chr(92) + '_')}}} & "
+            rows.append(f"{MODEL_NAMES[m]} & \\texttt{{{r['checkpoint'].replace('_', chr(92) + '_')}@{REVISIONS[m]}}} & "
                         f"{PARAMS_B[m]:.2f} & {GPU_DTYPE[m]} & {r['tokens_per_char']:.2f} & "
                         f"{r['mean_chars_per_chunk']:.0f} & {cpu} & {gpu} \\\\")
         (OUT_DIR / "models.tex").write_text(
@@ -322,7 +328,8 @@ def main():
             "Model & Checkpoint & Params (B) & GPU precision & Tokens/char & Chars/chunk & "
             "CPU min/page & GPU min/page \\\\\n\\midrule\n" + "\n".join(rows) + "\n"
             "\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n\\begin{minipage}{\\linewidth}"
-            "\\footnotesize Parameters from each checkpoint's configuration, tied embeddings "
+            "\\footnotesize Checkpoint: Hugging Face model and revision. "
+            "Parameters from each checkpoint's configuration, tied embeddings "
             "counted once. Tokens/char: each tokenizer on the 40 reference texts. Chars/chunk: "
             "mean characters per chunk of about 250 tokens on raw Tesseract text. Decoding for "
             "all models: greedy, at most $\\min(512,\\max(64,1.5n))$ new tokens, no repetition "

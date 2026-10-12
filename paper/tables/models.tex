@@ -8,16 +8,16 @@
 \toprule
 Model & Checkpoint & Params (B) & GPU precision & Tokens/char & Chars/chunk & CPU min/page & GPU min/page \\
 \midrule
-Gemma 2B & \texttt{google/gemma-2b-it} & 2.51 & fp32 & 0.60 & 312 & 10.4 & 0.38 \\
-Qwen3 1.7B & \texttt{Qwen/Qwen3-1.7B} & 1.72 & fp32 & 1.08 & 190 & 14.3 & 0.58 \\
-Phi-4-mini & \texttt{microsoft/Phi-4-mini-instruct} & 3.84 & fp16 & 0.45 & 389 & --- & 0.31 \\
-Llama 3.2 1B & \texttt{meta-llama/Llama-3.2-1B-Instruct} & 1.24 & fp32 & 1.22 & 168 & 9.5 & 0.37 \\
-BanglaT5 & \texttt{csebuetnlp/banglat5} & 0.25 & fp32 & 0.29 & 483 & 2.2 & 0.05 \\
-TituLLMs 1B & \texttt{hishab/titulm-llama-3.2-1b-v1.1} & 1.24 & fp32 & 1.22 & 168 & 12.5 & 0.59 \\
-TituLLMs 1B Instruct & \texttt{hishab/titulm-llama-3.2-1b-v2.0-Instruct-v1.0} & 1.32 & fp32 & 0.38 & 422 & --- & 2.44 \\
-TituLLMs 3B Instruct & \texttt{hishab/titulm-llama-3.2-3b-v2.0-Instruct-v1.0} & 3.34 & fp16 & 0.38 & 422 & --- & 0.32 \\
+Gemma 2B & \texttt{google/gemma-2b-it@9698841} & 2.51 & fp32 & 0.60 & 312 & 10.4 & 0.38 \\
+Qwen3 1.7B & \texttt{Qwen/Qwen3-1.7B@70d244c} & 1.72 & fp32 & 1.08 & 190 & 14.3 & 0.58 \\
+Phi-4-mini & \texttt{microsoft/Phi-4-mini-instruct@cfbefac} & 3.84 & fp16 & 0.45 & 389 & --- & 0.31 \\
+Llama 3.2 1B & \texttt{meta-llama/Llama-3.2-1B-Instruct@9213176} & 1.24 & fp32 & 1.22 & 168 & 9.5 & 0.37 \\
+BanglaT5 & \texttt{csebuetnlp/banglat5@76b135c} & 0.25 & fp32 & 0.29 & 483 & 2.2 & 0.05 \\
+TituLLMs 1B & \texttt{hishab/titulm-llama-3.2-1b-v1.1@521da71} & 1.24 & fp32 & 1.22 & 168 & 12.5 & 0.59 \\
+TituLLMs 1B Instruct & \texttt{hishab/titulm-llama-3.2-1b-v2.0-Instruct-v1.0@039dbd2} & 1.32 & fp32 & 0.38 & 422 & --- & 2.44 \\
+TituLLMs 3B Instruct & \texttt{hishab/titulm-llama-3.2-3b-v2.0-Instruct-v1.0@6a96004} & 3.34 & fp16 & 0.38 & 422 & --- & 0.32 \\
 \bottomrule
 \end{tabular}
 \par\smallskip
-\begin{minipage}{\linewidth}\footnotesize Parameters from each checkpoint's configuration, tied embeddings counted once. Tokens/char: each tokenizer on the 40 reference texts. Chars/chunk: mean characters per chunk of about 250 tokens on raw Tesseract text. Decoding for all models: greedy, at most $\min(512,\max(64,1.5n))$ new tokens, no repetition penalty or n-gram ban. CPU: free Colab runtime, bfloat16, 15 pages (---: not run on CPU). GPU: NVIDIA T4, 40 pages. Times are per page and engine.\end{minipage}
+\begin{minipage}{\linewidth}\footnotesize Checkpoint: Hugging Face model and revision. Parameters from each checkpoint's configuration, tied embeddings counted once. Tokens/char: each tokenizer on the 40 reference texts. Chars/chunk: mean characters per chunk of about 250 tokens on raw Tesseract text. Decoding for all models: greedy, at most $\min(512,\max(64,1.5n))$ new tokens, no repetition penalty or n-gram ban. CPU: free Colab runtime, bfloat16, 15 pages (---: not run on CPU). GPU: NVIDIA T4, 40 pages. Times are per page and engine.\end{minipage}
 \end{table*}
