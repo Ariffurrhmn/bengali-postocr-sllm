@@ -6,7 +6,7 @@
 
 \begin{document}
 
-\title{OCR-Engine-Agnostic Post-OCR Correction for Bengali Text using Small Language Models}
+\title{Does Zero-Shot Small-Model Post-Correction Help Bengali OCR? A Negative Result Across Eight Models and Two OCR Engines}
 
 \author{\IEEEauthorblockN{Arifur Rahman}
 \IEEEauthorblockA{ID: 20234103222\\
@@ -19,11 +19,11 @@ arifur.rahman.cs04@gmail.com}}
 
 % =====================================================================
 \begin{abstract}
-Optical character recognition (OCR) for historical Bengali print is error-prone, and correcting its output with a small language model has been suggested as a low-cost remedy that needs no retraining. We test this suggestion on fifteen held-out pages of a British Library corpus of Bengali books. Two OCR engines (Tesseract and EasyOCR) produce the text, and four open models of at most two billion parameters (Gemma 2B, Llama 3.2 1B, TituLLMs 1B and BanglaT5) correct it zero-shot on a CPU with one fixed instruction (BanglaT5, which is not instruction-tuned, receives the text alone). In all eight engine-and-model combinations, correction raised both the character and the word error rate, and fifteen of the sixteen resulting increases (two metrics per combination) are significant under a paired bootstrap and a Holm-corrected Wilcoxon test. Gemma 2B produced the smallest CER increase, raising the character error rate from 0.364 to 0.583 on Tesseract output and from 0.297 to 0.517 on EasyOCR output. Correction altered between 76 and 99.5 percent of the words that the raw OCR had recognised correctly, while recovering at most 5.5 percent of those it had recognised incorrectly. The direction of the effect was the same for both engines. A length-based safeguard reduced the increase in error but never brought it below the uncorrected level. For the models, prompt and historical corpus tested here, zero-shot correction made Bengali OCR output worse; fine-tuning remains untested.
+Optical character recognition (OCR) of historical Bengali print is error-prone, and correcting its output with a small language model has been suggested as a low-cost remedy that needs no retraining. We test this on 40 evaluation pages of Bengali books printed between 1713 and 1914. Tesseract and EasyOCR produce the text, which eight open models of 0.25 to 3.8 billion parameters correct zero-shot; a dictionary spell-checker serves as a classical baseline. No method significantly lowered the character error rate (CER) of either engine. The best general-purpose models mostly returned their input (Gemma 2B: CER 0.341 to 0.353 on Tesseract output, 0.297 to 0.301 on EasyOCR output), while the Bengali-specific models regenerated the text and raised CER to between 0.83 and 1.64. Every method altered text that contained no error. The only gains were small: Qwen3 1.7B lowered the word error rate on Tesseract output from 0.827 to 0.799 and, with its edits restricted to words the engine was unsure of, CER by 0.004. A repetition penalty that also acts on the prompt had made copying models appear harmful in our first runs, raising the CER of Gemma 2B from 0.364 to 0.583 on a 15-page sample; prompt variants, model-independent chunking and output safeguards did not change the conclusion. The study covers zero-shot use of small models on 40 pages; fine-tuning remains untested.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Bengali OCR, post-OCR correction, small language models, zero-shot prompting, low-resource NLP, negative results
+Bengali OCR, post-OCR correction, small language models, zero-shot prompting, historical documents, low-resource NLP, negative results
 \end{IEEEkeywords}
 
 % =====================================================================
@@ -33,19 +33,21 @@ Bengali ranks seventh among the world's languages by total speakers, with about 
 
 Language-model post-correction offers a way to process recognition errors without modifying the OCR engine. Small models may suit institutions with limited computing resources, including national archives, government offices and non-governmental organisations involved in Bengali digitisation. Their lower hardware requirements motivate evaluating them for resource-limited archives~\cite{vershinin2025lightweight}. A correction layer of this kind would also be engine-independent: it reads text, not images, so it could be attached to any OCR system without retraining.
 
-Evidence on whether such a layer works is mixed outside English. Open-weight models improved OCR output in English but made Finnish worse~\cite{kanerva2025nofreelunches}. Zero-shot models, including a 70-billion-parameter one, increased the error rate once the input CER reached about 0.15~\cite{koynov2025opportunities}. For Hindi speech-recognition output, zero-shot language models raised the word error rate~\cite{kumar2026postasr}. For Bengali OCR we found no published study of language-model correction, and none that checks whether a correction layer behaves the same way across OCR engines. We evaluate the following research questions.
+Evidence on whether such a layer works falls into three groups. Correction helped where the model was fine-tuned for the task~\cite{thomas2024leveraging,beshirov2025bulgarian} or where large models read nearly clean English text~\cite{koynov2025opportunities}. Zero-shot results were mixed across models and languages: open models improved English but not Finnish~\cite{kanerva2025nofreelunches}, and only one of four quantised 7 to 13 billion parameter models improved an English newspaper corpus~\cite{vershinin2025lightweight}. Correction made the text worse when the input was noisier or the language less resourced: zero-shot models, including a 70-billion-parameter one, raised the error rate once the input CER reached about 0.15~\cite{koynov2025opportunities}, and zero-shot language models raised the word error rate of Hindi speech-recognition output~\cite{kumar2026postasr}. To our knowledge, no published study evaluates language-model correction of Bengali OCR, compares one correction layer across OCR engines, or checks how much of a reported failure the generation settings themselves cause. We evaluate the following research questions.
 \begin{itemize}
-\item \textbf{RQ1.} Can small open language models (at most two billion parameters), prompted zero-shot on a CPU, reduce the character and word error rates of Bengali OCR output?
+\item \textbf{RQ1.} Can small open language models (0.25 to 3.8 billion parameters), prompted zero-shot, reduce the character and word error rates of OCR output for historical Bengali print?
 \item \textbf{RQ2.} Is the effect of correction consistent across OCR engines when the correction step is not adapted to either engine?
+\item \textbf{RQ3.} What does correction do to the text: does it repair recognition errors, or does it change text that was already correct?
+\item \textbf{RQ4.} Do the decoding setting, the prompt, the chunking or a safeguard change the outcome?
 \end{itemize}
 
-Correction increased error rates for both engines. To examine this outcome, the study combines a held-out evaluation with analysis of changes to the recognised text. Its contributions are:
+No model significantly lowered the character error rate. The general-purpose models mostly copied their input, the Bengali-specific models regenerated it, and every method altered correct text. The study's contributions are:
 \begin{enumerate}
-\item To our knowledge, it is the first evaluation of language-model post-correction for Bengali OCR, using two OCR engines and four models of at most two billion parameters.
-\item It tests the result with paired statistics (a bootstrap and a Holm-corrected Wilcoxon test) on pages that were held out before any model was run.
-\item It measures how the corrected text differs from the raw OCR: word-level counts of correct words broken and wrong words fixed, edit-operation profiles, script share, truncation, and dependence on page difficulty.
-\item It evaluates a length-based fallback to raw OCR using thresholds from a published system.
-\item It releases the code, the frozen page lists and the prompt, so the study can be repeated on free CPU-only infrastructure.
+\item To our knowledge, the first evaluation of language-model post-correction for Bengali OCR: eight open models, two OCR engines and a dictionary baseline on 40 pages whose split was frozen before any model was run, with paired bootstrap intervals and Holm-corrected Wilcoxon tests.
+\item Evidence that a common decoding setting, a repetition penalty and n-gram ban that also act on the prompt, makes a copying model appear to damage the text, a pitfall for any evaluation of correction.
+\item A clean-text control that separates over-correction from the difficulty of noisy input, and an analysis of what correction changes: correct words broken and wrong words fixed, edit operations, character classes, and copying versus regeneration.
+\item Tests of remedies: three prompt variants, model-independent chunks, length and edit-distance safeguards, and correction restricted to words the OCR engine was unsure of.
+\item Public code, page lists and prompts, so the study can be repeated on free computing resources.
 \end{enumerate}
 
 % =====================================================================
@@ -68,7 +70,7 @@ BanglaBERT is a Bengali encoder built for understanding tasks, not for rewriting
 The closest Bengali work corrects grammar, not OCR. Instruction-tuning raised Bangla grammar-correction scores by 3 to 7 points over the zero-shot setting, and humans still outperformed the models at correcting; the hardest categories for GPT-4o included mixing of the older literary register with the modern one~\cite{bhattacharyya2025banglagec}. For Hindi speech-recognition output, fine-tuned models of 0.3 to 0.58 billion parameters beat much larger language models, and zero-shot GPT-4o-mini raised the word error rate from 28.6 to 31.8 and from 18.0 to 25.1 percent. The authors trace this to over-correction, which grows with model size~\cite{kumar2026postasr}.
 
 \subsection{Research gap}
-Table~\ref{tab:literature} summarises the studies above. Among the work we reviewed, none evaluates post-OCR correction for Bengali, none tests models of at most two billion parameters on input with a CER above 0.3, and none compares one correction layer across OCR engines. These gaps motivate the choice of language, model scale and cross-engine evaluation.
+Table~\ref{tab:literature} summarises the studies above. Among the work we reviewed, none evaluates post-OCR correction for Bengali, none applies open models below seven billion parameters to OCR correction or uses input with a CER above 0.25, and none compares one correction layer across OCR engines. These gaps motivate the choice of language, model scale and cross-engine evaluation.
 
 \input{tables/literature}
 
