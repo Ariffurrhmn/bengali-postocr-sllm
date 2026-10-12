@@ -39,6 +39,7 @@ from pathlib import Path
 
 # Imported before anything prints: inspect_examples re-wraps stdout for UTF-8.
 from inspect_examples import MODEL_ORDER, script_profile, token_retention
+from metrics import normalize
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 RESULTS = REPO_ROOT / "results"
@@ -78,6 +79,17 @@ def fmt_p(p: float) -> str:
     return f"{p:.3f}" if p < 0.05 else f"{p:.2f}\\textsuperscript{{ns}}"
 
 
+def sigmark(r: dict) -> str:
+    """$^{+}$ / $^{-}$ when a test is significant after Holm correction."""
+    if r["wilcoxon_p_holm"] >= 0.05:
+        return ""
+    return "$^{-}$" if r["mean_delta"] < 0 else "$^{+}$"
+
+
+def ci(lo: float, hi: float) -> str:
+    return "[%+.3f, %+.3f]" % (lo, hi)
+
+
 def load_jsonl(path: Path):
     return [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
 
@@ -94,6 +106,7 @@ def main():
     parser.add_argument("--decoding", type=Path, default=RESULTS / "decoding_ablation.json")
     parser.add_argument("--variants", type=Path, default=RESULTS / "variants_gpu40.json")
     parser.add_argument("--gated", type=Path, default=RESULTS / "gated_gpu40.json")
+    parser.add_argument("--sensitivity", type=Path, default=RESULTS / "sensitivity_gpu40.json")
     args = parser.parse_args()
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -172,45 +185,60 @@ def main():
         "\\colorbox{bestbg}{\\textbf{Shaded}}: best corrected model per engine.\\end{minipage}\n"
         "\\end{table*}\n", encoding="utf-8")
 
-    # ---- diagnostics (pooled over both engines, as in the original Table IV) ----
-    stats = defaultdict(lambda: defaultdict(list))
+    # ---- diagnostics (both engines together) ----
+    # Length ratio and retention are means over outputs (as Table II's raw
+    # length ratio); script shares are pooled over all non-space characters,
+    # so empty outputs do not count as 0% of every script (second review).
+    def diag(pairs):
+        """pairs: list of (ground truth, output text)."""
+        chars = {"bengali": 0, "latin": 0, "other": 0}
+        for _, out in pairs:
+            prof = script_profile(out)
+            for k in chars:
+                chars[k] += prof[k] * prof["n"]
+        total = sum(chars.values()) or 1
+        return {"len": sum(len(normalize(o)) / len(normalize(g)) for g, o in pairs) / len(pairs),
+                **{k: v / total for k, v in chars.items()},
+                "ret": sum(token_retention(g, o) for g, o in pairs) / len(pairs),
+                "empty": sum(not o.strip() for _, o in pairs), "n": len(pairs)}
+
+    by_model = defaultdict(list)
     for r in corrections:
-        gt, out = ocr[r["page_id"]]["ground_truth"], r["raw_output"]
-        s = stats[r["model_key"]]
-        s["len"].append(len(out) / len(gt))
-        prof = script_profile(out)
-        for k in ("bengali", "latin", "other"):
-            s[k].append(prof[k])
-        s["ret"].append(token_retention(gt, out))
-    mean = {m: {k: sum(v) / len(v) for k, v in stats[m].items()} for m in models}
+        by_model[r["model_key"]].append((ocr[r["page_id"]]["ground_truth"], r["raw_output"]))
+    mean = {m: diag(by_model[m]) for m in models}
+    pct = lambda x: f"{x:.0%}".replace("%", "\\%")
     ref_rows = []
     for e, name in ENGINES:
-        prof = [script_profile(v[e]) for v in ocr.values()]
-        ret = [token_retention(v["ground_truth"], v[e]) for v in ocr.values()]
-        avg = lambda k: sum(p[k] for p in prof) / len(prof)
-        ref_rows.append(f"Raw {name} & --- & {avg('bengali'):.0%} & {avg('latin'):.0%} & "
-                        f"{avg('other'):.0%} & {sum(ret) / len(ret):.0%} \\\\".replace("%", "\\%"))
+        v = diag([(p_["ground_truth"], p_[e]) for p_ in ocr.values()])
+        ref_rows.append(f"Raw {name} & {v['len']:.2f}$\\times$ & {pct(v['bengali'])} & "
+                        f"{pct(v['latin'])} & {pct(v['other'])} & {pct(v['ret'])} & "
+                        f"{v['empty']}/{v['n']} \\\\")
     len_dev = {m: abs(mean[m]["len"] - 1) for m in models}
     model_rows = []
     for m in models:
         v = mean[m]
         cells_ = [
             mark(len_dev, m, f"{v['len']:.2f}$\\times$"),
-            mark({k: mean[k]["bengali"] for k in models}, m, f"{v['bengali']:.0%}", False),
-            mark({k: mean[k]["latin"] for k in models}, m, f"{v['latin']:.0%}"),
-            mark({k: mean[k]["other"] for k in models}, m, f"{v['other']:.0%}"),
-            mark({k: mean[k]["ret"] for k in models}, m, f"{v['ret']:.0%}", False),
+            mark({k: mean[k]["bengali"] for k in models}, m, pct(v["bengali"]), False),
+            mark({k: mean[k]["latin"] for k in models}, m, pct(v["latin"])),
+            mark({k: mean[k]["other"] for k in models}, m, pct(v["other"])),
+            mark({k: mean[k]["ret"] for k in models}, m, pct(v["ret"]), False),
+            f"{v['empty']}/{v['n']}",
         ]
-        model_rows.append(f"{MODEL_NAMES[m]} & " + " & ".join(cells_).replace("%", "\\%") + " \\\\")
+        model_rows.append(f"{MODEL_NAMES[m]} & " + " & ".join(cells_) + " \\\\")
     (OUT_DIR / "diagnostics.tex").write_text(
         "\\begin{table}[t]\n\\centering\n\\caption{Output Diagnostics by Model}\n"
-        "\\label{tab:diagnostics}\n\\setlength{\\tabcolsep}{4pt}\n"
-        "\\begin{tabular}{lccccc}\n\\toprule\n"
-        "Source & Len. & Bn & Latin & Other & GT ret. \\\\\n\\midrule\n"
+        "\\label{tab:diagnostics}\n\\setlength{\\tabcolsep}{3pt}\n\\footnotesize\n"
+        "\\begin{tabular}{lcccccc}\n\\toprule\n"
+        "Source & Len. & Bn & Latin & Other & GT ret. & Empty \\\\\n\\midrule\n"
         + "\n".join(ref_rows) + "\n\\midrule\n" + "\n".join(model_rows) + "\n"
-        "\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n\\begin{minipage}{\\linewidth}\\footnotesize Len.: output length / reference length. "
-        "Bn / Latin / Other: share of characters by script. GT ret.: share of distinct ground-truth "
-        "words present in the output. Pooled over both engines.\\end{minipage}\n\\end{table}\n", encoding="utf-8")
+        "\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n\\begin{minipage}{\\linewidth}\\footnotesize "
+        "Both engines together (80 outputs per model; 40 per raw OCR row). Len.: output length / "
+        "reference length, mean over outputs (the raw OCR values are those of Table~\\ref{tab:dataset}). "
+        "Bn / Latin / Other: share of all non-space output characters, pooled over outputs, so "
+        "empty outputs do not enter. GT ret.: share of distinct ground-truth words present in the "
+        "output, mean over outputs (an empty output retains none). Empty: outputs with no "
+        "text.\\end{minipage}\n\\end{table}\n", encoding="utf-8")
 
     # ---- extended: damage vs fixes, change, safeguard ----
     rows = []
@@ -220,19 +248,16 @@ def main():
         fixed = {m: cells[(e, m)]["pct_fixed"] for m in models}
         ratio = {m: cells[(e, m)]["mean_change_ratio"] for m in models}
         ins = {m: cells[(e, m)]["long_insert_char_share"] for m in models}
-        gcer = {m: guard[(e, m)]["cer_guard"] for m in models}
         rows.append(f"{name} & (no correction) & {sig[(e, models[0], 'cmer')]['baseline_mean']:.3f} "
-                    f"& --- & --- & --- & --- & {guard[(e, models[0])]['cer_base']:.3f} \\\\")
+                    f"& --- & --- & --- & --- \\\\")
         for m in models:
-            g = guard[(e, m)]
             cols = [
                 name, MODEL_NAMES[m],
-                mark(cm, m, "%.3f" % cm[m]),
+                mark(cm, m, "%.3f" % cm[m]) + sigmark(sig[(e, m, "cmer")]),
                 mark(broken, m, "%.0f\\%%" % (broken[m] * 100)),
                 mark(fixed, m, "%.1f\\%%" % (fixed[m] * 100), lower_is_better=False),
                 mark(ratio, m, "%.1f" % ratio[m]),
                 mark(ins, m, "%.0f\\%%" % (ins[m] * 100)),
-                mark(gcer, m, "%.3f" % gcer[m]) + " (%d/%d)" % (g["fallbacks"], n_pages),
             ]
             rows.append(" & ".join(cols) + " \\\\")
         if i == 0:
@@ -240,18 +265,19 @@ def main():
     (OUT_DIR / "damage.tex").write_text(
         "\\begin{table*}[t]\n\\centering\n"
         "\\caption{What Correction Changed: Bounded Error, Word-Level Damage and Fixes, "
-        "Change Ratio, and a Length Safeguard}\n\\label{tab:damage}\n"
+        "and Change Ratio}\n\\label{tab:damage}\n"
         "\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
-        "\\begin{tabular}{llcccccc}\n\\toprule\n"
+        "\\begin{tabular}{llccccc}\n\\toprule\n"
         "Engine & Model & cMER & \\shortstack{Correct words\\\\broken} & \\shortstack{Wrong words\\\\fixed} & \\shortstack{Change\\\\ratio} & "
-        "\\shortstack{Invented\\\\runs} & \\shortstack{CER with safeguard\\\\(fallbacks)} \\\\\n\\midrule\n"
+        "\\shortstack{Invented\\\\runs} \\\\\n\\midrule\n"
         + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
         "\\begin{minipage}{\\linewidth}\\footnotesize cMER $=(S{+}D{+}I)/(H{+}S{+}D{+}I)$, bounded in $[0,1]$. "
         "Correct words broken: share of ground-truth words the raw OCR had right that the output gets wrong; "
         "wrong words fixed: share the raw OCR had wrong that the output gets right (word alignment against "
         "the ground truth). Change ratio: CER of the output against the raw OCR, divided by the raw OCR's CER. "
         "Invented runs: share of output characters in runs of $\\geq$6 characters with no counterpart in "
-        "the raw OCR. Safeguard: raw OCR kept when output length is outside 0.35--2.8$\\times$ the input. "
+        "the raw OCR. $^{+}$/$^{-}$: cMER significantly higher/lower than the raw OCR, Wilcoxon "
+        "signed-rank test, Holm-corrected over the 18 cMER tests. "
         "\\colorbox{bestbg}{\\textbf{Shaded}}: best corrected model per engine.\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
 
     # ---- dataset statistics (review item T1) ----
@@ -266,9 +292,15 @@ def main():
             f"Reference words per page & median {d['gt_words_median']:.0f} \\\\",
         ] + [f"Raw {name} length / reference & mean {d[f'{e}_len_ratio_mean']:.2f}, "
              f"median {d[f'{e}_len_ratio_median']:.2f} \\\\" for e, name in ENGINES]
+        rows.insert(2, "Printed & 1713--1914 (no per-book dates) \\\\")
+        if args.sensitivity.exists():
+            n = json.loads(args.sensitivity.read_text(encoding="utf-8"))["page_type_counts"]
+            rows.insert(3, "Page types & " + ", ".join(f"{n[t]} {t}" for t in
+                                                       ("title", "verse", "prose", "list"))
+                        + " \\\\")
         (OUT_DIR / "dataset.tex").write_text(
             "\\begin{table}[t]\n\\centering\n\\caption{Evaluation Pages}\n\\label{tab:dataset}\n"
-            "\\begin{tabular}{ll}\n\\toprule\n" + "\n".join(rows) + "\n\\bottomrule\n"
+            "\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n\\begin{tabular}{ll}\n\\toprule\n" + "\n".join(rows) + "\n\\bottomrule\n"
             "\\end{tabular}\n\\par\\smallskip\n\\begin{minipage}{\\linewidth}\\footnotesize "
             "Book: page identifier without its page number. Lengths after Unicode NFC "
             "normalisation and whitespace collapsing.\\end{minipage}\n\\end{table}\n",
@@ -285,7 +317,7 @@ def main():
             (OUT_DIR / "clean.tex").write_text(
                 "\\begin{table}[t]\n\\centering\n"
                 "\\caption{Clean-Text Control: Ground Truth Given as Input}\n\\label{tab:clean}\n"
-                "\\begin{tabular}{lccc}\n\\toprule\n"
+                "\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n\\begin{tabular}{lccc}\n\\toprule\n"
                 "Model & Mean CER & Pooled CER & Pages unchanged \\\\\n\\midrule\n"
                 + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
                 "\\begin{minipage}{\\linewidth}\\footnotesize Each model receives the reference "
@@ -320,23 +352,35 @@ def main():
             r = prof[m]
             cpu = "%.1f" % r["cpu_min_per_page"] if r["cpu_min_per_page"] is not None else "---"
             gpu = "%.2f" % r["gpu_min_per_page"]
-            rows.append(f"{MODEL_NAMES[m]} & \\texttt{{{r['checkpoint'].replace('_', chr(92) + '_')}@{REVISIONS[m]}}} & "
-                        f"{PARAMS_B[m]:.2f} & {GPU_DTYPE[m]} & {r['tokens_per_char']:.2f} & "
+            # Break the checkpoint ID after "/" and "-" so it wraps inside its column
+            # (the first version of this table ran off the page; second review).
+            ckpt = (r["checkpoint"].replace("_", "\\_").replace("/", "/\\allowbreak ")
+                    .replace("-", "-\\allowbreak ") + "@\\allowbreak " + REVISIONS[m])
+            weights_gb = PARAMS_B[m] * (2 if GPU_DTYPE[m] == "fp16" else 4)
+            rows.append(f"{MODEL_NAMES[m]} & \\texttt{{{ckpt}}} & "
+                        f"{PARAMS_B[m]:.2f} & {weights_gb:.1f} ({GPU_DTYPE[m]}) & "
+                        f"{r['tokens_per_char']:.2f} & {r['tokens_per_word']:.1f} & "
                         f"{r['mean_chars_per_chunk']:.0f} & {cpu} & {gpu} \\\\")
         (OUT_DIR / "models.tex").write_text(
             "\\begin{table*}[t]\n\\centering\n\\caption{Models and Configuration}\n"
             "\\label{tab:models}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
-            "\\begin{tabular}{llcccccc}\n\\toprule\n"
-            "Model & Checkpoint & Params (B) & GPU precision & Tokens/char & Chars/chunk & "
-            "CPU min/page & GPU min/page \\\\\n\\midrule\n" + "\n".join(rows) + "\n"
+            "\\begin{tabular}{l>{\\raggedright\\arraybackslash\\scriptsize}p{4.3cm}ccccccc}\n\\toprule\n"
+            "Model & Checkpoint@revision & \\shortstack{Params\\\\(B)} & "
+            "\\shortstack{GPU weights\\\\GB (precision)} & \\shortstack{Tokens/\\\\char} & "
+            "\\shortstack{Tokens/\\\\word} & \\shortstack{Chars/\\\\chunk} & "
+            "\\shortstack{CPU\\\\min/page} & \\shortstack{GPU\\\\min/page} \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n"
             "\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n\\begin{minipage}{\\linewidth}"
             "\\footnotesize Checkpoint: Hugging Face model and revision. "
             "Parameters from each checkpoint's configuration, tied embeddings "
-            "counted once. Tokens/char: each tokenizer on the 40 reference texts. Chars/chunk: "
-            "mean characters per chunk of about 250 tokens on raw Tesseract text. Decoding for "
-            "all models: greedy, at most $\\min(512,\\max(64,1.5n))$ new tokens, no repetition "
-            "penalty or n-gram ban. CPU: free Colab runtime, bfloat16, 15 pages (---: not run on "
-            "CPU). GPU: NVIDIA T4, 40 pages. Times are per page and engine.\\end{minipage}\n"
+            "counted once. GPU weights: memory taken by the parameters at the precision used on "
+            "the GPU (parameters $\\times$ 4 bytes in fp32, 2 in fp16); peak memory during "
+            "generation was not recorded. Tokens/char and tokens/word: each tokenizer on the 40 "
+            "reference texts. Chars/chunk: mean characters per chunk of about 250 tokens on raw "
+            "Tesseract text. Decoding for all models: greedy, at most $\\min(512,\\max(64,1.5n))$ "
+            "new tokens, no repetition penalty or n-gram ban. CPU: free Colab runtime, bfloat16, "
+            "15 pages (---: not run on CPU). GPU: NVIDIA T4, 40 pages. Times are per page and "
+            "engine.\\end{minipage}\n"
             "\\end{table*}\n", encoding="utf-8")
 
     # ---- confidence-gated correction (review item E4) ----
@@ -361,7 +405,7 @@ def main():
         (OUT_DIR / "gated.tex").write_text(
             "\\begin{table}[t]\n\\centering\n"
             "\\caption{Confidence-Gated Correction (Mean CER, 40 Pages)}\n\\label{tab:gated}\n"
-            "\\setlength{\\tabcolsep}{3pt}\n\\footnotesize\n"
+            "\\setlength{\\tabcolsep}{2pt}\n\\footnotesize\n"
             "\\begin{tabular}{lcccccc}\n\\toprule\n"
             " & \\multicolumn{3}{c}{Tesseract (word conf.)} & \\multicolumn{3}{c}{EasyOCR (box conf.)} \\\\\n"
             "\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}\n" + head + " \\\\\n\\midrule\n"
@@ -435,6 +479,124 @@ def main():
             "with only the length cap. CI: paired bootstrap, 10{,}000 resamples, seed 403. Last column: CER "
             "of the plain output against its own OCR input (near 0 = the model returned its input almost "
             "unchanged).\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
+
+    rev = json.loads(args.revision.read_text(encoding="utf-8")) if args.revision.exists() else None
+    sens = (json.loads(args.sensitivity.read_text(encoding="utf-8"))
+            if args.sensitivity.exists() else None)
+
+    # ---- safeguards with their tests (review item E8, second review) ----
+    if rev:
+        cap = {(r["engine"], r["model"], r["tau"]): r for r in rev["edit_cap"]}
+        taus = sorted({t for (_, _, t) in cap})
+        rows = []
+        for i, (e, name) in enumerate(ENGINES):
+            rows.append(f"\\multicolumn{{{4 + len(taus)}}}{{l}}{{\\textit{{{name}: raw OCR "
+                        f"CER {b[(e, models[0], 'cer')]['baseline_mean']:.3f}}}}} \\\\")
+            for m in models:
+                g = guard[(e, m)]
+                cols = [MODEL_NAMES[m],
+                        "%.3f (%d/%d)" % (g["cer_guard"], g["fallbacks"], g["n"]),
+                        "%+.3f %s" % (g["mean_delta"], ci(g["ci_low"], g["ci_high"])),
+                        fmt_p(g["wilcoxon_p_holm"])]
+                for t in taus:
+                    r = cap[(e, m, t)]
+                    cols.append("%.3f%s" % (r["mean_cer"], sigmark(r)))
+                rows.append(" & ".join(cols) + " \\\\")
+            if i == 0:
+                rows.append("\\midrule")
+        (OUT_DIR / "safeguards.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n"
+            "\\caption{Post-Hoc Safeguards: Length Rule and Edit-Distance Cap (Mean CER, 40 Pages)}\n"
+            "\\label{tab:safeguards}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lccc" + "c" * len(taus) + "}\n\\toprule\n"
+            " & \\multicolumn{3}{c}{Length rule} & \\multicolumn{" + str(len(taus))
+            + "}{c}{Edit-distance cap $\\tau$} \\\\\n"
+            "\\cmidrule(lr){2-4}\\cmidrule(lr){5-" + str(4 + len(taus)) + "}\n"
+            "Method & CER (fallbacks) & $\\Delta$CER [95\\% CI] & $p_{\\mathrm{Holm}}$ & "
+            + " & ".join(str(t) for t in taus) + " \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize Length rule: the raw OCR replaces an output "
+            "whose length is outside 0.35--2.8 times the input; fallbacks: pages replaced. "
+            "$\\Delta$: safeguarded minus raw OCR (positive = worse); CI: paired bootstrap, 10{,}000 "
+            "resamples; $p_{\\mathrm{Holm}}$: Wilcoxon signed-rank test, Holm-corrected over the 18 "
+            "length-rule tests. Edit-distance cap: the output is kept only if its CER against the raw "
+            "OCR is at most $\\tau$; $^{+}$/$^{-}$: significantly higher/lower than the raw OCR, "
+            "Holm-corrected over the " + str(len(cap)) + " cap tests.\\end{minipage}\n"
+            "\\end{table*}\n", encoding="utf-8")
+
+    # ---- robustness: pooled CER, grapheme CER, book bootstrap, reading order,
+    #      word recall (review items M2, M6, M7, M8; second review) ----
+    if rev and sens:
+        micro = {(r["engine"], r["model"]): r for r in rev["micro"]}
+        graph = {(r["engine"], r["model"]): r for r in rev["grapheme_tests"]}
+        clus = {(r["engine"], r["model"]): r for r in rev["cluster_bootstrap"]}
+        ro = {(r["engine"], r["model"]): r for r in sens["reading_order_tests"]}
+        rec = {(r["engine"], r["model"]): r for r in sens["word_recall_tests"]}
+        rows = []
+        for i, (e, name) in enumerate(ENGINES):
+            raw = micro[(e, "(raw OCR)")]
+            rows.append(f"\\multicolumn{{9}}{{l}}{{\\textit{{{name}: raw OCR pooled CER "
+                        f"{raw['pooled_cer']:.3f}, grapheme CER {raw['mean_grapheme_cer']:.3f}, "
+                        f"word recall {sens[e + '_raw_word_recall']:.3f}}}}} \\\\")
+            for m in models:
+                g, c, r_, w = graph[(e, m)], clus[(e, m)], ro[(e, m)], rec[(e, m)]
+                rows.append(" & ".join([
+                    MODEL_NAMES[m], "%.3f" % micro[(e, m)]["pooled_cer"],
+                    "%+.3f %s" % (g["mean_delta"], ci(*g["ci"])), fmt_p(g["wilcoxon_p_holm"]),
+                    ci(*c["book_ci"]),
+                    "%+.3f" % r_["mean_delta"], fmt_p(r_["wilcoxon_p_holm"]),
+                    "%+.3f" % w["mean_delta"], fmt_p(w["wilcoxon_p_holm"]),
+                ]) + " \\\\")
+            if i == 0:
+                rows.append("\\midrule")
+        (OUT_DIR / "robustness.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n"
+            "\\caption{Robustness of the Main Comparison to the Metric, the Resampling Unit and "
+            "the Reference}\n\\label{tab:robustness}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lcccccccc}\n\\toprule\n"
+            " & & \\multicolumn{2}{c}{Grapheme CER} & Books & "
+            "\\multicolumn{2}{c}{Reading order} & \\multicolumn{2}{c}{Word recall} \\\\\n"
+            "\\cmidrule(lr){3-4}\\cmidrule(lr){5-5}\\cmidrule(lr){6-7}\\cmidrule(lr){8-9}\n"
+            "Method & \\shortstack{Pooled\\\\CER} & $\\Delta$ [95\\% CI] & $p_{\\mathrm{Holm}}$ & "
+            "$\\Delta$CER 95\\% CI & $\\Delta$CER & $p_{\\mathrm{Holm}}$ & $\\Delta$ & "
+            "$p_{\\mathrm{Holm}}$ \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize Pooled CER: total character errors over "
+            "total reference characters. Grapheme CER: CER over extended grapheme clusters; "
+            "$\\Delta$ = corrected $-$ raw OCR. Books: 95\\% interval of the mean change in CER "
+            "when whole books (37) are resampled instead of pages. Reading order: change in CER "
+            "against a reference whose regions follow the reading order declared in the PAGE-XML "
+            "file (" + str(sens["reading_order"]["pages_reference_changed"]) + " of 40 references "
+            "change). Word recall: share of reference word tokens found in the output, ignoring "
+            "order and extra text; positive $\\Delta$ = better. Each $p_{\\mathrm{Holm}}$ column is "
+            "its own family of 18 tests.\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
+
+    # ---- page type (review item E7) ----
+    if sens:
+        pt = {(r["engine"], r["model"]): r for r in sens["page_type"]}
+        types = ["title", "verse", "prose", "list"]
+        n = sens["page_type_counts"]
+        rows = [" & ".join(["Raw OCR (CER)"] + ["%.3f" % pt[(e, "(raw OCR)")][t]
+                                                for e, _ in ENGINES for t in types]) + " \\\\",
+                "\\midrule"]
+        for m in models:
+            rows.append(" & ".join([MODEL_NAMES[m]] + ["%+.3f" % pt[(e, m)][t]
+                                                       for e, _ in ENGINES for t in types]) + " \\\\")
+        head = " & ".join(["Method"] + [f"{t} ({n[t]})" for _e in ENGINES for t in types])
+        (OUT_DIR / "pagetypes.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n"
+            "\\caption{Mean Change in CER by Page Type}\n\\label{tab:pagetypes}\n"
+            "\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lcccccccc}\n\\toprule\n"
+            " & \\multicolumn{4}{c}{Tesseract} & \\multicolumn{4}{c}{EasyOCR} \\\\\n"
+            "\\cmidrule(lr){2-5}\\cmidrule(lr){6-9}\n" + head + " \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize First row: mean CER of the raw OCR; other "
+            "rows: mean change in CER (corrected $-$ raw OCR, positive = worse). Page counts in "
+            "parentheses. Title: title pages; verse: pages whose main text is metrical, including "
+            "verse with a commentary; prose: running prose; list: contents, indexes, tables and "
+            "dictionary entries. Descriptive only: the groups are too small for separate "
+            "tests.\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
 
     print(f"Wrote tables to {OUT_DIR}")
 

@@ -103,7 +103,7 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 
 ### D15. Force PyTorch to use all CPU cores
 **Decision:** `torch.set_num_threads(os.cpu_count())` at import, in `correction/models.py`.
-**Why:** On Colab, `torch.get_num_threads()` returned 1, giving ~1 s/token. This was the real root cause of the "stuck" and slow pages, found with `correction/diagnose_speed.py`. After the fix: 2 threads.
+**Why:** On Colab, `torch.get_num_threads()` returned 1, giving ~1 s/token. This was the real root cause of the "stuck" and slow pages, found with `correction/diagnose_speed.py` (removed 2026-10-12; in git history). After the fix: 2 threads.
 
 ### D16. Skip near-empty OCR input
 **Decision:** If OCR text is under 10 characters, return it unchanged and mark `skipped`.
@@ -199,3 +199,31 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 ### D33. Confidence-gated correction from existing outputs (2026-10-12)
 **Decision:** Implement review item E4 without new model runs. Re-run both OCR engines on the 40 pages with confidences (`ocr/run_ocr_conf.py`, Colab CPU, same Tesseract 5.3.4 / EasyOCR 1.7.2 setup as `ocr_eval40.jsonl`), then gate the existing plain-decoding outputs (`eval/confidence_gate.py`): a model edit is kept only if every OCR word it replaces or deletes has confidence below the threshold, and an insertion only next to such a word. Thresholds fixed in advance: Tesseract 50/70/90 (per word), EasyOCR 0.5/0.7/0.9 (per text box, the finest EasyOCR reports). Confidences are mapped onto the stored OCR words by word alignment; stored words without a counterpart are treated as confident (never changed).
 **Why:** E4 asks to correct only low-confidence words. The models already corrected whole chunks with context, so gating their edits tests the idea at no GPU cost. The alternative, prompting the model with only the uncertain words, would need new runs and changes what the model sees.
+
+### D34. Second review: fixes without new model runs (2026-10-12)
+**Decision:** Respond to the second review of the compiled PDF (`After feedback.pdf`) with existing outputs only:
+- Fail the build loudly under pdfLaTeX (the submitted PDF had placeholders instead of Bengali).
+- Load the Times font by file name so Overleaf, TeX Live and Tectonic all compile.
+- Redesign Table III. Wrap the checkpoint IDs, add tokens/word, and add GPU weight memory computed from parameters × bytes. Peak memory was not recorded, and the paper says so.
+- Pool script shares over characters, and report empty outputs separately.
+- Add p-values to the length rule and the edit-distance cap (new safeguards table).
+- Add a robustness table: pooled CER, grapheme CER, book CI, reading-order reference, word recall.
+- Label page types from the transcriptions (`data/page_types.tsv`) for E7/T1.
+- Add a corrected-vs-baseline scatter with the identity line (E3).
+- Narrow the novelty claim and cite Ahmed et al. 2016 and BnMMLU (Findings ACL 2026).
+- Drop the claim that the region mismatch cancels in paired differences.
+- Qualify the noise, tokenisation and "at least as good" statements.
+- Name the five experiments not performed in the limitations.
+- Commit numeric summaries (`summaries/`) and an environment record (`ENVIRONMENT.md`).
+
+**Why:** Every item in the review that could be done without a GPU. The remaining items (E-c, E-d, E-e, E-f, E-g, E2, region-level evaluation, peak-memory measurement) need new runs, so they stay deferred and are disclosed.
+
+**Note:** this changes D26 only for numeric summaries. Per-page outputs, which contain transcribed text, stay out of git. The page-type labels were assigned by the assistant from the transcriptions and need the author's check.
+
+### D35. Repo cleaned to the current study; compiled paper committed (2026-10-12)
+**Decision:**
+- Remove superseded files: the first-version figure script (`eval/make_figures.py`; its labels moved into `make_revision_figures.py`), the one-off `correction/diagnose_speed.py`, `paper/archive/`, and `SETUP.md`, whose setup steps are folded into the README.
+- Move the reviewer-checklist status to `context/checklist-status.md`, so it is public with the rest of the log.
+- Commit the compiled `paper/main.pdf`, so readers need not compile the paper.
+
+**Why:** The author asked for a repo that holds only up-to-date material, and people will check it. Everything removed is still in git history.

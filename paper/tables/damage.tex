@@ -1,36 +1,36 @@
 \begin{table*}[t]
 \centering
-\caption{What Correction Changed: Bounded Error, Word-Level Damage and Fixes, Change Ratio, and a Length Safeguard}
+\caption{What Correction Changed: Bounded Error, Word-Level Damage and Fixes, and Change Ratio}
 \label{tab:damage}
 \setlength{\tabcolsep}{4pt}
 \footnotesize
-\begin{tabular}{llcccccc}
+\begin{tabular}{llccccc}
 \toprule
-Engine & Model & cMER & \shortstack{Correct words\\broken} & \shortstack{Wrong words\\fixed} & \shortstack{Change\\ratio} & \shortstack{Invented\\runs} & \shortstack{CER with safeguard\\(fallbacks)} \\
+Engine & Model & cMER & \shortstack{Correct words\\broken} & \shortstack{Wrong words\\fixed} & \shortstack{Change\\ratio} & \shortstack{Invented\\runs} \\
 \midrule
-Tesseract & (no correction) & 0.290 & --- & --- & --- & --- & 0.341 \\
-Tesseract & SymSpell (dictionary) & 0.325 & 29\% & 2.9\% & 0.3 & \best{0\%} & 0.378 (0/40) \\
-Tesseract & Gemma 2B & 0.303 & 4\% & 0.4\% & \best{0.2} & \best{0\%} & 0.353 (0/40) \\
-Tesseract & Qwen3 1.7B & \best{0.292} & \best{3\%} & 3.3\% & 0.2 & 0\% & \best{0.337} (0/40) \\
-Tesseract & Phi-4-mini & 0.305 & 10\% & 1.3\% & 0.2 & 1\% & 0.354 (0/40) \\
-Tesseract & Llama 3.2 1B & 0.338 & 11\% & 1.3\% & 0.4 & 0\% & 0.380 (0/40) \\
-Tesseract & BanglaT5 & 0.847 & 96\% & 1.8\% & 4.1 & 0\% & 0.574 (21/40) \\
-Tesseract & TituLLMs 1B & 0.705 & 74\% & \best{4.6\%} & 4.9 & 14\% & 1.084 (0/40) \\
-Tesseract & TituLLMs 1B Instruct & 0.744 & 79\% & 1.5\% & 6.9 & 33\% & 1.305 (5/40) \\
-Tesseract & TituLLMs 3B Instruct & 0.845 & 96\% & 0.3\% & 4.5 & 9\% & 0.660 (18/40) \\
+Tesseract & (no correction) & 0.290 & --- & --- & --- & --- \\
+Tesseract & SymSpell (dictionary) & 0.325$^{+}$ & 29\% & 2.9\% & 0.3 & \best{0\%} \\
+Tesseract & Gemma 2B & 0.303 & 4\% & 0.4\% & \best{0.2} & \best{0\%} \\
+Tesseract & Qwen3 1.7B & \best{0.292} & \best{3\%} & 3.3\% & 0.2 & 0\% \\
+Tesseract & Phi-4-mini & 0.305 & 10\% & 1.3\% & 0.2 & 1\% \\
+Tesseract & Llama 3.2 1B & 0.338$^{+}$ & 11\% & 1.3\% & 0.4 & 0\% \\
+Tesseract & BanglaT5 & 0.847$^{+}$ & 96\% & 1.8\% & 4.1 & 0\% \\
+Tesseract & TituLLMs 1B & 0.705$^{+}$ & 74\% & \best{4.6\%} & 4.9 & 14\% \\
+Tesseract & TituLLMs 1B Instruct & 0.744$^{+}$ & 79\% & 1.5\% & 6.9 & 33\% \\
+Tesseract & TituLLMs 3B Instruct & 0.845$^{+}$ & 96\% & 0.3\% & 4.5 & 9\% \\
 \midrule
-EasyOCR & (no correction) & 0.260 & --- & --- & --- & --- & 0.297 \\
-EasyOCR & SymSpell (dictionary) & 0.300 & 31\% & \best{6.9\%} & 0.4 & \best{0\%} & 0.337 (0/40) \\
-EasyOCR & Gemma 2B & \best{0.264} & \best{4\%} & 0.5\% & \best{0.1} & \best{0\%} & \best{0.301} (0/40) \\
-EasyOCR & Qwen3 1.7B & 0.275 & 5\% & 3.5\% & 0.2 & 0\% & 0.315 (0/40) \\
-EasyOCR & Phi-4-mini & 0.279 & 11\% & 1.6\% & 0.2 & 0\% & 0.315 (0/40) \\
-EasyOCR & Llama 3.2 1B & 0.298 & 8\% & 1.5\% & 0.4 & 0\% & 0.330 (0/40) \\
-EasyOCR & BanglaT5 & 0.828 & 99\% & 2.3\% & 3.9 & \best{0\%} & 0.699 (8/40) \\
-EasyOCR & TituLLMs 1B & 0.677 & 76\% & 4.8\% & 4.6 & 13\% & 1.033 (0/40) \\
-EasyOCR & TituLLMs 1B Instruct & 0.749 & 78\% & 2.2\% & 7.0 & 30\% & 1.231 (6/40) \\
-EasyOCR & TituLLMs 3B Instruct & 0.845 & 95\% & 0.3\% & 4.1 & 2\% & 0.509 (23/40) \\
+EasyOCR & (no correction) & 0.260 & --- & --- & --- & --- \\
+EasyOCR & SymSpell (dictionary) & 0.300$^{+}$ & 31\% & \best{6.9\%} & 0.4 & \best{0\%} \\
+EasyOCR & Gemma 2B & \best{0.264} & \best{4\%} & 0.5\% & \best{0.1} & \best{0\%} \\
+EasyOCR & Qwen3 1.7B & 0.275 & 5\% & 3.5\% & 0.2 & 0\% \\
+EasyOCR & Phi-4-mini & 0.279$^{+}$ & 11\% & 1.6\% & 0.2 & 0\% \\
+EasyOCR & Llama 3.2 1B & 0.298$^{+}$ & 8\% & 1.5\% & 0.4 & 0\% \\
+EasyOCR & BanglaT5 & 0.828$^{+}$ & 99\% & 2.3\% & 3.9 & \best{0\%} \\
+EasyOCR & TituLLMs 1B & 0.677$^{+}$ & 76\% & 4.8\% & 4.6 & 13\% \\
+EasyOCR & TituLLMs 1B Instruct & 0.749$^{+}$ & 78\% & 2.2\% & 7.0 & 30\% \\
+EasyOCR & TituLLMs 3B Instruct & 0.845$^{+}$ & 95\% & 0.3\% & 4.1 & 2\% \\
 \bottomrule
 \end{tabular}
 \par\smallskip
-\begin{minipage}{\linewidth}\footnotesize cMER $=(S{+}D{+}I)/(H{+}S{+}D{+}I)$, bounded in $[0,1]$. Correct words broken: share of ground-truth words the raw OCR had right that the output gets wrong; wrong words fixed: share the raw OCR had wrong that the output gets right (word alignment against the ground truth). Change ratio: CER of the output against the raw OCR, divided by the raw OCR's CER. Invented runs: share of output characters in runs of $\geq$6 characters with no counterpart in the raw OCR. Safeguard: raw OCR kept when output length is outside 0.35--2.8$\times$ the input. \colorbox{bestbg}{\textbf{Shaded}}: best corrected model per engine.\end{minipage}
+\begin{minipage}{\linewidth}\footnotesize cMER $=(S{+}D{+}I)/(H{+}S{+}D{+}I)$, bounded in $[0,1]$. Correct words broken: share of ground-truth words the raw OCR had right that the output gets wrong; wrong words fixed: share the raw OCR had wrong that the output gets right (word alignment against the ground truth). Change ratio: CER of the output against the raw OCR, divided by the raw OCR's CER. Invented runs: share of output characters in runs of $\geq$6 characters with no counterpart in the raw OCR. $^{+}$/$^{-}$: cMER significantly higher/lower than the raw OCR, Wilcoxon signed-rank test, Holm-corrected over the 18 cMER tests. \colorbox{bestbg}{\textbf{Shaded}}: best corrected model per engine.\end{minipage}
 \end{table*}

@@ -1,0 +1,2664 @@
+{
+ "n_pages": 40,
+ "models": [
+  "symspell",
+  "gemma-2b",
+  "qwen3-1.7b",
+  "phi4-mini",
+  "llama3.2-1b",
+  "banglat5",
+  "titullm-1b",
+  "titullm-1b-instruct",
+  "titullm-3b-instruct"
+ ],
+ "dataset": {
+  "pages": 40,
+  "books": 37,
+  "gt_chars_median": 577.0,
+  "gt_chars_min": 193,
+  "gt_chars_max": 2715,
+  "gt_words_median": 89.0,
+  "pages_per_book_max": 2,
+  "tesseract_len_ratio_mean": 1.0260911686564582,
+  "tesseract_len_ratio_median": 0.9952118936904295,
+  "easyocr_len_ratio_mean": 1.0210378989394997,
+  "easyocr_len_ratio_median": 0.9926910538912272
+ },
+ "micro": [
+  {
+   "engine": "tesseract",
+   "model": "(raw OCR)",
+   "mean_cer": 0.3409257396536577,
+   "pooled_cer": 0.29805060981789927,
+   "mean_grapheme_cer": 0.4311323400053798,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "tesseract",
+   "model": "symspell",
+   "mean_cer": 0.37765401537850496,
+   "pooled_cer": 0.3354167370519274,
+   "mean_grapheme_cer": 0.48410155257574294,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "tesseract",
+   "model": "gemma-2b",
+   "mean_cer": 0.3526966777938378,
+   "pooled_cer": 0.31480793270042906,
+   "mean_grapheme_cer": 0.44140839820319994,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "tesseract",
+   "model": "qwen3-1.7b",
+   "mean_cer": 0.3373383596320899,
+   "pooled_cer": 0.29872630832122704,
+   "mean_grapheme_cer": 0.4166236873387235,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "tesseract",
+   "model": "phi4-mini",
+   "mean_cer": 0.3542297581649295,
+   "pooled_cer": 0.3237609378695226,
+   "mean_grapheme_cer": 0.44360410989285814,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "tesseract",
+   "model": "llama3.2-1b",
+   "mean_cer": 0.37987732880504216,
+   "pooled_cer": 0.3426467110375351,
+   "mean_grapheme_cer": 0.4595611637596493,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "tesseract",
+   "model": "banglat5",
+   "mean_cer": 0.8597636296603159,
+   "pooled_cer": 0.8572249062468327,
+   "mean_grapheme_cer": 0.8935810475207326,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b",
+   "mean_cer": 1.083543529886348,
+   "pooled_cer": 1.0451028750971316,
+   "mean_grapheme_cer": 1.2378254829143347,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b-instruct",
+   "mean_cer": 1.6415610860398266,
+   "pooled_cer": 1.5868103652150412,
+   "mean_grapheme_cer": 1.8842705890367335,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-3b-instruct",
+   "mean_cer": 0.9584798933526024,
+   "pooled_cer": 0.9319909456400554,
+   "mean_grapheme_cer": 0.9887072814493191,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "easyocr",
+   "model": "(raw OCR)",
+   "mean_cer": 0.29729029673210716,
+   "pooled_cer": 0.2864961654109936,
+   "mean_grapheme_cer": 0.3865174845970317,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "easyocr",
+   "model": "symspell",
+   "mean_cer": 0.33698537563431874,
+   "pooled_cer": 0.325348829352343,
+   "mean_grapheme_cer": 0.4403986173601229,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "easyocr",
+   "model": "gemma-2b",
+   "mean_cer": 0.30067180661618587,
+   "pooled_cer": 0.2986587384708943,
+   "mean_grapheme_cer": 0.3917822333850953,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "easyocr",
+   "model": "qwen3-1.7b",
+   "mean_cer": 0.3146480605698626,
+   "pooled_cer": 0.306158991857833,
+   "mean_grapheme_cer": 0.39758757030976216,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "easyocr",
+   "model": "phi4-mini",
+   "mean_cer": 0.3146998284520416,
+   "pooled_cer": 0.310652386904963,
+   "mean_grapheme_cer": 0.4004639006918408,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "easyocr",
+   "model": "llama3.2-1b",
+   "mean_cer": 0.33014147659743404,
+   "pooled_cer": 0.32244332578803336,
+   "mean_grapheme_cer": 0.4073645290397165,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "easyocr",
+   "model": "banglat5",
+   "mean_cer": 0.8309999097801262,
+   "pooled_cer": 0.8320551369978716,
+   "mean_grapheme_cer": 0.8542769066263609,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b",
+   "mean_cer": 1.0325821392516004,
+   "pooled_cer": 1.0258116828271224,
+   "mean_grapheme_cer": 1.1133669290241428,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b-instruct",
+   "mean_cer": 1.632792263133466,
+   "pooled_cer": 1.4887327274570086,
+   "mean_grapheme_cer": 1.9050716368918743,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-3b-instruct",
+   "mean_cer": 0.8862667492380307,
+   "pooled_cer": 0.8688131355789047,
+   "mean_grapheme_cer": 0.9138010844668247,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "clean",
+   "model": "symspell",
+   "mean_cer": 0.05736157175257998,
+   "pooled_cer": 0.05709652353120038,
+   "mean_grapheme_cer": 0.09601182661158988,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "clean",
+   "model": "gemma-2b",
+   "mean_cer": 0.03188517832612782,
+   "pooled_cer": 0.028007702962937937,
+   "mean_grapheme_cer": 0.041448450012499014,
+   "pages_exact": 6,
+   "n": 40
+  },
+  {
+   "engine": "clean",
+   "model": "qwen3-1.7b",
+   "mean_cer": 0.034908849798673466,
+   "pooled_cer": 0.03081185175174837,
+   "mean_grapheme_cer": 0.04503912474744871,
+   "pages_exact": 2,
+   "n": 40
+  },
+  {
+   "engine": "clean",
+   "model": "phi4-mini",
+   "mean_cer": 0.06049275001740066,
+   "pooled_cer": 0.09659110105071117,
+   "mean_grapheme_cer": 0.09018479076566834,
+   "pages_exact": 4,
+   "n": 40
+  },
+  {
+   "engine": "clean",
+   "model": "llama3.2-1b",
+   "mean_cer": 0.11855356473389222,
+   "pooled_cer": 0.118449947633366,
+   "mean_grapheme_cer": 0.1250365960389329,
+   "pages_exact": 3,
+   "n": 40
+  },
+  {
+   "engine": "clean",
+   "model": "banglat5",
+   "mean_cer": 0.8325043452970806,
+   "pooled_cer": 0.8365147471198351,
+   "mean_grapheme_cer": 0.8566473947912477,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "clean",
+   "model": "titullm-1b",
+   "mean_cer": 0.9881302607389,
+   "pooled_cer": 0.9757086388053651,
+   "mean_grapheme_cer": 1.0900946142620955,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "clean",
+   "model": "titullm-1b-instruct",
+   "mean_cer": 1.565296320849032,
+   "pooled_cer": 1.553599783776479,
+   "mean_grapheme_cer": 1.747168689017683,
+   "pages_exact": 0,
+   "n": 40
+  },
+  {
+   "engine": "clean",
+   "model": "titullm-3b-instruct",
+   "mean_cer": 0.9667025647081381,
+   "pooled_cer": 0.9541200716240413,
+   "mean_grapheme_cer": 1.0080097032872302,
+   "pages_exact": 0,
+   "n": 40
+  }
+ ],
+ "grapheme_tests": [
+  {
+   "engine": "tesseract",
+   "model": "symspell",
+   "mean_delta": 0.052969212570363154,
+   "ci": [
+    0.04447778648366276,
+    0.06122579675380812
+   ],
+   "wilcoxon_p": 5.255295360476943e-08,
+   "wilcoxon_p_holm": 5.780824896524637e-07
+  },
+  {
+   "engine": "tesseract",
+   "model": "gemma-2b",
+   "mean_delta": 0.01027605819782023,
+   "ci": [
+    -0.0017020565743383156,
+    0.02639034019997633
+   ],
+   "wilcoxon_p": 0.7275227809310241,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "qwen3-1.7b",
+   "mean_delta": -0.014508652666656324,
+   "ci": [
+    -0.03166414136480728,
+    -0.0035584519149258797
+   ],
+   "wilcoxon_p": 0.0026062116098769443,
+   "wilcoxon_p_holm": 0.020849692879015554
+  },
+  {
+   "engine": "tesseract",
+   "model": "phi4-mini",
+   "mean_delta": 0.012471769887478354,
+   "ci": [
+    -0.012879686620897876,
+    0.051524389139279515
+   ],
+   "wilcoxon_p": 0.2718241227473204,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "llama3.2-1b",
+   "mean_delta": 0.028428823754269483,
+   "ci": [
+    0.0090856845475307,
+    0.04895115238959119
+   ],
+   "wilcoxon_p": 0.011385233189649228,
+   "wilcoxon_p_holm": 0.07969663232754459
+  },
+  {
+   "engine": "tesseract",
+   "model": "banglat5",
+   "mean_delta": 0.462448707515353,
+   "ci": [
+    0.35044617186935,
+    0.5645093266732816
+   ],
+   "wilcoxon_p": 4.474713932722807e-08,
+   "wilcoxon_p_holm": 5.369656719267368e-07
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b",
+   "mean_delta": 0.806693142908955,
+   "ci": [
+    0.7344936294761736,
+    0.8843911194464831
+   ],
+   "wilcoxon_p": 1.8189894035458565e-12,
+   "wilcoxon_p_holm": 3.2741809263825417e-11
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b-instruct",
+   "mean_delta": 1.4531382490313536,
+   "ci": [
+    1.1862189545631256,
+    1.7498697618841164
+   ],
+   "wilcoxon_p": 1.8189894035458565e-12,
+   "wilcoxon_p_holm": 3.2741809263825417e-11
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-3b-instruct",
+   "mean_delta": 0.5575749414439394,
+   "ci": [
+    0.43148314306190627,
+    0.7018446624956428
+   ],
+   "wilcoxon_p": 2.4256997199515003e-07,
+   "wilcoxon_p_holm": 2.18312974795635e-06
+  },
+  {
+   "engine": "easyocr",
+   "model": "symspell",
+   "mean_delta": 0.05388113276309118,
+   "ci": [
+    0.0437229999232195,
+    0.06383435631376236
+   ],
+   "wilcoxon_p": 4.547473508864641e-11,
+   "wilcoxon_p_holm": 5.911715561524034e-10
+  },
+  {
+   "engine": "easyocr",
+   "model": "gemma-2b",
+   "mean_delta": 0.005264748788063557,
+   "ci": [
+    -0.0028875993254350502,
+    0.013468243976230287
+   ],
+   "wilcoxon_p": 0.16190774651140882,
+   "wilcoxon_p_holm": 0.8426910748935337
+  },
+  {
+   "engine": "easyocr",
+   "model": "qwen3-1.7b",
+   "mean_delta": 0.011070085712730427,
+   "ci": [
+    -0.003283257570076863,
+    0.030408573721311175
+   ],
+   "wilcoxon_p": 0.4331212055778665,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "phi4-mini",
+   "mean_delta": 0.013946416094809089,
+   "ci": [
+    -0.00836648746840579,
+    0.05025330241245998
+   ],
+   "wilcoxon_p": 0.4128108623555623,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "llama3.2-1b",
+   "mean_delta": 0.02084704444268475,
+   "ci": [
+    0.0011759673388635913,
+    0.04352440811640714
+   ],
+   "wilcoxon_p": 0.14044851248225562,
+   "wilcoxon_p_holm": 0.8426910748935337
+  },
+  {
+   "engine": "easyocr",
+   "model": "banglat5",
+   "mean_delta": 0.4677594220293292,
+   "ci": [
+    0.3933998876391776,
+    0.5334074102211663
+   ],
+   "wilcoxon_p": 6.536661426812215e-08,
+   "wilcoxon_p_holm": 6.536661426812215e-07
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b",
+   "mean_delta": 0.7268494444271111,
+   "ci": [
+    0.6423707087805055,
+    0.8093526319128621
+   ],
+   "wilcoxon_p": 1.8189894035458565e-12,
+   "wilcoxon_p_holm": 3.2741809263825417e-11
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b-instruct",
+   "mean_delta": 1.5185541522948423,
+   "ci": [
+    1.2281226973806458,
+    1.8656168999194367
+   ],
+   "wilcoxon_p": 1.8189894035458565e-12,
+   "wilcoxon_p_holm": 3.2741809263825417e-11
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-3b-instruct",
+   "mean_delta": 0.527283599869793,
+   "ci": [
+    0.44946360476642117,
+    0.6028946391494513
+   ],
+   "wilcoxon_p": 9.094947017729282e-12,
+   "wilcoxon_p_holm": 1.2732925824820995e-10
+  }
+ ],
+ "cluster_bootstrap": [
+  {
+   "engine": "tesseract",
+   "model": "symspell",
+   "mean_delta": 0.03672827572484725,
+   "page_ci": [
+    0.030912125077781284,
+    0.042422165277582684
+   ],
+   "book_ci": [
+    0.030760216282753376,
+    0.04251495826542793
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    0.029337347583868797,
+    0.043714112239731706
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "tesseract",
+   "model": "gemma-2b",
+   "mean_delta": 0.011770938140180091,
+   "page_ci": [
+    -0.0008609810962044125,
+    0.02909615738416636
+   ],
+   "book_ci": [
+    -0.0004866817543704071,
+    0.02727431490145167
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    -0.00045810647272131626,
+    0.029159788850433438
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "tesseract",
+   "model": "qwen3-1.7b",
+   "mean_delta": -0.0035873800215677548,
+   "page_ci": [
+    -0.014710155741667784,
+    0.004457913951282222
+   ],
+   "book_ci": [
+    -0.014376211064612034,
+    0.004253968175259769
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    -0.01385827626488516,
+    0.003113986481232873
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "tesseract",
+   "model": "phi4-mini",
+   "mean_delta": 0.013304018511271856,
+   "page_ci": [
+    -0.0032318404345115202,
+    0.03788412056931766
+   ],
+   "book_ci": [
+    -0.0033328785402687807,
+    0.03847747867025507
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    -0.0032240596629578523,
+    0.04001659789190368
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "tesseract",
+   "model": "llama3.2-1b",
+   "mean_delta": 0.0389515891513844,
+   "page_ci": [
+    0.021310051592690678,
+    0.05704273541260725
+   ],
+   "book_ci": [
+    0.021088487162374495,
+    0.05807546542204898
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    0.02177066133834451,
+    0.059166358357446325
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "tesseract",
+   "model": "banglat5",
+   "mean_delta": 0.5188378900066584,
+   "page_ci": [
+    0.44027811223571317,
+    0.5895553162608218
+   ],
+   "book_ci": [
+    0.43997308805101015,
+    0.5909880725405874
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    0.4363227157424895,
+    0.5946719557798956
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b",
+   "mean_delta": 0.7426177902326906,
+   "page_ci": [
+    0.6911723098880882,
+    0.7933467054129996
+   ],
+   "book_ci": [
+    0.6885558438453915,
+    0.7946556628754526
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    0.6862371248871008,
+    0.7947391035753791
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b-instruct",
+   "mean_delta": 1.300635346386169,
+   "page_ci": [
+    1.0783662816468529,
+    1.55021042525526
+   ],
+   "book_ci": [
+    1.0742702969465854,
+    1.5452536609263854
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    1.0858825310889086,
+    1.4925305555333799
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-3b-instruct",
+   "mean_delta": 0.6175541536989446,
+   "page_ci": [
+    0.5046390277158939,
+    0.7401178019833825
+   ],
+   "book_ci": [
+    0.49699240863065114,
+    0.7626592974968053
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    0.4921273982690333,
+    0.767532656281235
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "easyocr",
+   "model": "symspell",
+   "mean_delta": 0.039695078902211536,
+   "page_ci": [
+    0.03318329461821313,
+    0.04599513962221421
+   ],
+   "book_ci": [
+    0.03296792911776545,
+    0.046599413028005174
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    0.03211831350150931,
+    0.04683148752772556
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "easyocr",
+   "model": "gemma-2b",
+   "mean_delta": 0.003381509884078652,
+   "page_ci": [
+    -0.005541044436878241,
+    0.012373701193313208
+   ],
+   "book_ci": [
+    -0.005518451351094591,
+    0.012320771167521446
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    -0.005817815593462973,
+    0.01357495526210394
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "easyocr",
+   "model": "qwen3-1.7b",
+   "mean_delta": 0.01735776383775546,
+   "page_ci": [
+    0.004355770313858889,
+    0.033781510467933054
+   ],
+   "book_ci": [
+    0.004676497286304585,
+    0.03281010653385181
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    0.0034147282612387807,
+    0.030949076069367455
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "easyocr",
+   "model": "phi4-mini",
+   "mean_delta": 0.017409531719934375,
+   "page_ci": [
+    0.00023404988023728555,
+    0.045109732719922586
+   ],
+   "book_ci": [
+    0.00011984747537335353,
+    0.04623218495833453
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    0.0008177877049505785,
+    0.04893075531200765
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "easyocr",
+   "model": "llama3.2-1b",
+   "mean_delta": 0.03285117986532682,
+   "page_ci": [
+    0.011850865957064778,
+    0.05765790345169435
+   ],
+   "book_ci": [
+    0.012272017085830414,
+    0.0551034311192417
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    0.01281508857264014,
+    0.05588326998515854
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "easyocr",
+   "model": "banglat5",
+   "mean_delta": 0.533709613048019,
+   "page_ci": [
+    0.4701701289191743,
+    0.5898011138476266
+   ],
+   "book_ci": [
+    0.4687295201771417,
+    0.5929552466655895
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    0.464996481056692,
+    0.5988138800255969
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b",
+   "mean_delta": 0.7352918425194932,
+   "page_ci": [
+    0.6717151835803435,
+    0.7964952746595046
+   ],
+   "book_ci": [
+    0.6662557519974595,
+    0.79997589091412
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    0.6584874671561105,
+    0.8019526623406283
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b-instruct",
+   "mean_delta": 1.3355019664013588,
+   "page_ci": [
+    1.123409510742801,
+    1.5795271435328586
+   ],
+   "book_ci": [
+    1.1126911558378425,
+    1.574873474648941
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    1.1502306965987739,
+    1.529779899813205
+   ],
+   "n_collections": 28
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-3b-instruct",
+   "mean_delta": 0.5889764525059235,
+   "page_ci": [
+    0.5104486957251827,
+    0.6623074388695109
+   ],
+   "book_ci": [
+    0.5108979181780083,
+    0.6654831403569103
+   ],
+   "n_books": 37,
+   "collection_ci": [
+    0.497864443586432,
+    0.6768900638542673
+   ],
+   "n_collections": 28
+  }
+ ],
+ "correlation": [
+  {
+   "engine": "tesseract",
+   "model": "symspell",
+   "rho_corrected": 0.9954971857410883,
+   "p_corrected": 1.69130082355504e-40,
+   "rho_change": -0.5810506566604129,
+   "p_change": 8.448135335508028e-05
+  },
+  {
+   "engine": "tesseract",
+   "model": "gemma-2b",
+   "rho_corrected": 0.9536585365853661,
+   "p_corrected": 2.0336377845454484e-21,
+   "rho_change": -0.3705058181143852,
+   "p_change": 0.018601412532574812
+  },
+  {
+   "engine": "tesseract",
+   "model": "qwen3-1.7b",
+   "rho_corrected": 0.9938086303939965,
+   "p_corrected": 7.074355348363406e-38,
+   "rho_change": -0.3515494507481004,
+   "p_change": 0.026119603362119454
+  },
+  {
+   "engine": "tesseract",
+   "model": "phi4-mini",
+   "rho_corrected": 0.9647279549718575,
+   "p_corrected": 1.252881041966361e-23,
+   "rho_change": -0.5685594244026423,
+   "p_change": 0.00012942196451138534
+  },
+  {
+   "engine": "tesseract",
+   "model": "llama3.2-1b",
+   "rho_corrected": 0.9440900562851783,
+   "p_corrected": 6.618606436545131e-20,
+   "rho_change": -0.4026279185683948,
+   "p_change": 0.01000264990127308
+  },
+  {
+   "engine": "tesseract",
+   "model": "banglat5",
+   "rho_corrected": 0.17016885553470923,
+   "p_corrected": 0.2938121377801263,
+   "rho_change": -0.8975609756097561,
+   "p_change": 4.3461657622768965e-15
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b",
+   "rho_corrected": 0.5489681050656662,
+   "p_corrected": 0.0002443406901947025,
+   "rho_change": -0.6123827392120076,
+   "p_change": 2.6738721339087387e-05
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b-instruct",
+   "rho_corrected": 0.30487804878048785,
+   "p_corrected": 0.05576170176933788,
+   "rho_change": 0.02476547842401501,
+   "p_change": 0.8794337989885963
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-3b-instruct",
+   "rho_corrected": 0.06166228989815229,
+   "p_corrected": 0.7054453529683679,
+   "rho_change": -0.6733583489681052,
+   "p_change": 1.9241135892319705e-06
+  },
+  {
+   "engine": "easyocr",
+   "model": "symspell",
+   "rho_corrected": 0.9737335834896812,
+   "p_corrected": 5.003308500985008e-26,
+   "rho_change": -0.602439024390244,
+   "p_change": 3.903066973867628e-05
+  },
+  {
+   "engine": "easyocr",
+   "model": "gemma-2b",
+   "rho_corrected": 0.9560485962016256,
+   "p_corrected": 7.592612637296059e-22,
+   "rho_change": -0.0780018343978007,
+   "p_change": 0.6323558775193597
+  },
+  {
+   "engine": "easyocr",
+   "model": "qwen3-1.7b",
+   "rho_corrected": 0.9481683016200402,
+   "p_corrected": 1.6267124342355453e-20,
+   "rho_change": -0.1481155803682825,
+   "p_change": 0.3617132679098026
+  },
+  {
+   "engine": "easyocr",
+   "model": "phi4-mini",
+   "rho_corrected": 0.9746716697936212,
+   "p_corrected": 2.5274980796299318e-26,
+   "rho_change": -0.4694404057887287,
+   "p_change": 0.0022436356121398418
+  },
+  {
+   "engine": "easyocr",
+   "model": "llama3.2-1b",
+   "rho_corrected": 0.8787992495309569,
+   "p_corrected": 8.963596921395658e-14,
+   "rho_change": -0.33983862486128324,
+   "p_change": 0.03191414105304157
+  },
+  {
+   "engine": "easyocr",
+   "model": "banglat5",
+   "rho_corrected": 0.19212007504690432,
+   "p_corrected": 0.2349726562141738,
+   "rho_change": -0.9099437148217637,
+   "p_change": 4.1986122824387834e-16
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b",
+   "rho_corrected": 0.2307692307692308,
+   "p_corrected": 0.151957407058829,
+   "rho_change": -0.5876172607879926,
+   "p_change": 6.70364855047888e-05
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b-instruct",
+   "rho_corrected": 0.2461538461538462,
+   "p_corrected": 0.12574108606012824,
+   "rho_change": -0.03677298311444653,
+   "p_change": 0.8217661461651177
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-3b-instruct",
+   "rho_corrected": -9.587710081635837e-05,
+   "p_corrected": 0.999531521291336,
+   "rho_change": -0.754971857410882,
+   "p_change": 1.8182037720178787e-08
+  }
+ ],
+ "edit_cap": [
+  {
+   "engine": "tesseract",
+   "model": "symspell",
+   "tau": 0.05,
+   "mean_cer": 0.3442822570142753,
+   "kept": 5,
+   "n": 40,
+   "mean_delta": 0.0033565173606175955,
+   "ci": [
+    0.0007798373429986946,
+    0.006588743329261272
+   ],
+   "wilcoxon_p": 0.043114446783075355,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "symspell",
+   "tau": 0.1,
+   "mean_cer": 0.37593526537850497,
+   "kept": 39,
+   "n": 40,
+   "mean_delta": 0.035009525724847244,
+   "ci": [
+    0.0291448332865823,
+    0.04067807550715435
+   ],
+   "wilcoxon_p": 5.683149555016704e-08,
+   "wilcoxon_p_holm": 3.978204688511693e-06
+  },
+  {
+   "engine": "tesseract",
+   "model": "symspell",
+   "tau": 0.2,
+   "mean_cer": 0.37765401537850496,
+   "kept": 40,
+   "n": 40,
+   "mean_delta": 0.03672827572484725,
+   "ci": [
+    0.03093617474637809,
+    0.042534787648381124
+   ],
+   "wilcoxon_p": 3.637978807091713e-12,
+   "wilcoxon_p_holm": 2.6193447411060333e-10
+  },
+  {
+   "engine": "tesseract",
+   "model": "symspell",
+   "tau": 0.3,
+   "mean_cer": 0.37765401537850496,
+   "kept": 40,
+   "n": 40,
+   "mean_delta": 0.03672827572484725,
+   "ci": [
+    0.03086531858042306,
+    0.042408717196281406
+   ],
+   "wilcoxon_p": 3.637978807091713e-12,
+   "wilcoxon_p_holm": 2.6193447411060333e-10
+  },
+  {
+   "engine": "tesseract",
+   "model": "gemma-2b",
+   "tau": 0.05,
+   "mean_cer": 0.3400893183076974,
+   "kept": 34,
+   "n": 40,
+   "mean_delta": -0.0008364213459602793,
+   "ci": [
+    -0.0026845633974163746,
+    0.0008359464470339214
+   ],
+   "wilcoxon_p": 0.6654143977847693,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "gemma-2b",
+   "tau": 0.1,
+   "mean_cer": 0.34001530080750886,
+   "kept": 37,
+   "n": 40,
+   "mean_delta": -0.0009104388461488571,
+   "ci": [
+    -0.0028877749125991205,
+    0.0009570417167104427
+   ],
+   "wilcoxon_p": 0.6575663850187541,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "gemma-2b",
+   "tau": 0.2,
+   "mean_cer": 0.34608302379849254,
+   "kept": 39,
+   "n": 40,
+   "mean_delta": 0.005157284144834863,
+   "ci": [
+    -0.0018294817176186249,
+    0.014963671750220287
+   ],
+   "wilcoxon_p": 0.8446372082208967,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "gemma-2b",
+   "tau": 0.3,
+   "mean_cer": 0.34608302379849254,
+   "kept": 39,
+   "n": 40,
+   "mean_delta": 0.005157284144834863,
+   "ci": [
+    -0.0018382251695644666,
+    0.014810674123489857
+   ],
+   "wilcoxon_p": 0.8446372082208967,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "qwen3-1.7b",
+   "tau": 0.05,
+   "mean_cer": 0.33924931577180895,
+   "kept": 33,
+   "n": 40,
+   "mean_delta": -0.0016764238818487887,
+   "ci": [
+    -0.003904544396637395,
+    0.0004817386995851572
+   ],
+   "wilcoxon_p": 0.17655130294770893,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "qwen3-1.7b",
+   "tau": 0.1,
+   "mean_cer": 0.3387894378844211,
+   "kept": 37,
+   "n": 40,
+   "mean_delta": -0.0021363017692365765,
+   "ci": [
+    -0.004474009392226239,
+    9.409832766225716e-05
+   ],
+   "wilcoxon_p": 0.09607134092833369,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "qwen3-1.7b",
+   "tau": 0.2,
+   "mean_cer": 0.3373383596320899,
+   "kept": 40,
+   "n": 40,
+   "mean_delta": -0.0035873800215677548,
+   "ci": [
+    -0.014420042660603328,
+    0.004508700480518576
+   ],
+   "wilcoxon_p": 0.2318224594961833,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "qwen3-1.7b",
+   "tau": 0.3,
+   "mean_cer": 0.3373383596320899,
+   "kept": 40,
+   "n": 40,
+   "mean_delta": -0.0035873800215677548,
+   "ci": [
+    -0.014300966017803072,
+    0.004358538112588018
+   ],
+   "wilcoxon_p": 0.2318224594961833,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "phi4-mini",
+   "tau": 0.05,
+   "mean_cer": 0.34001909938712715,
+   "kept": 29,
+   "n": 40,
+   "mean_delta": -0.0009066402665304969,
+   "ci": [
+    -0.0034660178687242636,
+    0.0016823117949541012
+   ],
+   "wilcoxon_p": 0.3463029684471133,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "phi4-mini",
+   "tau": 0.1,
+   "mean_cer": 0.3437487042815276,
+   "kept": 34,
+   "n": 40,
+   "mean_delta": 0.0028229646278698593,
+   "ci": [
+    -0.0022575646437326515,
+    0.008987246857119598
+   ],
+   "wilcoxon_p": 0.9671860668015029,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "phi4-mini",
+   "tau": 0.2,
+   "mean_cer": 0.3443585159014459,
+   "kept": 38,
+   "n": 40,
+   "mean_delta": 0.0034327762477882164,
+   "ci": [
+    -0.004736310928197531,
+    0.012593470452866467
+   ],
+   "wilcoxon_p": 0.9727227262332051,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "phi4-mini",
+   "tau": 0.3,
+   "mean_cer": 0.3441501825681126,
+   "kept": 39,
+   "n": 40,
+   "mean_delta": 0.003224442914454882,
+   "ci": [
+    -0.005059114342173926,
+    0.012737678983220842
+   ],
+   "wilcoxon_p": 0.8634501981563188,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "llama3.2-1b",
+   "tau": 0.05,
+   "mean_cer": 0.3434131802798431,
+   "kept": 15,
+   "n": 40,
+   "mean_delta": 0.0024874406261853723,
+   "ci": [
+    -0.000765244396522105,
+    0.005796650291659769
+   ],
+   "wilcoxon_p": 0.11585149752593006,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "llama3.2-1b",
+   "tau": 0.1,
+   "mean_cer": 0.34750949827969596,
+   "kept": 22,
+   "n": 40,
+   "mean_delta": 0.006583758626038263,
+   "ci": [
+    0.001519687852365378,
+    0.01208469283441351
+   ],
+   "wilcoxon_p": 0.018674874007415902,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "llama3.2-1b",
+   "tau": 0.2,
+   "mean_cer": 0.3550835177055065,
+   "kept": 32,
+   "n": 40,
+   "mean_delta": 0.014157778051848768,
+   "ci": [
+    0.004488200606454314,
+    0.024198506176952125
+   ],
+   "wilcoxon_p": 0.006231682951187158,
+   "wilcoxon_p_holm": 0.392596025924791
+  },
+  {
+   "engine": "tesseract",
+   "model": "llama3.2-1b",
+   "tau": 0.3,
+   "mean_cer": 0.3753318742595876,
+   "kept": 38,
+   "n": 40,
+   "mean_delta": 0.03440613460592986,
+   "ci": [
+    0.018076308693591944,
+    0.05194443863133566
+   ],
+   "wilcoxon_p": 0.00024356963265491848,
+   "wilcoxon_p_holm": 0.01607559575522462
+  },
+  {
+   "engine": "tesseract",
+   "model": "banglat5",
+   "tau": 0.05,
+   "mean_cer": 0.3409257396536577,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "banglat5",
+   "tau": 0.1,
+   "mean_cer": 0.3409257396536577,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "banglat5",
+   "tau": 0.2,
+   "mean_cer": 0.3409257396536577,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "banglat5",
+   "tau": 0.3,
+   "mean_cer": 0.3409257396536577,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b",
+   "tau": 0.05,
+   "mean_cer": 0.3409257396536577,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b",
+   "tau": 0.1,
+   "mean_cer": 0.3409257396536577,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b",
+   "tau": 0.2,
+   "mean_cer": 0.3409257396536577,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b",
+   "tau": 0.3,
+   "mean_cer": 0.3409257396536577,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b-instruct",
+   "tau": 0.05,
+   "mean_cer": 0.3409257396536577,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b-instruct",
+   "tau": 0.1,
+   "mean_cer": 0.3409257396536577,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b-instruct",
+   "tau": 0.2,
+   "mean_cer": 0.3409257396536577,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b-instruct",
+   "tau": 0.3,
+   "mean_cer": 0.3409257396536577,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-3b-instruct",
+   "tau": 0.05,
+   "mean_cer": 0.3409257396536577,
+   "kept": 1,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-3b-instruct",
+   "tau": 0.1,
+   "mean_cer": 0.3409257396536577,
+   "kept": 1,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-3b-instruct",
+   "tau": 0.2,
+   "mean_cer": 0.3409257396536577,
+   "kept": 1,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-3b-instruct",
+   "tau": 0.3,
+   "mean_cer": 0.3409257396536577,
+   "kept": 1,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "symspell",
+   "tau": 0.05,
+   "mean_cer": 0.2989654030612001,
+   "kept": 3,
+   "n": 40,
+   "mean_delta": 0.0016751063290929408,
+   "ci": [
+    0.0,
+    0.003929721952552201
+   ],
+   "wilcoxon_p": 0.10880943004054569,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "symspell",
+   "tau": 0.1,
+   "mean_cer": 0.3345703176008632,
+   "kept": 38,
+   "n": 40,
+   "mean_delta": 0.03728002086875606,
+   "ci": [
+    0.030521717646088884,
+    0.043799411692816925
+   ],
+   "wilcoxon_p": 1.584288843254555e-07,
+   "wilcoxon_p_holm": 1.0614735249805518e-05
+  },
+  {
+   "engine": "easyocr",
+   "model": "symspell",
+   "tau": 0.2,
+   "mean_cer": 0.33698537563431874,
+   "kept": 40,
+   "n": 40,
+   "mean_delta": 0.039695078902211536,
+   "ci": [
+    0.03310689795354392,
+    0.04597066762767906
+   ],
+   "wilcoxon_p": 7.757742362744122e-08,
+   "wilcoxon_p_holm": 5.352842230293444e-06
+  },
+  {
+   "engine": "easyocr",
+   "model": "symspell",
+   "tau": 0.3,
+   "mean_cer": 0.33698537563431874,
+   "kept": 40,
+   "n": 40,
+   "mean_delta": 0.039695078902211536,
+   "ci": [
+    0.03311681107083659,
+    0.046109002261407205
+   ],
+   "wilcoxon_p": 7.757742362744122e-08,
+   "wilcoxon_p_holm": 5.352842230293444e-06
+  },
+  {
+   "engine": "easyocr",
+   "model": "gemma-2b",
+   "tau": 0.05,
+   "mean_cer": 0.3009796390713073,
+   "kept": 35,
+   "n": 40,
+   "mean_delta": 0.003689342339200141,
+   "ci": [
+    0.0006511153917434984,
+    0.007314013849173006
+   ],
+   "wilcoxon_p": 0.09261575968556827,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "gemma-2b",
+   "tau": 0.1,
+   "mean_cer": 0.30230900271788286,
+   "kept": 37,
+   "n": 40,
+   "mean_delta": 0.0050187059857756625,
+   "ci": [
+    0.0015406155340714337,
+    0.00914423130186301
+   ],
+   "wilcoxon_p": 0.03249223611826755,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "gemma-2b",
+   "tau": 0.2,
+   "mean_cer": 0.30067180661618587,
+   "kept": 40,
+   "n": 40,
+   "mean_delta": 0.003381509884078652,
+   "ci": [
+    -0.005579078230500162,
+    0.01199383558628891
+   ],
+   "wilcoxon_p": 0.12043491695112332,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "gemma-2b",
+   "tau": 0.3,
+   "mean_cer": 0.30067180661618587,
+   "kept": 40,
+   "n": 40,
+   "mean_delta": 0.003381509884078652,
+   "ci": [
+    -0.005548435961756971,
+    0.012325684698731113
+   ],
+   "wilcoxon_p": 0.12043491695112332,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "qwen3-1.7b",
+   "tau": 0.05,
+   "mean_cer": 0.2989552608281739,
+   "kept": 32,
+   "n": 40,
+   "mean_delta": 0.0016649640960667168,
+   "ci": [
+    -0.00024111759031853012,
+    0.0037007909426404026
+   ],
+   "wilcoxon_p": 0.1909265697823631,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "qwen3-1.7b",
+   "tau": 0.1,
+   "mean_cer": 0.30141002596317285,
+   "kept": 37,
+   "n": 40,
+   "mean_delta": 0.0041197292310656995,
+   "ci": [
+    0.00040014373369932915,
+    0.008735806828134674
+   ],
+   "wilcoxon_p": 0.132861236687201,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "qwen3-1.7b",
+   "tau": 0.2,
+   "mean_cer": 0.30524924730419667,
+   "kept": 38,
+   "n": 40,
+   "mean_delta": 0.007958950572089493,
+   "ci": [
+    0.0013030331316526932,
+    0.017597926124066406
+   ],
+   "wilcoxon_p": 0.0817418442205618,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "qwen3-1.7b",
+   "tau": 0.3,
+   "mean_cer": 0.3146480605698626,
+   "kept": 40,
+   "n": 40,
+   "mean_delta": 0.01735776383775546,
+   "ci": [
+    0.004483024952757644,
+    0.033490019315501114
+   ],
+   "wilcoxon_p": 0.029613896312068358,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "phi4-mini",
+   "tau": 0.05,
+   "mean_cer": 0.2996257554993915,
+   "kept": 28,
+   "n": 40,
+   "mean_delta": 0.0023354587672843267,
+   "ci": [
+    -0.001407427726152233,
+    0.005879281257036099
+   ],
+   "wilcoxon_p": 0.10138633324386155,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "phi4-mini",
+   "tau": 0.1,
+   "mean_cer": 0.30210820541539235,
+   "kept": 39,
+   "n": 40,
+   "mean_delta": 0.0048179086832851594,
+   "ci": [
+    -0.0014780124507001397,
+    0.010811719849020313
+   ],
+   "wilcoxon_p": 0.062440280901664744,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "phi4-mini",
+   "tau": 0.2,
+   "mean_cer": 0.30210820541539235,
+   "kept": 39,
+   "n": 40,
+   "mean_delta": 0.0048179086832851594,
+   "ci": [
+    -0.0014643294725127912,
+    0.010773711912670715
+   ],
+   "wilcoxon_p": 0.062440280901664744,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "phi4-mini",
+   "tau": 0.3,
+   "mean_cer": 0.30210820541539235,
+   "kept": 39,
+   "n": 40,
+   "mean_delta": 0.0048179086832851594,
+   "ci": [
+    -0.001364712878775928,
+    0.010926435651527377
+   ],
+   "wilcoxon_p": 0.062440280901664744,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "llama3.2-1b",
+   "tau": 0.05,
+   "mean_cer": 0.30001391870072414,
+   "kept": 21,
+   "n": 40,
+   "mean_delta": 0.0027236219686169556,
+   "ci": [
+    0.00016494756797664383,
+    0.005898678812969488
+   ],
+   "wilcoxon_p": 0.07070932047868624,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "llama3.2-1b",
+   "tau": 0.1,
+   "mean_cer": 0.30548113278982564,
+   "kept": 29,
+   "n": 40,
+   "mean_delta": 0.00819083605771848,
+   "ci": [
+    0.0038214116608792986,
+    0.01302859934462761
+   ],
+   "wilcoxon_p": 0.002404892089595166,
+   "wilcoxon_p_holm": 0.15631798582368578
+  },
+  {
+   "engine": "easyocr",
+   "model": "llama3.2-1b",
+   "tau": 0.2,
+   "mean_cer": 0.31002794774823433,
+   "kept": 36,
+   "n": 40,
+   "mean_delta": 0.012737651016127172,
+   "ci": [
+    0.0013687084021028805,
+    0.02541094802498605
+   ],
+   "wilcoxon_p": 0.01034635631729135,
+   "wilcoxon_p_holm": 0.6414740916720637
+  },
+  {
+   "engine": "easyocr",
+   "model": "llama3.2-1b",
+   "tau": 0.3,
+   "mean_cer": 0.31421162121762214,
+   "kept": 37,
+   "n": 40,
+   "mean_delta": 0.01692132448551493,
+   "ci": [
+    0.0035662455111435867,
+    0.03186212566541696
+   ],
+   "wilcoxon_p": 0.0060697261638865425,
+   "wilcoxon_p_holm": 0.3884624744887387
+  },
+  {
+   "engine": "easyocr",
+   "model": "banglat5",
+   "tau": 0.05,
+   "mean_cer": 0.29729029673210716,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "banglat5",
+   "tau": 0.1,
+   "mean_cer": 0.29729029673210716,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "banglat5",
+   "tau": 0.2,
+   "mean_cer": 0.29729029673210716,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "banglat5",
+   "tau": 0.3,
+   "mean_cer": 0.29729029673210716,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b",
+   "tau": 0.05,
+   "mean_cer": 0.29729029673210716,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b",
+   "tau": 0.1,
+   "mean_cer": 0.29729029673210716,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b",
+   "tau": 0.2,
+   "mean_cer": 0.29729029673210716,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b",
+   "tau": 0.3,
+   "mean_cer": 0.29729029673210716,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b-instruct",
+   "tau": 0.05,
+   "mean_cer": 0.29729029673210716,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b-instruct",
+   "tau": 0.1,
+   "mean_cer": 0.29729029673210716,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b-instruct",
+   "tau": 0.2,
+   "mean_cer": 0.29729029673210716,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b-instruct",
+   "tau": 0.3,
+   "mean_cer": 0.29729029673210716,
+   "kept": 0,
+   "n": 40,
+   "mean_delta": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "wilcoxon_p": 1.0,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-3b-instruct",
+   "tau": 0.05,
+   "mean_cer": 0.2975871294603706,
+   "kept": 2,
+   "n": 40,
+   "mean_delta": 0.00029683272826341867,
+   "ci": [
+    0.0,
+    0.0007892836098914696
+   ],
+   "wilcoxon_p": 0.17971249487899976,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-3b-instruct",
+   "tau": 0.1,
+   "mean_cer": 0.2975871294603706,
+   "kept": 2,
+   "n": 40,
+   "mean_delta": 0.00029683272826341867,
+   "ci": [
+    0.0,
+    0.0007892836098914696
+   ],
+   "wilcoxon_p": 0.17971249487899976,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-3b-instruct",
+   "tau": 0.2,
+   "mean_cer": 0.2975871294603706,
+   "kept": 2,
+   "n": 40,
+   "mean_delta": 0.00029683272826341867,
+   "ci": [
+    0.0,
+    0.0007892836098914696
+   ],
+   "wilcoxon_p": 0.17971249487899976,
+   "wilcoxon_p_holm": 1.0
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-3b-instruct",
+   "tau": 0.3,
+   "mean_cer": 0.2975871294603706,
+   "kept": 2,
+   "n": 40,
+   "mean_delta": 0.00029683272826341867,
+   "ci": [
+    0.0,
+    0.0007892836098914696
+   ],
+   "wilcoxon_p": 0.17971249487899976,
+   "wilcoxon_p_holm": 1.0
+  }
+ ],
+ "char_class": [
+  {
+   "engine": "tesseract",
+   "model": "(raw OCR)",
+   "rates": {
+    "consonant": 0.1912658512793577,
+    "conjunct": 0.2883922134102379,
+    "virama": 0.2491961414790997,
+    "vowel sign": 0.1730235783633842,
+    "other Bengali sign": 0.2188782489740082,
+    "space": 0.09378505721337223,
+    "danda": 0.5934489402697495,
+    "Bengali digit": 0.6478632478632479,
+    "punctuation/other": 0.571583514099783,
+    "independent vowel": 0.13819095477386933,
+    "other digit": 0.5
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "tesseract",
+   "model": "symspell",
+   "rates": {
+    "consonant": 0.2482929391460944,
+    "conjunct": 0.3103821196827686,
+    "virama": 0.26768488745980706,
+    "vowel sign": 0.22035367545076284,
+    "other Bengali sign": 0.2777017783857729,
+    "space": 0.09311195871662553,
+    "danda": 0.5973025048169557,
+    "Bengali digit": 0.6444444444444445,
+    "punctuation/other": 0.5824295010845987,
+    "independent vowel": 0.23618090452261306,
+    "other digit": 0.5
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "tesseract",
+   "model": "gemma-2b",
+   "rates": {
+    "consonant": 0.21407668642605238,
+    "conjunct": 0.30942081230473445,
+    "virama": 0.2741157556270096,
+    "vowel sign": 0.18949375866851595,
+    "other Bengali sign": 0.22982216142270862,
+    "space": 0.11734350459950639,
+    "danda": 0.6107899807321773,
+    "Bengali digit": 0.7538461538461538,
+    "punctuation/other": 0.5900216919739696,
+    "independent vowel": 0.14698492462311558,
+    "other digit": 0.5
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "tesseract",
+   "model": "qwen3-1.7b",
+   "rates": {
+    "consonant": 0.19809409469498013,
+    "conjunct": 0.29560201874549386,
+    "virama": 0.260048231511254,
+    "vowel sign": 0.1716366158113731,
+    "other Bengali sign": 0.22571819425444598,
+    "space": 0.10590083015481265,
+    "danda": 0.603082851637765,
+    "Bengali digit": 0.6666666666666666,
+    "punctuation/other": 0.6030368763557483,
+    "independent vowel": 0.14321608040201006,
+    "other digit": 0.5
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "tesseract",
+   "model": "phi4-mini",
+   "rates": {
+    "consonant": 0.21572747054851055,
+    "conjunct": 0.31326604181687095,
+    "virama": 0.27773311897106107,
+    "vowel sign": 0.19833564493758668,
+    "other Bengali sign": 0.2393980848153215,
+    "space": 0.12766434821628897,
+    "danda": 0.5741811175337187,
+    "Bengali digit": 0.6478632478632479,
+    "punctuation/other": 0.6409978308026031,
+    "independent vowel": 0.1884422110552764,
+    "other digit": 1.0
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "tesseract",
+   "model": "llama3.2-1b",
+   "rates": {
+    "consonant": 0.2581226082389135,
+    "conjunct": 0.355323239605864,
+    "virama": 0.3207395498392283,
+    "vowel sign": 0.23613037447988905,
+    "other Bengali sign": 0.2954856361149111,
+    "space": 0.1552613865829033,
+    "danda": 0.628131021194605,
+    "Bengali digit": 0.705982905982906,
+    "punctuation/other": 0.6550976138828634,
+    "independent vowel": 0.1972361809045226,
+    "other digit": 0.5
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "tesseract",
+   "model": "banglat5",
+   "rates": {
+    "consonant": 0.9104824791776094,
+    "conjunct": 0.895577986061043,
+    "virama": 0.8532958199356914,
+    "vowel sign": 0.8840152565880721,
+    "other Bengali sign": 0.93296853625171,
+    "space": 0.6039937177473637,
+    "danda": 0.6801541425818882,
+    "Bengali digit": 0.9641025641025641,
+    "punctuation/other": 0.8991323210412148,
+    "independent vowel": 0.8819095477386935,
+    "other digit": 1.0
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b",
+   "rates": {
+    "consonant": 0.6004352067231935,
+    "conjunct": 0.5647680845950492,
+    "virama": 0.4453376205787781,
+    "vowel sign": 0.5353675450762829,
+    "other Bengali sign": 0.6032831737346102,
+    "space": 0.1478573031186897,
+    "danda": 0.7707129094412332,
+    "Bengali digit": 0.8666666666666667,
+    "punctuation/other": 0.8850325379609545,
+    "independent vowel": 0.6733668341708543,
+    "other digit": 1.0
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-1b-instruct",
+   "rates": {
+    "consonant": 0.5983342087491559,
+    "conjunct": 0.5324441240086518,
+    "virama": 0.3520900321543408,
+    "vowel sign": 0.5136962552011096,
+    "other Bengali sign": 0.6497948016415869,
+    "space": 0.11420237828135517,
+    "danda": 0.7842003853564548,
+    "Bengali digit": 0.9333333333333333,
+    "punctuation/other": 0.8655097613882863,
+    "independent vowel": 0.6896984924623115,
+    "other digit": 0.5
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "tesseract",
+   "model": "titullm-3b-instruct",
+   "rates": {
+    "consonant": 0.8515795002626247,
+    "conjunct": 0.7990867579908676,
+    "virama": 0.7339228295819936,
+    "vowel sign": 0.8183079056865464,
+    "other Bengali sign": 0.893296853625171,
+    "space": 0.6322638546107247,
+    "danda": 0.9364161849710982,
+    "Bengali digit": 0.9897435897435898,
+    "punctuation/other": 0.9913232104121475,
+    "independent vowel": 0.9007537688442211,
+    "other digit": 0.5
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "easyocr",
+   "model": "(raw OCR)",
+   "rates": {
+    "consonant": 0.13949125834771517,
+    "conjunct": 0.19959144436433549,
+    "virama": 0.17805466237942122,
+    "vowel sign": 0.2179264909847434,
+    "other Bengali sign": 0.12859097127222982,
+    "space": 0.09221449405429662,
+    "danda": 0.9980732177263969,
+    "Bengali digit": 0.5264957264957265,
+    "punctuation/other": 0.6995661605206074,
+    "independent vowel": 0.19095477386934673,
+    "other digit": 0.16666666666666666
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "easyocr",
+   "model": "symspell",
+   "rates": {
+    "consonant": 0.2114504389585053,
+    "conjunct": 0.22963229992790193,
+    "virama": 0.2069935691318328,
+    "vowel sign": 0.25225381414701803,
+    "other Bengali sign": 0.22024623803009577,
+    "space": 0.09131702939196769,
+    "danda": 0.9980732177263969,
+    "Bengali digit": 0.5316239316239316,
+    "punctuation/other": 0.7060737527114967,
+    "independent vowel": 0.2864321608040201,
+    "other digit": 0.16666666666666666
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "easyocr",
+   "model": "gemma-2b",
+   "rates": {
+    "consonant": 0.15142192541457192,
+    "conjunct": 0.22146118721461186,
+    "virama": 0.20217041800643087,
+    "vowel sign": 0.22694174757281554,
+    "other Bengali sign": 0.146374829001368,
+    "space": 0.10657392865155935,
+    "danda": 0.9980732177263969,
+    "Bengali digit": 0.7316239316239316,
+    "punctuation/other": 0.7082429501084598,
+    "independent vowel": 0.19597989949748743,
+    "other digit": 0.3333333333333333
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "easyocr",
+   "model": "qwen3-1.7b",
+   "rates": {
+    "consonant": 0.16087641629774144,
+    "conjunct": 0.21557317952415284,
+    "virama": 0.1997588424437299,
+    "vowel sign": 0.22174063800277394,
+    "other Bengali sign": 0.14500683994528044,
+    "space": 0.10388153466457259,
+    "danda": 0.9826589595375722,
+    "Bengali digit": 0.5538461538461539,
+    "punctuation/other": 0.7223427331887202,
+    "independent vowel": 0.2236180904522613,
+    "other digit": 0.6666666666666666
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "easyocr",
+   "model": "phi4-mini",
+   "rates": {
+    "consonant": 0.17513318826442562,
+    "conjunct": 0.22710886806056235,
+    "virama": 0.20458199356913184,
+    "vowel sign": 0.2461858529819695,
+    "other Bengali sign": 0.17647058823529413,
+    "space": 0.12519632039488446,
+    "danda": 0.9865125240847784,
+    "Bengali digit": 0.5145299145299145,
+    "punctuation/other": 0.7169197396963124,
+    "independent vowel": 0.25,
+    "other digit": 0.8333333333333334
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "easyocr",
+   "model": "llama3.2-1b",
+   "rates": {
+    "consonant": 0.19599309672094245,
+    "conjunct": 0.2529440038452295,
+    "virama": 0.2282958199356913,
+    "vowel sign": 0.25970873786407767,
+    "other Bengali sign": 0.18331053351573187,
+    "space": 0.14516490913170293,
+    "danda": 0.9980732177263969,
+    "Bengali digit": 0.5794871794871795,
+    "punctuation/other": 0.7331887201735358,
+    "independent vowel": 0.25251256281407036,
+    "other digit": 0.3333333333333333
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "easyocr",
+   "model": "banglat5",
+   "rates": {
+    "consonant": 0.899977489307421,
+    "conjunct": 0.867099254986782,
+    "virama": 0.7978295819935691,
+    "vowel sign": 0.8914701803051318,
+    "other Bengali sign": 0.9398084815321477,
+    "space": 0.4763293695310747,
+    "danda": 0.882466281310212,
+    "Bengali digit": 0.9641025641025641,
+    "punctuation/other": 0.9197396963123644,
+    "independent vowel": 0.957286432160804,
+    "other digit": 1.0
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b",
+   "rates": {
+    "consonant": 0.5608914234261274,
+    "conjunct": 0.4961547704878635,
+    "virama": 0.37017684887459806,
+    "vowel sign": 0.5204576976421637,
+    "other Bengali sign": 0.6374829001367989,
+    "space": 0.16064617455687683,
+    "danda": 0.9460500963391136,
+    "Bengali digit": 0.8632478632478633,
+    "punctuation/other": 0.89587852494577,
+    "independent vowel": 0.6821608040201005,
+    "other digit": 1.0
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-1b-instruct",
+   "rates": {
+    "consonant": 0.5882794327305471,
+    "conjunct": 0.5532323960586397,
+    "virama": 0.4055466237942122,
+    "vowel sign": 0.5228848821081831,
+    "other Bengali sign": 0.7086183310533516,
+    "space": 0.10522773165806597,
+    "danda": 0.815028901734104,
+    "Bengali digit": 0.9025641025641026,
+    "punctuation/other": 0.8633405639913232,
+    "independent vowel": 0.7248743718592965,
+    "other digit": 1.0
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  },
+  {
+   "engine": "easyocr",
+   "model": "titullm-3b-instruct",
+   "rates": {
+    "consonant": 0.8210399939971487,
+    "conjunct": 0.760874789714011,
+    "virama": 0.7230707395498392,
+    "vowel sign": 0.7980235783633842,
+    "other Bengali sign": 0.8632010943912448,
+    "space": 0.6840924388602199,
+    "danda": 0.928709055876686,
+    "Bengali digit": 0.9880341880341881,
+    "punctuation/other": 0.9793926247288504,
+    "independent vowel": 0.9007537688442211,
+    "other digit": 1.0
+   },
+   "counts": {
+    "consonant": 13327,
+    "conjunct": 8322,
+    "virama": 2488,
+    "vowel sign": 5768,
+    "other Bengali sign": 731,
+    "space": 4457,
+    "danda": 519,
+    "Bengali digit": 585,
+    "punctuation/other": 922,
+    "independent vowel": 796,
+    "other digit": 6
+   }
+  }
+ ]
+}

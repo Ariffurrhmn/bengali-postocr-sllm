@@ -1,5 +1,5 @@
 """Paper figures that are diagrams rather than result plots (the result plots
-are made by make_figures.py):
+are made by make_revision_figures.py):
 
   fig_method.pdf/.png  - end-to-end methodology diagram (reviewer item #12)
   fig_dataset.pdf/.png - (a) how the 81 dataset pages become the 15 scored

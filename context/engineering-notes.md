@@ -19,7 +19,7 @@ The sweep only printed a line *after* each page finished, so a 7-minute page loo
 ## Environment gotchas
 
 - **Windows hides case bugs.** `Path.exists()` is case-insensitive on Windows. Test filename logic with a deliberately case-sensitive check.
-- **Bengali console output crashes on Windows.** Re-wrap `sys.stdout` as UTF-8 (see SETUP.md).
+- **Bengali console output crashes on Windows.** Re-wrap `sys.stdout` as UTF-8 (`sys.stdout.reconfigure(encoding="utf-8")`), once per process.
 - **Bengali literals in source files can get silently normalised** by editors or tooling before Python sees them. For exact-codepoint test data, build strings with `chr(0x…)`.
 - **NFC in Bengali:** only vowel signs O and AU and the three nukta letters decompose. ী (U+09C0) does not, so don't use it as an NFC test case.
 - **Tesseract Bengali langpack:** not bundled. It is kept in the gitignored `.tessdata/` with `TESSDATA_PREFIX`; Colab downloads it in the notebook.

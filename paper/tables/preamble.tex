@@ -12,9 +12,16 @@
 \usepackage{iftex}
 \ifXeTeX
   \usepackage{fontspec}
-  \setmainfont{TeX Gyre Termes}  % Times, as IEEEtran uses under pdfLaTeX
+  % Times, as IEEEtran uses under pdfLaTeX; loaded by file name so it works
+  % on Overleaf, TeX Live and Tectonic alike.
+  \setmainfont{texgyretermes}[Extension=.otf, UprightFont=*-regular,
+    BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
   \newfontfamily\bnfont[Script=Bengali, Path=fonts/, Extension=.ttf]{NotoSerifBengali-Regular}
   \newcommand{\bn}[1]{{\bnfont #1}}
 \else
-  \newcommand{\bn}[1]{\textit{[Bengali text: compile with XeLaTeX]}}
+  % latexmkrc makes Overleaf use XeLaTeX anyway. If pdfLaTeX still runs, warn
+  % (an error made Overleaf report a failed compile) and show a placeholder.
+  \PackageWarningNoLine{preamble}{This paper needs XeLaTeX for its Bengali
+    examples (Overleaf: Menu > Compiler > XeLaTeX)}
+  \newcommand{\bn}[1]{\textcolor{red}{\textbf{[Bengali text missing: compile with XeLaTeX]}}}
 \fi

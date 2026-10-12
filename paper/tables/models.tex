@@ -4,20 +4,20 @@
 \label{tab:models}
 \setlength{\tabcolsep}{4pt}
 \footnotesize
-\begin{tabular}{llcccccc}
+\begin{tabular}{l>{\raggedright\arraybackslash\scriptsize}p{4.3cm}ccccccc}
 \toprule
-Model & Checkpoint & Params (B) & GPU precision & Tokens/char & Chars/chunk & CPU min/page & GPU min/page \\
+Model & Checkpoint@revision & \shortstack{Params\\(B)} & \shortstack{GPU weights\\GB (precision)} & \shortstack{Tokens/\\char} & \shortstack{Tokens/\\word} & \shortstack{Chars/\\chunk} & \shortstack{CPU\\min/page} & \shortstack{GPU\\min/page} \\
 \midrule
-Gemma 2B & \texttt{google/gemma-2b-it@9698841} & 2.51 & fp32 & 0.60 & 312 & 10.4 & 0.38 \\
-Qwen3 1.7B & \texttt{Qwen/Qwen3-1.7B@70d244c} & 1.72 & fp32 & 1.08 & 190 & 14.3 & 0.58 \\
-Phi-4-mini & \texttt{microsoft/Phi-4-mini-instruct@cfbefac} & 3.84 & fp16 & 0.45 & 389 & --- & 0.31 \\
-Llama 3.2 1B & \texttt{meta-llama/Llama-3.2-1B-Instruct@9213176} & 1.24 & fp32 & 1.22 & 168 & 9.5 & 0.37 \\
-BanglaT5 & \texttt{csebuetnlp/banglat5@76b135c} & 0.25 & fp32 & 0.29 & 483 & 2.2 & 0.05 \\
-TituLLMs 1B & \texttt{hishab/titulm-llama-3.2-1b-v1.1@521da71} & 1.24 & fp32 & 1.22 & 168 & 12.5 & 0.59 \\
-TituLLMs 1B Instruct & \texttt{hishab/titulm-llama-3.2-1b-v2.0-Instruct-v1.0@039dbd2} & 1.32 & fp32 & 0.38 & 422 & --- & 2.44 \\
-TituLLMs 3B Instruct & \texttt{hishab/titulm-llama-3.2-3b-v2.0-Instruct-v1.0@6a96004} & 3.34 & fp16 & 0.38 & 422 & --- & 0.32 \\
+Gemma 2B & \texttt{google/\allowbreak gemma-\allowbreak 2b-\allowbreak it@\allowbreak 9698841} & 2.51 & 10.0 (fp32) & 0.60 & 3.9 & 312 & 10.4 & 0.38 \\
+Qwen3 1.7B & \texttt{Qwen/\allowbreak Qwen3-\allowbreak 1.7B@\allowbreak 70d244c} & 1.72 & 6.9 (fp32) & 1.08 & 7.1 & 190 & 14.3 & 0.58 \\
+Phi-4-mini & \texttt{microsoft/\allowbreak Phi-\allowbreak 4-\allowbreak mini-\allowbreak instruct@\allowbreak cfbefac} & 3.84 & 7.7 (fp16) & 0.45 & 3.0 & 389 & --- & 0.31 \\
+Llama 3.2 1B & \texttt{meta-\allowbreak llama/\allowbreak Llama-\allowbreak 3.2-\allowbreak 1B-\allowbreak Instruct@\allowbreak 9213176} & 1.24 & 5.0 (fp32) & 1.22 & 8.0 & 168 & 9.5 & 0.37 \\
+BanglaT5 & \texttt{csebuetnlp/\allowbreak banglat5@\allowbreak 76b135c} & 0.25 & 1.0 (fp32) & 0.29 & 1.9 & 483 & 2.2 & 0.05 \\
+TituLLMs 1B & \texttt{hishab/\allowbreak titulm-\allowbreak llama-\allowbreak 3.2-\allowbreak 1b-\allowbreak v1.1@\allowbreak 521da71} & 1.24 & 5.0 (fp32) & 1.22 & 8.0 & 168 & 12.5 & 0.59 \\
+TituLLMs 1B Instruct & \texttt{hishab/\allowbreak titulm-\allowbreak llama-\allowbreak 3.2-\allowbreak 1b-\allowbreak v2.0-\allowbreak Instruct-\allowbreak v1.0@\allowbreak 039dbd2} & 1.32 & 5.3 (fp32) & 0.38 & 2.5 & 422 & --- & 2.44 \\
+TituLLMs 3B Instruct & \texttt{hishab/\allowbreak titulm-\allowbreak llama-\allowbreak 3.2-\allowbreak 3b-\allowbreak v2.0-\allowbreak Instruct-\allowbreak v1.0@\allowbreak 6a96004} & 3.34 & 6.7 (fp16) & 0.38 & 2.5 & 422 & --- & 0.32 \\
 \bottomrule
 \end{tabular}
 \par\smallskip
-\begin{minipage}{\linewidth}\footnotesize Checkpoint: Hugging Face model and revision. Parameters from each checkpoint's configuration, tied embeddings counted once. Tokens/char: each tokenizer on the 40 reference texts. Chars/chunk: mean characters per chunk of about 250 tokens on raw Tesseract text. Decoding for all models: greedy, at most $\min(512,\max(64,1.5n))$ new tokens, no repetition penalty or n-gram ban. CPU: free Colab runtime, bfloat16, 15 pages (---: not run on CPU). GPU: NVIDIA T4, 40 pages. Times are per page and engine.\end{minipage}
+\begin{minipage}{\linewidth}\footnotesize Checkpoint: Hugging Face model and revision. Parameters from each checkpoint's configuration, tied embeddings counted once. GPU weights: memory taken by the parameters at the precision used on the GPU (parameters $\times$ 4 bytes in fp32, 2 in fp16); peak memory during generation was not recorded. Tokens/char and tokens/word: each tokenizer on the 40 reference texts. Chars/chunk: mean characters per chunk of about 250 tokens on raw Tesseract text. Decoding for all models: greedy, at most $\min(512,\max(64,1.5n))$ new tokens, no repetition penalty or n-gram ban. CPU: free Colab runtime, bfloat16, 15 pages (---: not run on CPU). GPU: NVIDIA T4, 40 pages. Times are per page and engine.\end{minipage}
 \end{table*}

@@ -86,19 +86,20 @@ def main():
     for k, (pid, ref, _) in enumerate(EXAMPLES):
         ref = normalize(ref)
         ref_words = ref.split()
-        cells[("Reference", k)] = esc(ref)
+        cells[("Reference", k)] = "\\bn{%s}" % esc(ref)
         for label, engine, model in ROWS:
             text = pages[pid][engine] if model is None else out[(engine, model, pid)]
             span = best_span(ref, text) if normalize(text) else ""
             words = trim(span.split(), ref_words) if span else []
-            shown = highlight(words, ref_words) if words else "\\textit{(empty)}"
+            # Only the Bengali goes in \bn{}: the Bengali font has no Latin letters.
+            shown = "\\bn{%s}" % highlight(words, ref_words) if words else "\\textit{(empty)}"
             cells[(label, k)] = shown + " \\hfill{\\scriptsize %.2f}" % cer(ref, " ".join(words))
 
-    rows = ["Reference & " + " & ".join("\\bn{%s}" % cells[("Reference", k)] for k in range(len(EXAMPLES))) + " \\\\",
+    rows = ["Reference & " + " & ".join(cells[("Reference", k)] for k in range(len(EXAMPLES))) + " \\\\",
             "Gloss & " + " & ".join("\\textit{%s}" % EXAMPLES[k][2] for k in range(len(EXAMPLES))) + " \\\\",
             "\\midrule"]
     for label, _, model in ROWS:
-        rows.append(label + " & " + " & ".join("\\bn{%s}" % cells[(label, k)]
+        rows.append(label + " & " + " & ".join(cells[(label, k)]
                                                for k in range(len(EXAMPLES))) + " \\\\")
         if label == "EasyOCR (raw)":
             rows.append("\\midrule")

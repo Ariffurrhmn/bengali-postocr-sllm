@@ -1,0 +1,38 @@
+\begin{table*}[t]
+\centering
+\caption{Robustness of the Main Comparison to the Metric, the Resampling Unit and the Reference}
+\label{tab:robustness}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{lcccccccc}
+\toprule
+ & & \multicolumn{2}{c}{Grapheme CER} & Books & \multicolumn{2}{c}{Reading order} & \multicolumn{2}{c}{Word recall} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+Method & \shortstack{Pooled\\CER} & $\Delta$ [95\% CI] & $p_{\mathrm{Holm}}$ & $\Delta$CER 95\% CI & $\Delta$CER & $p_{\mathrm{Holm}}$ & $\Delta$ & $p_{\mathrm{Holm}}$ \\
+\midrule
+\multicolumn{9}{l}{\textit{Tesseract: raw OCR pooled CER 0.298, grapheme CER 0.431, word recall 0.431}} \\
+SymSpell (dictionary) & 0.335 & +0.053 [+0.044, +0.061] & $<$0.001 & [+0.031, +0.043] & +0.037 & $<$0.001 & -0.102 & $<$0.001 \\
+Gemma 2B & 0.315 & +0.010 [-0.002, +0.026] & 1.00\textsuperscript{ns} & [-0.000, +0.027] & +0.012 & 1.00\textsuperscript{ns} & -0.017 & 0.017 \\
+Qwen3 1.7B & 0.299 & -0.015 [-0.032, -0.004] & 0.021 & [-0.014, +0.004] & -0.004 & 0.82\textsuperscript{ns} & +0.003 & 0.38\textsuperscript{ns} \\
+Phi-4-mini & 0.324 & +0.012 [-0.013, +0.052] & 1.00\textsuperscript{ns} & [-0.003, +0.038] & +0.013 & 1.00\textsuperscript{ns} & -0.028 & $<$0.001 \\
+Llama 3.2 1B & 0.343 & +0.028 [+0.009, +0.049] & 0.08\textsuperscript{ns} & [+0.021, +0.058] & +0.038 & 0.002 & -0.034 & $<$0.001 \\
+BanglaT5 & 0.857 & +0.462 [+0.350, +0.565] & $<$0.001 & [+0.440, +0.591] & +0.524 & $<$0.001 & -0.386 & $<$0.001 \\
+TituLLMs 1B & 1.045 & +0.807 [+0.734, +0.884] & $<$0.001 & [+0.689, +0.795] & +0.748 & $<$0.001 & -0.260 & $<$0.001 \\
+TituLLMs 1B Instruct & 1.587 & +1.453 [+1.186, +1.750] & $<$0.001 & [+1.074, +1.545] & +1.306 & $<$0.001 & -0.300 & $<$0.001 \\
+TituLLMs 3B Instruct & 0.932 & +0.558 [+0.431, +0.702] & $<$0.001 & [+0.497, +0.763] & +0.623 & $<$0.001 & -0.397 & $<$0.001 \\
+\midrule
+\multicolumn{9}{l}{\textit{EasyOCR: raw OCR pooled CER 0.286, grapheme CER 0.387, word recall 0.484}} \\
+SymSpell (dictionary) & 0.325 & +0.054 [+0.044, +0.064] & $<$0.001 & [+0.033, +0.047] & +0.040 & $<$0.001 & -0.113 & $<$0.001 \\
+Gemma 2B & 0.299 & +0.005 [-0.003, +0.013] & 0.84\textsuperscript{ns} & [-0.006, +0.012] & +0.004 & 0.36\textsuperscript{ns} & -0.019 & 0.002 \\
+Qwen3 1.7B & 0.306 & +0.011 [-0.003, +0.030] & 1.00\textsuperscript{ns} & [+0.005, +0.033] & +0.017 & 0.20\textsuperscript{ns} & +0.002 & 0.38\textsuperscript{ns} \\
+Phi-4-mini & 0.311 & +0.014 [-0.008, +0.050] & 1.00\textsuperscript{ns} & [+0.000, +0.046] & +0.018 & 0.20\textsuperscript{ns} & -0.026 & $<$0.001 \\
+Llama 3.2 1B & 0.322 & +0.021 [+0.001, +0.044] & 0.84\textsuperscript{ns} & [+0.012, +0.055] & +0.031 & 0.012 & -0.027 & $<$0.001 \\
+BanglaT5 & 0.832 & +0.468 [+0.393, +0.533] & $<$0.001 & [+0.469, +0.593] & +0.537 & $<$0.001 & -0.454 & $<$0.001 \\
+TituLLMs 1B & 1.026 & +0.727 [+0.642, +0.809] & $<$0.001 & [+0.666, +0.800] & +0.737 & $<$0.001 & -0.291 & $<$0.001 \\
+TituLLMs 1B Instruct & 1.489 & +1.519 [+1.228, +1.866] & $<$0.001 & [+1.113, +1.575] & +1.338 & $<$0.001 & -0.355 & $<$0.001 \\
+TituLLMs 3B Instruct & 0.869 & +0.527 [+0.449, +0.603] & $<$0.001 & [+0.511, +0.665] & +0.592 & $<$0.001 & -0.449 & $<$0.001 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Pooled CER: total character errors over total reference characters. Grapheme CER: CER over extended grapheme clusters; $\Delta$ = corrected $-$ raw OCR. Books: 95\% interval of the mean change in CER when whole books (37) are resampled instead of pages. Reading order: change in CER against a reference whose regions follow the reading order declared in the PAGE-XML file (17 of 40 references change). Word recall: share of reference word tokens found in the output, ignoring order and extra text; positive $\Delta$ = better. Each $p_{\mathrm{Holm}}$ column is its own family of 18 tests.\end{minipage}
+\end{table*}

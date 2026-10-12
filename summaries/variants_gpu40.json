@@ -1,0 +1,826 @@
+[
+ {
+  "engine": "tesseract",
+  "model": "gemma-2b",
+  "variant": "original",
+  "prompt": "en",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.3526966777938378,
+  "vs_raw": [
+   0.011770938140180091,
+   -0.0006599413618223062,
+   0.028483454542357498
+  ],
+  "output_vs_input_cer": 0.031845462172811846
+ },
+ {
+  "engine": "tesseract",
+  "model": "gemma-2b",
+  "variant": "preserve spelling",
+  "prompt": "en_preserve",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.34959922965271495,
+  "vs_raw": [
+   0.008673489999057227,
+   -0.0017709516679923836,
+   0.024488298042612305
+  ],
+  "output_vs_input_cer": 0.027173250810454908,
+  "vs_original": [
+   -0.0030974481411228634,
+   -0.008740441176103843,
+   0.00014095284299576715
+  ],
+  "wilcoxon_p": 0.32806478170083675,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "tesseract",
+  "model": "gemma-2b",
+  "variant": "Bengali prompt",
+  "prompt": "bn",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.35906397284497327,
+  "vs_raw": [
+   0.0181382331913156,
+   0.0016995641789367916,
+   0.04589044666164847
+  ],
+  "output_vs_input_cer": 0.046536526521472284,
+  "vs_original": [
+   0.00636729505113551,
+   -0.01630107625493966,
+   0.03659920666809807
+  ],
+  "wilcoxon_p": 0.31723095148464064,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "tesseract",
+  "model": "gemma-2b",
+  "variant": "three-shot",
+  "prompt": "fewshot",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.434876146487652,
+  "vs_raw": [
+   0.09395040683399436,
+   0.04522236964243412,
+   0.14898299879725008
+  ],
+  "output_vs_input_cer": 0.1771201501590459,
+  "vs_original": [
+   0.08217946869381426,
+   0.03456781118796964,
+   0.1379453522658192
+  ],
+  "wilcoxon_p": 0.0024147041360347552,
+  "wilcoxon_p_holm": 0.06761171580897314
+ },
+ {
+  "engine": "tesseract",
+  "model": "gemma-2b",
+  "variant": "300-char chunks",
+  "prompt": "en",
+  "approach": "chunked_chars",
+  "n": 40,
+  "mean_cer": 0.34315341763033896,
+  "vs_raw": [
+   0.0022276779766812658,
+   -0.0016564908648159424,
+   0.006383347121192754
+  ],
+  "output_vs_input_cer": 0.020719333028195674,
+  "vs_original": [
+   -0.009543260163498825,
+   -0.025974489675700006,
+   0.002377060088644237
+  ],
+  "wilcoxon_p": 0.4528065046691958,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "tesseract",
+  "model": "qwen3-1.7b",
+  "variant": "original",
+  "prompt": "en",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.3373383596320899,
+  "vs_raw": [
+   -0.0035873800215677548,
+   -0.014258725687129884,
+   0.004570721941507785
+  ],
+  "output_vs_input_cer": 0.036615507312370295
+ },
+ {
+  "engine": "tesseract",
+  "model": "qwen3-1.7b",
+  "variant": "preserve spelling",
+  "prompt": "en_preserve",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.33509068832541766,
+  "vs_raw": [
+   -0.005835051328240052,
+   -0.015027482134670913,
+   -0.0002320117806488955
+  ],
+  "output_vs_input_cer": 0.021469821308694802,
+  "vs_original": [
+   -0.002247671306672297,
+   -0.008014021851543046,
+   0.0019788716729876167
+  ],
+  "wilcoxon_p": 0.517047890994101,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "tesseract",
+  "model": "qwen3-1.7b",
+  "variant": "Bengali prompt",
+  "prompt": "bn",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.389681327566561,
+  "vs_raw": [
+   0.04875558791290331,
+   0.010952390856463904,
+   0.09510605056922028
+  ],
+  "output_vs_input_cer": 0.12460182375612668,
+  "vs_original": [
+   0.05234296793447106,
+   0.016909518710450277,
+   0.09876002312626722
+  ],
+  "wilcoxon_p": 0.030151823302213675,
+  "wilcoxon_p_holm": 0.6030364660442735
+ },
+ {
+  "engine": "tesseract",
+  "model": "qwen3-1.7b",
+  "variant": "three-shot",
+  "prompt": "fewshot",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.3684093372274937,
+  "vs_raw": [
+   0.027483597573835988,
+   0.0015025210345221503,
+   0.06000744614228768
+  ],
+  "output_vs_input_cer": 0.05980532714255068,
+  "vs_original": [
+   0.031070977595403743,
+   0.004044964081681775,
+   0.06460673417013951
+  ],
+  "wilcoxon_p": 0.08142693555746508,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "tesseract",
+  "model": "qwen3-1.7b",
+  "variant": "300-char chunks",
+  "prompt": "en",
+  "approach": "chunked_chars",
+  "n": 40,
+  "mean_cer": 0.34340216857049255,
+  "vs_raw": [
+   0.0024764289168348556,
+   -0.01112855505895552,
+   0.015966631167345823
+  ],
+  "output_vs_input_cer": 0.033809973637749104,
+  "vs_original": [
+   0.0060638089384026095,
+   -0.0028323949350069592,
+   0.01744116092765291
+  ],
+  "wilcoxon_p": 0.2852805156605517,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "tesseract",
+  "model": "phi4-mini",
+  "variant": "original",
+  "prompt": "en",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.3542297581649295,
+  "vs_raw": [
+   0.013304018511271856,
+   -0.0030758087157995587,
+   0.03785115751065617
+  ],
+  "output_vs_input_cer": 0.05490859753673374
+ },
+ {
+  "engine": "tesseract",
+  "model": "phi4-mini",
+  "variant": "preserve spelling",
+  "prompt": "en_preserve",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.35053124468858216,
+  "vs_raw": [
+   0.00960550503492443,
+   -0.004798401573924072,
+   0.03277304068377797
+  ],
+  "output_vs_input_cer": 0.03996298933414368,
+  "vs_original": [
+   -0.0036985134763474273,
+   -0.009975898781622985,
+   0.0009817046461054152
+  ],
+  "wilcoxon_p": 0.5296296702875958,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "tesseract",
+  "model": "phi4-mini",
+  "variant": "Bengali prompt",
+  "prompt": "bn",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.40177920346860685,
+  "vs_raw": [
+   0.060853463814949105,
+   0.024874079821006815,
+   0.10298806316260582
+  ],
+  "output_vs_input_cer": 0.14640998746309825,
+  "vs_original": [
+   0.04754944530367726,
+   0.0049812877687629075,
+   0.09186297156581312
+  ],
+  "wilcoxon_p": 0.027023077017893787,
+  "wilcoxon_p_holm": 0.5674846173757695
+ },
+ {
+  "engine": "tesseract",
+  "model": "phi4-mini",
+  "variant": "three-shot",
+  "prompt": "fewshot",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.4469719316028655,
+  "vs_raw": [
+   0.1060461919492079,
+   0.03507883941048261,
+   0.2012105665426039
+  ],
+  "output_vs_input_cer": 0.18159561343708833,
+  "vs_original": [
+   0.09274217343793605,
+   0.01688884713349447,
+   0.18830459677385541
+  ],
+  "wilcoxon_p": 0.02144994264690671,
+  "wilcoxon_p_holm": 0.47313017064609647
+ },
+ {
+  "engine": "tesseract",
+  "model": "phi4-mini",
+  "variant": "300-char chunks",
+  "prompt": "en",
+  "approach": "chunked_chars",
+  "n": 40,
+  "mean_cer": 0.34349569986361594,
+  "vs_raw": [
+   0.0025699602099582414,
+   -0.006712902113709972,
+   0.013702991891649145
+  ],
+  "output_vs_input_cer": 0.04674292240924681,
+  "vs_original": [
+   -0.010734058301313614,
+   -0.03609631297102393,
+   0.00806899950478353
+  ],
+  "wilcoxon_p": 0.6806858204824731,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "tesseract",
+  "model": "llama3.2-1b",
+  "variant": "original",
+  "prompt": "en",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.37987732880504216,
+  "vs_raw": [
+   0.0389515891513844,
+   0.021537692546122224,
+   0.05746381800613295
+  ],
+  "output_vs_input_cer": 0.10547614831215517
+ },
+ {
+  "engine": "tesseract",
+  "model": "llama3.2-1b",
+  "variant": "preserve spelling",
+  "prompt": "en_preserve",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.3618637431823932,
+  "vs_raw": [
+   0.020938003528735507,
+   0.006467648209880024,
+   0.0376230551414092
+  ],
+  "output_vs_input_cer": 0.07120339553791406,
+  "vs_original": [
+   -0.018013585622648896,
+   -0.03383323082476513,
+   -0.002879801496123882
+  ],
+  "wilcoxon_p": 0.01971375711025402,
+  "wilcoxon_p_holm": 0.47313017064609647
+ },
+ {
+  "engine": "tesseract",
+  "model": "llama3.2-1b",
+  "variant": "Bengali prompt",
+  "prompt": "bn",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.5161269213352424,
+  "vs_raw": [
+   0.17520118168158477,
+   0.13121825722562297,
+   0.22310398229437323
+  ],
+  "output_vs_input_cer": 0.2518170167529554,
+  "vs_original": [
+   0.1362495925302004,
+   0.08560778693839655,
+   0.19197442385141616
+  ],
+  "wilcoxon_p": 1.176653664607353e-05,
+  "wilcoxon_p_holm": 0.00037652917267435297
+ },
+ {
+  "engine": "tesseract",
+  "model": "llama3.2-1b",
+  "variant": "three-shot",
+  "prompt": "fewshot",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.4803750902338228,
+  "vs_raw": [
+   0.13944935058016505,
+   0.09119535434671465,
+   0.19401333726591743
+  ],
+  "output_vs_input_cer": 0.23633792360802125,
+  "vs_original": [
+   0.10049776142878064,
+   0.05218481367319114,
+   0.15283638232092095
+  ],
+  "wilcoxon_p": 0.00037041911089447744,
+  "wilcoxon_p_holm": 0.011112573326834324
+ },
+ {
+  "engine": "tesseract",
+  "model": "llama3.2-1b",
+  "variant": "300-char chunks",
+  "prompt": "en",
+  "approach": "chunked_chars",
+  "n": 40,
+  "mean_cer": 0.37960673791882316,
+  "vs_raw": [
+   0.03868099826516545,
+   0.018944897669097474,
+   0.06022811119039209
+  ],
+  "output_vs_input_cer": 0.10104423698563203,
+  "vs_original": [
+   -0.0002705908862189521,
+   -0.01667795782585384,
+   0.01773078486201552
+  ],
+  "wilcoxon_p": 0.33385935250769727,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "easyocr",
+  "model": "gemma-2b",
+  "variant": "original",
+  "prompt": "en",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.30067180661618587,
+  "vs_raw": [
+   0.003381509884078652,
+   -0.005585304915641523,
+   0.012173468989492337
+  ],
+  "output_vs_input_cer": 0.02422555525126151
+ },
+ {
+  "engine": "easyocr",
+  "model": "gemma-2b",
+  "variant": "preserve spelling",
+  "prompt": "en_preserve",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.3051968918992684,
+  "vs_raw": [
+   0.00790659516716126,
+   0.0024985643363613576,
+   0.014956074298941961
+  ],
+  "output_vs_input_cer": 0.017187245964553954,
+  "vs_original": [
+   0.0045250852830826084,
+   -0.0009385815768723132,
+   0.012454417723740795
+  ],
+  "wilcoxon_p": 0.7173808884143212,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "easyocr",
+  "model": "gemma-2b",
+  "variant": "Bengali prompt",
+  "prompt": "bn",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.32590391394657575,
+  "vs_raw": [
+   0.028613617214468624,
+   0.00895392971965203,
+   0.053602073928004076
+  ],
+  "output_vs_input_cer": 0.0492048834707909,
+  "vs_original": [
+   0.025232107330389976,
+   0.005690529350997933,
+   0.04964555651681334
+  ],
+  "wilcoxon_p": 0.007163165887583151,
+  "wilcoxon_p_holm": 0.19340547896474508
+ },
+ {
+  "engine": "easyocr",
+  "model": "gemma-2b",
+  "variant": "three-shot",
+  "prompt": "fewshot",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.38989337191722245,
+  "vs_raw": [
+   0.09260307518511526,
+   0.03545239787516881,
+   0.157552895985002
+  ],
+  "output_vs_input_cer": 0.15391436486732019,
+  "vs_original": [
+   0.08922156530103661,
+   0.03099250407452049,
+   0.15475982204622665
+  ],
+  "wilcoxon_p": 0.050696024941452554,
+  "wilcoxon_p_holm": 0.9125284489461459
+ },
+ {
+  "engine": "easyocr",
+  "model": "gemma-2b",
+  "variant": "300-char chunks",
+  "prompt": "en",
+  "approach": "chunked_chars",
+  "n": 40,
+  "mean_cer": 0.2998932873535984,
+  "vs_raw": [
+   0.002602990621491187,
+   -0.002867913982036824,
+   0.007490160492042419
+  ],
+  "output_vs_input_cer": 0.0182290887709748,
+  "vs_original": [
+   -0.0007785192625874643,
+   -0.009953656854025286,
+   0.008580412266577984
+  ],
+  "wilcoxon_p": 0.7915680312154841,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "easyocr",
+  "model": "qwen3-1.7b",
+  "variant": "original",
+  "prompt": "en",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.3146480605698626,
+  "vs_raw": [
+   0.01735776383775546,
+   0.004402266808653571,
+   0.03366974497262747
+  ],
+  "output_vs_input_cer": 0.03928946664769641
+ },
+ {
+  "engine": "easyocr",
+  "model": "qwen3-1.7b",
+  "variant": "preserve spelling",
+  "prompt": "en_preserve",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.3098858526103642,
+  "vs_raw": [
+   0.012595555878257059,
+   0.0009478449949391588,
+   0.028180183959231386
+  ],
+  "output_vs_input_cer": 0.029638375344530087,
+  "vs_original": [
+   -0.004762207959498399,
+   -0.012678728800410956,
+   0.0010175506440561351
+  ],
+  "wilcoxon_p": 0.02019607063179433,
+  "wilcoxon_p_holm": 0.47313017064609647
+ },
+ {
+  "engine": "easyocr",
+  "model": "qwen3-1.7b",
+  "variant": "Bengali prompt",
+  "prompt": "bn",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.3079584914500372,
+  "vs_raw": [
+   0.010668194717930044,
+   -0.0022140084020425936,
+   0.024069056578255164
+  ],
+  "output_vs_input_cer": 0.05362273426444523,
+  "vs_original": [
+   -0.006689569119825417,
+   -0.027422497226286573,
+   0.012680254050119105
+  ],
+  "wilcoxon_p": 0.8789709138832357,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "easyocr",
+  "model": "qwen3-1.7b",
+  "variant": "three-shot",
+  "prompt": "fewshot",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.3029524690339153,
+  "vs_raw": [
+   0.005662172301808168,
+   -0.00042276151260384686,
+   0.013504888804549793
+  ],
+  "output_vs_input_cer": 0.02788071958141693,
+  "vs_original": [
+   -0.011695591535947292,
+   -0.02870066209380581,
+   0.0030143392520241147
+  ],
+  "wilcoxon_p": 0.32166418873785163,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "easyocr",
+  "model": "qwen3-1.7b",
+  "variant": "300-char chunks",
+  "prompt": "en",
+  "approach": "chunked_chars",
+  "n": 40,
+  "mean_cer": 0.29873037193344293,
+  "vs_raw": [
+   0.0014400752013357325,
+   -0.0028085202905351503,
+   0.006089385759867298
+  ],
+  "output_vs_input_cer": 0.02709176316801904,
+  "vs_original": [
+   -0.01591768863641973,
+   -0.03291334789113659,
+   -0.0022862630665779543
+  ],
+  "wilcoxon_p": 0.03623120768170078,
+  "wilcoxon_p_holm": 0.6883929459523148
+ },
+ {
+  "engine": "easyocr",
+  "model": "phi4-mini",
+  "variant": "original",
+  "prompt": "en",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.3146998284520416,
+  "vs_raw": [
+   0.017409531719934375,
+   7.692535987008822e-05,
+   0.04648566016013092
+  ],
+  "output_vs_input_cer": 0.05545059575754015
+ },
+ {
+  "engine": "easyocr",
+  "model": "phi4-mini",
+  "variant": "preserve spelling",
+  "prompt": "en_preserve",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.31159662955550793,
+  "vs_raw": [
+   0.014306332823400731,
+   0.0029340346662912126,
+   0.029635059549249172
+  ],
+  "output_vs_input_cer": 0.04077932821487538,
+  "vs_original": [
+   -0.0031031988965336404,
+   -0.019625821256132367,
+   0.008058824833207856
+  ],
+  "wilcoxon_p": 0.6652639406840284,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "easyocr",
+  "model": "phi4-mini",
+  "variant": "Bengali prompt",
+  "prompt": "bn",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.3585949845772106,
+  "vs_raw": [
+   0.06130468784510338,
+   0.026871997936571752,
+   0.10143768937923509
+  ],
+  "output_vs_input_cer": 0.12926630396599065,
+  "vs_original": [
+   0.043895156125169005,
+   -0.0029501248571176175,
+   0.08971877175445604
+  ],
+  "wilcoxon_p": 0.000928172354749679,
+  "wilcoxon_p_holm": 0.02691699828774069
+ },
+ {
+  "engine": "easyocr",
+  "model": "phi4-mini",
+  "variant": "three-shot",
+  "prompt": "fewshot",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.32397963192346263,
+  "vs_raw": [
+   0.026689335191355457,
+   0.008861717644725481,
+   0.0512085012276742
+  ],
+  "output_vs_input_cer": 0.07446957257771596,
+  "vs_original": [
+   0.00927980347142108,
+   -0.015702280171688624,
+   0.03553381191028892
+  ],
+  "wilcoxon_p": 0.059422281027878526,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "easyocr",
+  "model": "phi4-mini",
+  "variant": "300-char chunks",
+  "prompt": "en",
+  "approach": "chunked_chars",
+  "n": 40,
+  "mean_cer": 0.3193157067726693,
+  "vs_raw": [
+   0.022025410040562108,
+   0.0006655911114780025,
+   0.057268565978590785
+  ],
+  "output_vs_input_cer": 0.05281476738504903,
+  "vs_original": [
+   0.004615878320627735,
+   -0.0019759956080908584,
+   0.013225544464405081
+  ],
+  "wilcoxon_p": 0.7242850102162007,
+  "wilcoxon_p_holm": 1.0
+ },
+ {
+  "engine": "easyocr",
+  "model": "llama3.2-1b",
+  "variant": "original",
+  "prompt": "en",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.33014147659743404,
+  "vs_raw": [
+   0.03285117986532682,
+   0.011697723884456501,
+   0.05718651772818545
+  ],
+  "output_vs_input_cer": 0.08423551354586616
+ },
+ {
+  "engine": "easyocr",
+  "model": "llama3.2-1b",
+  "variant": "preserve spelling",
+  "prompt": "en_preserve",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.30413553014378236,
+  "vs_raw": [
+   0.0068452334116752165,
+   0.000581104819220659,
+   0.014984830470909857
+  ],
+  "output_vs_input_cer": 0.02912529924813976,
+  "vs_original": [
+   -0.026005946453651597,
+   -0.04616714459240958,
+   -0.008817803695183231
+  ],
+  "wilcoxon_p": 0.009842142401693147,
+  "wilcoxon_p_holm": 0.2558957024440218
+ },
+ {
+  "engine": "easyocr",
+  "model": "llama3.2-1b",
+  "variant": "Bengali prompt",
+  "prompt": "bn",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.45877157424710224,
+  "vs_raw": [
+   0.16148127751499503,
+   0.11431091856670926,
+   0.2105009628465045
+  ],
+  "output_vs_input_cer": 0.22041300294267202,
+  "vs_original": [
+   0.1286300976496682,
+   0.07504086305830857,
+   0.18597864771084957
+  ],
+  "wilcoxon_p": 2.6511643208148734e-05,
+  "wilcoxon_p_holm": 0.0008218609394526108
+ },
+ {
+  "engine": "easyocr",
+  "model": "llama3.2-1b",
+  "variant": "three-shot",
+  "prompt": "fewshot",
+  "approach": "chunked",
+  "n": 40,
+  "mean_cer": 0.3950880461435643,
+  "vs_raw": [
+   0.09779774941145708,
+   0.06613413173496573,
+   0.1325634722342212
+  ],
+  "output_vs_input_cer": 0.15437043910035753,
+  "vs_original": [
+   0.06494656954613026,
+   0.02365232087041035,
+   0.10858736630794687
+  ],
+  "wilcoxon_p": 0.014832829052305317,
+  "wilcoxon_p_holm": 0.3708207263076329
+ },
+ {
+  "engine": "easyocr",
+  "model": "llama3.2-1b",
+  "variant": "300-char chunks",
+  "prompt": "en",
+  "approach": "chunked_chars",
+  "n": 40,
+  "mean_cer": 0.3210071158367293,
+  "vs_raw": [
+   0.023716819104622124,
+   0.009626173460407028,
+   0.04100620682589793
+  ],
+  "output_vs_input_cer": 0.06548423040128422,
+  "vs_original": [
+   -0.009134360760704691,
+   -0.030458585181673534,
+   0.012994908854093877
+  ],
+  "wilcoxon_p": 0.19765298606564796,
+  "wilcoxon_p_holm": 1.0
+ }
+]

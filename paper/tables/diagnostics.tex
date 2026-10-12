@@ -2,25 +2,26 @@
 \centering
 \caption{Output Diagnostics by Model}
 \label{tab:diagnostics}
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lccccc}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\begin{tabular}{lcccccc}
 \toprule
-Source & Len. & Bn & Latin & Other & GT ret. \\
+Source & Len. & Bn & Latin & Other & GT ret. & Empty \\
 \midrule
-Raw Tesseract & --- & 93\% & 0\% & 7\% & 46\% \\
-Raw EasyOCR & --- & 93\% & 0\% & 7\% & 53\% \\
+Raw Tesseract & 1.03$\times$ & 93\% & 0\% & 7\% & 46\% & 0/40 \\
+Raw EasyOCR & 1.02$\times$ & 92\% & 0\% & 8\% & 53\% & 0/40 \\
 \midrule
-SymSpell (dictionary) & 1.02$\times$ & 93\% & \best{0\%} & 7\% & 37\% \\
-Gemma 2B & 1.00$\times$ & 92\% & \best{0\%} & 8\% & 47\% \\
-Qwen3 1.7B & 1.07$\times$ & 93\% & \best{0\%} & 7\% & \best{49\%} \\
-Phi-4-mini & \best{1.00$\times$} & 93\% & 1\% & 6\% & 46\% \\
-Llama 3.2 1B & 0.94$\times$ & 94\% & \best{0\%} & 6\% & 46\% \\
-BanglaT5 & 0.46$\times$ & 65\% & 0\% & 35\% & 3\% \\
-TituLLMs 1B & 1.50$\times$ & \best{98\%} & \best{0\%} & \best{2\%} & 16\% \\
-TituLLMs 1B Instruct & 2.10$\times$ & 89\% & 4\% & 6\% & 13\% \\
-TituLLMs 3B Instruct & 0.50$\times$ & 63\% & 0\% & 3\% & 4\% \\
+SymSpell (dictionary) & \best{1.00$\times$} & 93\% & \best{0\%} & 7\% & 37\% & 0/80 \\
+Gemma 2B & 1.00$\times$ & 92\% & \best{0\%} & 8\% & 47\% & 0/80 \\
+Qwen3 1.7B & 1.01$\times$ & 93\% & \best{0\%} & 7\% & \best{49\%} & 0/80 \\
+Phi-4-mini & 1.00$\times$ & 92\% & 1\% & 7\% & 46\% & 0/80 \\
+Llama 3.2 1B & 0.94$\times$ & 94\% & \best{0\%} & 6\% & 46\% & 0/80 \\
+BanglaT5 & 0.45$\times$ & 72\% & 0\% & 28\% & 3\% & 0/80 \\
+TituLLMs 1B & 1.50$\times$ & \best{97\%} & \best{0\%} & \best{3\%} & 16\% & 0/80 \\
+TituLLMs 1B Instruct & 2.09$\times$ & 88\% & 5\% & 7\% & 13\% & 0/80 \\
+TituLLMs 3B Instruct & 0.50$\times$ & 97\% & 0\% & 3\% & 4\% & 27/80 \\
 \bottomrule
 \end{tabular}
 \par\smallskip
-\begin{minipage}{\linewidth}\footnotesize Len.: output length / reference length. Bn / Latin / Other: share of characters by script. GT ret.: share of distinct ground-truth words present in the output. Pooled over both engines.\end{minipage}
+\begin{minipage}{\linewidth}\footnotesize Both engines together (80 outputs per model; 40 per raw OCR row). Len.: output length / reference length, mean over outputs (the raw OCR values are those of Table~\ref{tab:dataset}). Bn / Latin / Other: share of all non-space output characters, pooled over outputs, so empty outputs do not enter. GT ret.: share of distinct ground-truth words present in the output, mean over outputs (an empty output retains none). Empty: outputs with no text.\end{minipage}
 \end{table}

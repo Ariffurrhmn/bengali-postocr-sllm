@@ -5,7 +5,9 @@
                      near zero on a finer scale (replaces old Figs. 3-4,
                      review item F1)
   fig_scatter.png  - per-page change in CER against baseline CER, one panel
-                     per model (review items F2, F5, E3)
+                     per model (review items F2, F5)
+  fig_corrected.png - per-page corrected CER against baseline CER with the
+                     identity line, one panel per model (review item E3)
 
 Usage:
     python make_revision_figures.py --ocr-path ../results/ocr_eval40.jsonl \\
@@ -21,8 +23,22 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from make_figures import MODEL_LABELS, MODEL_ORDER as _ORDER
 from metrics import cer
+
+# Fixed order best-to-worst so every figure tells the story the same way.
+_ORDER = ["symspell", "gemma-2b", "qwen3-1.7b", "phi4-mini", "llama3.2-1b", "banglat5",
+          "titullm-1b", "titullm-1b-instruct", "titullm-3b-instruct"]
+MODEL_LABELS = {
+    "symspell": "SymSpell (dictionary)",
+    "gemma-2b": "Gemma 2B",
+    "qwen3-1.7b": "Qwen3 1.7B",
+    "phi4-mini": "Phi-4-mini",
+    "titullm-1b-instruct": "TituLLMs 1B Inst.",
+    "titullm-3b-instruct": "TituLLMs 3B Inst.",
+    "llama3.2-1b": "Llama 3.2 1B",
+    "banglat5": "BanglaT5",
+    "titullm-1b": "TituLLMs 1B",
+}
 
 ENGINES = [("tesseract", "Tesseract", "#4C72B0", "o"), ("easyocr", "EasyOCR", "#DD8452", "s")]
 plt.rcParams.update({"font.size": 9, "axes.titlesize": 9, "axes.labelsize": 9,
@@ -54,7 +70,7 @@ def fig_delta(boot, models, out_dir):
     axes[0].legend(loc="upper right", frameon=True)
     fig.tight_layout()
     path = out_dir / "fig_delta.png"
-    fig.savefig(path, dpi=300)
+    fig.savefig(path, dpi=300, bbox_inches="tight")
     plt.close(fig)
     return path
 
@@ -88,6 +104,39 @@ def fig_scatter(pages, outputs, models, out_dir):
     return path
 
 
+def fig_corrected(pages, outputs, models, out_dir):
+    """Corrected CER against baseline CER, with the identity line: points on it
+    are pages the method left as they were, below it pages it improved
+    (review item E3; added after the second review)."""
+    cols = 4
+    rows_n = int(np.ceil(len(models) / cols))
+    fig, axes = plt.subplots(rows_n, cols, figsize=(7.16, 1.9 * rows_n))
+    axes = np.atleast_2d(axes)
+    for ax, m in zip(axes.flat, models):
+        for e, name, color, marker in ENGINES:
+            pids = sorted(outputs[(e, m)])
+            base = np.array([cer(pages[p]["ground_truth"], pages[p][e]) for p in pids])
+            corr = np.array([cer(pages[p]["ground_truth"], outputs[(e, m)][p]) for p in pids])
+            ax.scatter(base, corr, s=9, color=color, marker=marker, alpha=0.75,
+                       linewidths=0, label=name)
+        ax.plot([0, 1.05], [0, 1.05], color="#333333", lw=0.8)
+        ax.set_xlim(0, 1.05)
+        ax.set_title(MODEL_LABELS[m])
+        ax.grid(alpha=0.3)
+    for ax in axes.flat[len(models):]:
+        ax.axis("off")
+    for ax in axes[-1]:
+        ax.set_xlabel("Baseline CER")
+    for ax in axes[:, 0]:
+        ax.set_ylabel("Corrected CER")
+    axes.flat[0].legend(loc="upper left", markerscale=1.5, handletextpad=0.2)
+    fig.tight_layout()
+    path = out_dir / "fig_corrected.png"
+    fig.savefig(path, dpi=300)
+    plt.close(fig)
+    return path
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--ocr-path", type=Path, required=True)
@@ -114,6 +163,7 @@ def main():
     args.out_dir.mkdir(parents=True, exist_ok=True)
     print("wrote", fig_delta(boot, models, args.out_dir))
     print("wrote", fig_scatter(pages, outputs, models, args.out_dir))
+    print("wrote", fig_corrected(pages, outputs, models, args.out_dir))
 
 
 if __name__ == "__main__":

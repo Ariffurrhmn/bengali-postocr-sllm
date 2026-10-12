@@ -7,7 +7,8 @@ existing outputs; no new model runs.
   E3  baseline CER against corrected CER and against the change (Spearman)
   E7  error rate by character class (consonant, vowel sign, conjunct, ...)
   E8  edit-distance cap: keep the model output only if it changed the input
-      by at most tau (CER against the input); tau grid fixed in advance
+      by at most tau (CER against the input); tau grid fixed in advance;
+      paired bootstrap CI and Wilcoxon, Holm over all engine x method x tau cells
   E1  clean-text control (ground truth as input), when present
   T1  dataset statistics
 
@@ -267,21 +268,37 @@ def main():
     p(f"{'engine':<10}{'model':<22}" + "".join(f"{'tau ' + str(t):>12}" for t in TAU_GRID)
       + "   (mean CER; kept pages)")
     res["edit_cap"] = []
+    printed = []
     for e in ENGINES:
         for m in models:
             cells = []
             for tau in TAU_GRID:
-                scores, kept = [], 0
+                scores, deltas, kept = [], [], 0
                 for pid, out in out_by[(e, m)].items():
                     src = pages[pid][e]
+                    gt = pages[pid]["ground_truth"]
                     use = out if cer(src, out) <= tau else src
                     kept += use is out
-                    scores.append(cer(pages[pid]["ground_truth"], use))
+                    scores.append(cer(gt, use))
+                    deltas.append(cer(gt, use) - cer(gt, src))
+                d = np.array(deltas)
+                idx = rng.integers(0, len(d), (args.resamples, len(d)))
+                lo, hi = np.percentile(d[idx].mean(axis=1), [2.5, 97.5])
+                pv = float(stats.wilcoxon(d).pvalue) if np.any(d != 0) else 1.0
                 cells.append((float(np.mean(scores)), kept))
                 res["edit_cap"].append({"engine": e, "model": m, "tau": tau,
                                         "mean_cer": float(np.mean(scores)), "kept": kept,
-                                        "n": len(scores)})
-            p(f"  {e:<10}{m:<22}" + "".join(f"{c:>8.3f} ({k:>2})" for c, k in cells))
+                                        "n": len(scores), "mean_delta": float(d.mean()),
+                                        "ci": [float(lo), float(hi)], "wilcoxon_p": pv})
+            printed.append(f"  {e:<10}{m:<22}" + "".join(f"{c:>8.3f} ({k:>2})" for c, k in cells))
+    # One Holm family over every engine x method x tau cell of the cap.
+    for t, a in zip(res["edit_cap"], holm([t["wilcoxon_p"] for t in res["edit_cap"]])):
+        t["wilcoxon_p_holm"] = float(a)
+    lines.extend(printed)
+    sig = [t for t in res["edit_cap"] if t["wilcoxon_p_holm"] < 0.05]
+    p(f"  significant after Holm over {len(res['edit_cap'])} tests: "
+      + (", ".join(f"{t['engine']}/{t['model']}/tau {t['tau']} {t['mean_delta']:+.3f}"
+                   for t in sig) or "none"))
 
     # ---- E7: error rate by character class ----
     p("=" * 90)

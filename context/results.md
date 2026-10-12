@@ -34,7 +34,13 @@ Numbers here are copied from the result files in `results/` (local only, gitigno
 
 **Safeguards** (`results/extended_gpu40.txt`, `results/revision_gpu40.txt`, `results/gated_gpu40.txt`). Length safeguard triggers only for Bengali-specific models; all remain significantly worse. Edit-distance cap: no τ gets below raw OCR. Confidence gating (edits kept only on words below an OCR-confidence threshold): removes most of the damage (TituLLMs 1B Tesseract 1.084 → 0.454) but never gives a meaningful gain; the one significant CER reduction in the study is Qwen3 on Tesseract at threshold 70, 0.341 → 0.337.
 
-**Other measurements.** Tokens per character 0.29 (BanglaT5) to 1.22 (Llama/TituLLMs 1B); chunk sizes 168–483 characters. CPU time per page 2.2–14.3 min (Colab); GPU 0.05–2.4 min (T4). Raw OCR worst on Bengali digits and the danda (EasyOCR never outputs a danda). Dataset: GT median 577 characters (193–2715), raw OCR ≈ 1.0× reference length.
+**Safeguard tests (added 2026-10-12, second review).** Length rule p-values (Holm over 18): every triggering model stays significantly worse (e.g. TituLLMs 3B Instruct Tesseract +0.319 [+0.193, +0.460], p 0.001). Edit-distance cap (Holm over 72): nothing significantly better; 7 significantly worse (SymSpell τ ≥ 0.1 both engines, Llama τ 0.3 Tesseract). Table `safeguards.tex`.
+
+**Sensitivity checks** (`results/sensitivity_gpu40.txt`, second review). Reading order: 30/40 PAGE files declare one; it changes the reference on 17 pages; raw CER 0.335/0.294 instead of 0.341/0.297; the same 12/18 CER comparisons significant, all increases. Reference-word recall (order-free, ignores extra text): raw 0.431/0.484; no method raises it significantly (Qwen3 +0.003/+0.002 n.s.), all others lower it significantly (Gemma −0.017/−0.019). Page types (`data/page_types.tsv`, assigned from transcriptions): 10 title, 8 verse, 13 prose, 9 list; raw CER highest on lists (0.576/0.511), lowest on prose (0.199/0.184); no method improves any type consistently.
+
+**Script shares fixed.** Table X now pools script shares over all output characters (the first version averaged per-output shares and counted empty outputs as 0%, so TituLLMs 3B Instruct showed 63/0/3%). Now: TituLLMs 3B Instruct 97% Bengali with 27/80 empty outputs; BanglaT5 28% "other" (was reported as about a third).
+
+**Other measurements.** Tokens per character 0.29 (BanglaT5) to 1.22 (Llama/TituLLMs 1B), per word 1.9 to 8.0; chunk sizes 168–483 characters. CPU time per page 2.2–14.3 min (Colab); GPU 0.05–2.4 min (T4). Raw OCR worst on Bengali digits and the danda (EasyOCR never outputs a danda). Dataset: GT median 577 characters (193–2715), raw OCR ≈ 1.0× reference length.
 
 ## First version (August 2026, superseded)
 

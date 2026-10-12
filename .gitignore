@@ -7,25 +7,22 @@ env/
 *.egg-info/
 .tessdata/
 
+# Dataset and run outputs stay local (see README); only split lists, labels and scripts are tracked
 data/*
 !data/.gitkeep
 !data/*.py
 !data/split_dev.txt
 !data/split_eval.txt
 !data/excluded_no_ground_truth.txt
+!data/page_types.tsv
 results/*
 !results/.gitkeep
 
-# Third-party papers (copyrighted) downloaded for literature review
-reviewer-feedback/candidate-papers/
-
-# Local-only copies of the draft PDF and Overleaf zips (contain student ID / large)
-paper/Draft_Paper_02.pdf
-paper/archive/*.zip
-reviewer-feedback/*.pdf
-
-# Local only: reviewer material and personal shortcut
+# Local only: reviewer material (incl. copyrighted papers), personal shortcut, private checklists
 reviewer-feedback/
 Group 2.lnk
-paper/EDITORIAL-NOTES.md
+paper/Draft_Paper_02.pdf
 paper/CHECK-BEFORE-SUBMITTING.md
+
+# Overleaf upload zips are rebuilt by paper/make_overleaf_zip.py
+paper/*.zip
