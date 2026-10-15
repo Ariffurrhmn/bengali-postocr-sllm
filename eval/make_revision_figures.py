@@ -30,7 +30,7 @@ _ORDER = ["symspell", "gemma-2b", "qwen3-1.7b", "phi4-mini", "llama3.2-1b", "ban
           "titullm-1b", "titullm-1b-instruct", "titullm-3b-instruct"]
 MODEL_LABELS = {
     "symspell": "SymSpell (dictionary)",
-    "gemma-2b": "Gemma 2B",
+    "gemma-2b": "Gemma-2B-it",
     "qwen3-1.7b": "Qwen3 1.7B",
     "phi4-mini": "Phi-4-mini",
     "titullm-1b-instruct": "TituLLMs 1B Inst.",

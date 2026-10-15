@@ -13,7 +13,7 @@ Method & 50 & 70 & 90 & 0.5 & 0.7 & 0.9 \\
 Raw OCR & 0.341 & 0.341 & 0.341 & 0.297 & 0.297 & 0.297 \\
 \midrule
 SymSpell (dictionary) & 0.348$^{+}$ & 0.353$^{+}$ & 0.365$^{+}$ & 0.315$^{+}$ & 0.328$^{+}$ & 0.334$^{+}$ \\
-Gemma 2B & 0.340 & 0.340 & 0.341 & 0.298 & 0.300 & 0.302 \\
+Gemma-2B-it & 0.340 & 0.340 & 0.341 & 0.298 & 0.300 & 0.302 \\
 Qwen3 1.7B & 0.338 & 0.337$^{-}$ & 0.338 & 0.297 & 0.305 & 0.306 \\
 Phi-4-mini & 0.338 & 0.338 & 0.340 & 0.297 & 0.301 & 0.308 \\
 Llama 3.2 1B & 0.342 & 0.348 & 0.356 & 0.303 & 0.318$^{+}$ & 0.325$^{+}$ \\
@@ -24,5 +24,5 @@ TituLLMs 3B Instruct & 0.357 & 0.346 & 0.365 & 0.317 & 0.382 & 0.519$^{+}$ \\
 \bottomrule
 \end{tabular}
 \par\smallskip
-\begin{minipage}{\linewidth}\footnotesize A model's edit is kept only where every OCR word it changes has a confidence below the threshold (column header); elsewhere the raw OCR is kept. $^{+}$/$^{-}$: significantly higher/lower than the raw OCR, Wilcoxon signed-rank test, Holm-corrected over the 54 gated tests.\end{minipage}
+\begin{minipage}{\linewidth}\footnotesize A model's edit is kept only where every OCR word it changes has a confidence below the threshold (column header); elsewhere the raw OCR is kept. $^{+}$/$^{-}$: significantly higher/lower than the raw OCR, Wilcoxon signed-rank test, Holm-corrected over the 54 gated tests (exploratory family); pages left identical to the raw OCR are dropped by the test.\end{minipage}
 \end{table}

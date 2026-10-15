@@ -1,0 +1,28 @@
+\begin{table}[t]
+\centering
+\caption{Equivalence Tests for the Models Closest to the Raw OCR}
+\label{tab:equivalence}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\begin{tabular}{lccccc}
+\toprule
+ & & & \multicolumn{2}{c}{TOST $p$} & \\
+\cmidrule(lr){4-5}
+Model & $\Delta$CER & 90\% CI & $\pm$0.01 & $\pm$0.02 & \shortstack{Better/\\worse/same} \\
+\midrule
+\multicolumn{6}{l}{\textit{Tesseract}} \\
+Gemma-2B-it & +0.012 & [+0.001, +0.026] & 0.589 & 0.150 & 16/16/8 \\
+Qwen3 1.7B & -0.004 & [-0.012, +0.003] & 0.099 & $<$0.001 & 22/13/5 \\
+Phi-4-mini & +0.013 & [-0.001, +0.033] & 0.618 & 0.272 & 18/18/4 \\
+Llama 3.2 1B & +0.039 & [+0.024, +0.055] & 0.998 & 0.975 & 7/29/4 \\
+\midrule
+\multicolumn{6}{l}{\textit{EasyOCR}} \\
+Gemma-2B-it & +0.003 & [-0.004, +0.011] & 0.078 & $<$0.001 & 11/19/10 \\
+Qwen3 1.7B & +0.017 & [+0.006, +0.031] & 0.830 & 0.365 & 13/18/9 \\
+Phi-4-mini & +0.017 & [+0.001, +0.042] & 0.716 & 0.421 & 13/25/2 \\
+Llama 3.2 1B & +0.033 & [+0.015, +0.053] & 0.971 & 0.860 & 8/29/3 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize $\Delta$CER: corrected $-$ raw OCR. 90\% CI: paired bootstrap. TOST: two one-sided paired $t$-tests against an equivalence margin of $\pm$0.01 or $\pm$0.02 CER; $p<0.05$ means the change is within the margin. Not adjusted for multiplicity (exploratory). Last column: pages whose CER fell, rose or stayed the same, of 40.\end{minipage}
+\end{table}

@@ -19,8 +19,9 @@
   \newfontfamily\bnfont[Script=Bengali, Path=fonts/, Extension=.ttf]{NotoSerifBengali-Regular}
   \newcommand{\bn}[1]{{\bnfont #1}}
 \else
-  % latexmkrc makes Overleaf use XeLaTeX anyway. If pdfLaTeX still runs, warn
-  % (an error made Overleaf report a failed compile) and show a placeholder.
+  % pdfLaTeX (Overleaf's default) cannot set Bengali. The example table then
+  % uses tables/examples_body.pdf, pre-rendered with XeLaTeX; \bn is only a
+  % visible fallback for any other Bengali text.
   \PackageWarningNoLine{preamble}{This paper needs XeLaTeX for its Bengali
     examples (Overleaf: Menu > Compiler > XeLaTeX)}
   \newcommand{\bn}[1]{\textcolor{red}{\textbf{[Bengali text missing: compile with XeLaTeX]}}}

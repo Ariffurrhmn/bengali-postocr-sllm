@@ -10,7 +10,7 @@ Model & Variant & Tesseract & EasyOCR \\
 \midrule
  & Raw OCR & 0.341 & 0.297 \\
 \midrule
-Gemma 2B & original & 0.353 & 0.301 \\
+Gemma-2B-it & original & 0.353 & 0.301 \\
  & preserve spelling & 0.350 & 0.305 \\
  & Bengali prompt & 0.359 & 0.326 \\
  & three-shot & 0.435 & 0.390 \\
@@ -36,5 +36,5 @@ Llama 3.2 1B & original & 0.380 & 0.330 \\
 \bottomrule
 \end{tabular}
 \par\smallskip
-\begin{minipage}{\linewidth}\footnotesize Original: English prompt, chunks of about 250 tokens. Each variant changes one thing: the preserve-spelling instruction, the prompt in Bengali, three worked examples, or chunks of at most 300 characters. $^{*}$: differs from the original setting, two-sided Wilcoxon signed-rank test, Holm-corrected over the 32 variant comparisons.\end{minipage}
+\begin{minipage}{\linewidth}\footnotesize Original: English prompt, chunks of about 250 tokens. Each variant changes one thing: the preserve-spelling instruction, the prompt in Bengali, three worked examples, or chunks of at most 300 characters. $^{*}$: differs from the original setting, two-sided Wilcoxon signed-rank test, Holm-corrected over the 32 variant comparisons (exploratory family).\end{minipage}
 \end{table}

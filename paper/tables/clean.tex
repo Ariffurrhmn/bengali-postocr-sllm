@@ -2,23 +2,23 @@
 \centering
 \caption{Clean-Text Control: Ground Truth Given as Input}
 \label{tab:clean}
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{3pt}
 \footnotesize
-\begin{tabular}{lccc}
+\begin{tabular}{lccccc}
 \toprule
-Model & Mean CER & Pooled CER & Pages unchanged \\
+Model & \shortstack{Mean\\CER} & \shortstack{Pooled\\CER} & WER & wMER & \shortstack{Pages\\unchanged} \\
 \midrule
-SymSpell (dictionary) & 0.057 & 0.057 & 0/40 \\
-Gemma 2B & 0.032 & 0.028 & 6/40 \\
-Qwen3 1.7B & 0.035 & 0.031 & 2/40 \\
-Phi-4-mini & 0.060 & 0.097 & 4/40 \\
-Llama 3.2 1B & 0.119 & 0.118 & 3/40 \\
-BanglaT5 & 0.833 & 0.837 & 0/40 \\
-TituLLMs 1B & 0.988 & 0.976 & 0/40 \\
-TituLLMs 1B Instruct & 1.565 & 1.554 & 0/40 \\
-TituLLMs 3B Instruct & 0.967 & 0.954 & 0/40 \\
+SymSpell (dictionary) & 0.057 & 0.057 & 0.268 & 0.268 & 0/40 \\
+Gemma-2B-it & 0.032 & 0.028 & 0.097 & 0.096 & 6/40 \\
+Qwen3 1.7B & 0.035 & 0.031 & 0.156 & 0.154 & 2/40 \\
+Phi-4-mini & 0.060 & 0.097 & 0.148 & 0.132 & 4/40 \\
+Llama 3.2 1B & 0.119 & 0.118 & 0.163 & 0.157 & 3/40 \\
+BanglaT5 & 0.833 & 0.837 & 1.059 & 0.937 & 0/40 \\
+TituLLMs 1B & 0.988 & 0.976 & 1.341 & 0.810 & 0/40 \\
+TituLLMs 1B Instruct & 1.565 & 1.554 & 2.129 & 0.891 & 0/40 \\
+TituLLMs 3B Instruct & 0.967 & 0.954 & 1.173 & 0.927 & 0/40 \\
 \bottomrule
 \end{tabular}
 \par\smallskip
-\begin{minipage}{\linewidth}\footnotesize Each model receives the reference text itself, with the same prompt and decoding. CER is measured against that reference, so any value above 0 is damage to correct text. Pages unchanged: CER exactly 0 after normalisation.\end{minipage}
+\begin{minipage}{\linewidth}\footnotesize Each model receives the reference text itself, with the same prompt and plain decoding. Error rates are measured against that reference, so any value above 0 is damage to correct text; WER and wMER are per-page means. Pages unchanged: CER exactly 0 after normalisation.\end{minipage}
 \end{table}

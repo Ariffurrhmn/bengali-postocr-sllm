@@ -1,4 +1,0 @@
-# Overleaf and latexmk: always build with XeLaTeX (the Bengali example table needs it),
-# whatever compiler is selected in the menu.
-$pdf_mode = 5;
-$postscript_mode = $dvi_mode = 0;

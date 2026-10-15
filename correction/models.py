@@ -46,10 +46,13 @@ MODEL_IDS = {
     "phi4-mini": "microsoft/Phi-4-mini-instruct",
     "titullm-1b-instruct": "hishab/titulm-llama-3.2-1b-v2.0-Instruct-v1.0",
     "titullm-3b-instruct": "hishab/titulm-llama-3.2-3b-v2.0-Instruct-v1.0",
+    # Third review (M1 size series; also the local pilot of the X1 attribution).
+    "qwen3-0.6b": "Qwen/Qwen3-0.6B",
 }
 
 CAUSAL_LM_MODELS = {"phi3-mini", "llama3.2-1b", "gemma-2b", "titullm-1b", "qwen3-1.7b",
-                    "phi4-mini", "titullm-1b-instruct", "titullm-3b-instruct"}
+                    "phi4-mini", "titullm-1b-instruct", "titullm-3b-instruct",
+                    "qwen3-0.6b"}
 
 # Models above ~3B do not fit the T4's 15GB in float32, so on GPU they run
 # in float16 (see load_model).
@@ -58,7 +61,8 @@ SEQ2SEQ_MODELS = {"banglat5"}
 
 # Qwen3 is a hybrid reasoning model; without this its chat template lets it
 # open a <think> block before answering. Passed only to models that need it.
-CHAT_TEMPLATE_KWARGS = {"qwen3-1.7b": {"enable_thinking": False}}
+CHAT_TEMPLATE_KWARGS = {"qwen3-1.7b": {"enable_thinking": False},
+                        "qwen3-0.6b": {"enable_thinking": False}}
 
 CORRECTION_INSTRUCTION = (
     "The following text was produced by OCR on a historical Bengali document "
@@ -90,6 +94,16 @@ PROMPTS = {
     # The original instruction plus three worked examples from development
     # pages (data/make_fewshot.py writes data/fewshot_examples.json).
     "fewshot": None,
+    # Third review C2. "completion": a plain-text prompt that ends where the
+    # corrected text should begin, for the base checkpoint (TituLLMs 1B v1.1),
+    # given without any chat template. "normalized": for BanglaT5 only, the
+    # OCR text passed through the csebuetnlp normaliser its model card asks for.
+    "completion": (
+        "The following text was produced by OCR on a historical Bengali document "
+        "and may contain recognition errors. Below it is the same text with the "
+        "OCR errors corrected.\n\nOCR text:\n{ocr_text}\n\nCorrected text:\n"
+    ),
+    "normalized": None,
 }
 FEWSHOT_PATH = Path(__file__).resolve().parent.parent / "data" / "fewshot_examples.json"
 
@@ -144,6 +158,14 @@ def load_model(model_key: str, hf_token: str | None = None):
         device_map = "cuda"
     else:
         dtype, device_map = torch.bfloat16, None
+    # Overrides for the third review (C1: rerun the fp16 models in fp32, split
+    # over two T4s with device_map "auto"). Set through the environment so
+    # every script that calls load_model honours them.
+    if os.environ.get("POSTOCR_DTYPE"):
+        dtype = {"fp32": torch.float32, "fp16": torch.float16,
+                 "bf16": torch.bfloat16}[os.environ["POSTOCR_DTYPE"]]
+    if os.environ.get("POSTOCR_DEVICE_MAP"):
+        device_map = os.environ["POSTOCR_DEVICE_MAP"]
 
     if model_key in SEQ2SEQ_MODELS:
         model = AutoModelForSeq2SeqLM.from_pretrained(
@@ -208,6 +230,9 @@ def _make_progress_heartbeat(every_n: int = 10):
 DECODING_PRESETS = {
     "guarded": dict(repetition_penalty=1.3, no_repeat_ngram_size=4),
     "plain": dict(),
+    # Third review C4: the two halves of "guarded" separately (2x2 ablation).
+    "penalty_only": dict(repetition_penalty=1.3),
+    "ngram_only": dict(no_repeat_ngram_size=4),
 }
 
 
@@ -230,7 +255,13 @@ def correct_text(
     if model_key in SEQ2SEQ_MODELS:
         # BanglaT5 is not instruction-tuned: no chat template, direct
         # text-to-text framing instead of a "please fix this" instruction.
+        if prompt == "normalized":
+            from normalizer import normalize as bn_normalize  # pip install git+https://github.com/csebuetnlp/normalizer
+            ocr_text = bn_normalize(ocr_text)
         inputs = tokenizer(ocr_text, return_tensors="pt", truncation=True)
+    elif prompt == "completion":
+        # Plain text to continue, no chat template (base checkpoints).
+        inputs = tokenizer(build_prompt(prompt, ocr_text), return_tensors="pt")
     else:
         messages = [{"role": "user", "content": build_prompt(prompt, ocr_text)}]
         # apply_chat_template(..., return_dict=True) returns a BatchEncoding

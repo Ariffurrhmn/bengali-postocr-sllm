@@ -227,3 +227,28 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 - Commit the compiled `paper/main.pdf`, so readers need not compile the paper.
 
 **Why:** The author asked for a repo that holds only up-to-date material, and people will check it. Everything removed is still in git history.
+
+### D36. Third review: paper edits and analyses on existing outputs first (2026-10-15)
+**Decision:** Answer the Draft 03 review (`context/review-draft-03.md`, plan in `context/plan-draft-03.md`) in three groups: paper-only edits and analyses on existing outputs now; new GPU runs (C1, C2, C4 2x2, C5, M1-M3, M7) prepared next and run by the author on Kaggle.
+- New analyses in `eval/review3_analysis.py` (output `results/review3_gpu40.{json,txt}`, copied to `summaries/`): wMER, TOST equivalence, page counts, non-zero Wilcoxon pairs, digit/ZWJ/khanda-ta normalisation, lexicon coverage, clean-text pooled-CER pages, recall CIs, empty-output timing.
+- Primary statistical family: the 36 CER/WER tests. Every other family is labelled exploratory.
+- Equivalence margins 0.01 and 0.02 CER, fixed before looking at the TOST results.
+- Table III split into configuration (`models.tex`) and cost (`cost.tex`); new `equivalence.tex`; new decoding figure (`eval/make_decoding_figure.py`).
+- Gemma is named Gemma-2B-it (Gemma 1); the TituLLMs/BanglaT5 group is "Bengali-pretrained checkpoints"; BanglaT5 is reported as a control.
+- Draft-history wording removed from the paper; the August OCR is mentioned only as a reproducibility note and as the input of the decoding ablation.
+
+**Why:** These items need no GPU and several of them (wording, C8, E6) change how the existing numbers are read. The GPU runs can change the Bengali-checkpoint numbers (C1, C2), so the final table pass waits for them.
+
+**Findings that changed the text:** "no change" for the general-purpose models is supported by equivalence only for Qwen3/Tesseract and Gemma/EasyOCR at 0.02; Phi-4-mini's wMER rises significantly on both engines; the TituLLMs 3B empty outputs end at the first token (precision not ruled out); the base TituLLMs template only concatenates text; the BanglaT5 card requires a normaliser that was not applied; CPU times are plain decoding but on the August 15-page input (the reviewer's C7 assumed guarded runs).
+
+### D37. Explainability (X1): Grad-CAM adapted to token positions (2026-10-15)
+**Decision:** Answer the reviewer's "Grad Cam" request with gradient-weighted maps over token positions of the correction models (`eval/xai_gradcam.py`), not Grad-CAM on the OCR engines. Score = logit of each generated token (greedy, plain decoding, same prompts and chunks as the main runs); maps at the embeddings and at 1/2 and 3/4 depth, both literal Grad-CAM (gradients averaged over positions) and the element-wise variant (gradient x activation per position, as in HiResCAM). The first token, special tokens and the predicting position are excluded and their shares recorded. Measures: share of the map on the OCR text, the rest of the prompt and the model's own earlier output; for copied tokens, whether the map peaks on the source token (+-1).
+**Why:** The paper's question is what correction does to the text, and its central contrast is copying versus regeneration; attribution over input tokens tests that directly. Grad-CAM on the OCR CNN would explain recognition, which the paper does not study.
+**Pilot finding:** literal Grad-CAM is dominated by the attention-sink token and does not localise; the element-wise variant does (peaks on the copied source token for 43-87% of copied tokens on three Qwen3 0.6B chunks). Local CPU runs crashed for lack of memory until the score was computed from one position instead of full logits.
+
+
+### D38. First GPU session after the third review: 10.5 h of quota, two GPUs (2026-10-15)
+**Decision:** Spend the remaining 10 h 34 min of the week's Kaggle quota (reset 2026-10-17) on one "GPU T4 x2" session (`notebooks/kaggle_review3_run.ipynb` → `correction/run_review3_kaggle.py`), with 9.25 h of jobs. Phase 1 uses both GPUs for the float32 runs (C1: first-token check in fp16 and fp32, TituLLMs 3B Instruct on all inputs, Phi-4-mini on Tesseract and clean text, X1 for both). Phases 2-3 run two lanes, one per GPU: C2 (TituLLMs 1B completion prompt, BanglaT5 with the csebuetnlp normaliser), X1 for the other models, and C4 (guarded, penalty-only, n-gram-only on Tesseract and clean text; EasyOCR if time is left).
+**Why:** Kaggle counts session time, not GPUs, so two lanes roughly double the work per quota hour. C1 and C2 can change the main tables and come first; X1 is the reviewer's explicit request; C4 fills the rest. Region-level OCR, the noise sweep, new models, fine-tuning and the large model wait for the reset.
+**Settings:** transformers pinned to 5.19.0 (as in the main runs); precision and placement set through `POSTOCR_DTYPE` / `POSTOCR_DEVICE_MAP` (`models.load_model`); every output line now records its dtype; PyTorch/CUDA versions are written to `environment.txt` (R2).
+**Not tested locally:** float32 placement across two GPUs and the BanglaT5 normaliser (no GPU, and the BanglaT5 tokenizer does not load on the local machine). Everything else was smoke-tested on CPU with Qwen3 0.6B.

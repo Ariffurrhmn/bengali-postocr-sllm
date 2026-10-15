@@ -2,12 +2,14 @@
 \centering
 \caption{Uncorrected OCR Baselines (40 Evaluation Pages)}
 \label{tab:baseline}
-\begin{tabular}{lccc}
+\begin{tabular}{lcccc}
 \toprule
-Engine & CER & WER & cMER \\
+Engine & CER & WER & cMER & wMER \\
 \midrule
-Tesseract & 0.341 & 0.827 & 0.290 \\
-EasyOCR & 0.297 & 0.757 & 0.260 \\
+Tesseract & 0.341 & 0.827 & 0.290 & 0.652 \\
+EasyOCR & 0.297 & 0.757 & 0.260 & 0.629 \\
 \bottomrule
 \end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize cMER, wMER: character and word match error rates, $(S{+}D{+}I)/(H{+}S{+}D{+}I)$, bounded in $[0,1]$.\end{minipage}
 \end{table}

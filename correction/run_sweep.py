@@ -198,6 +198,7 @@ def main():
                             "decoding": args.decoding,
                             "prompt": args.prompt,
                             "device": str(model.device),
+                            "dtype": str(model.dtype),
                             "raw_output": raw_output,
                             "truncated": truncated,
                             "skipped": skipped,

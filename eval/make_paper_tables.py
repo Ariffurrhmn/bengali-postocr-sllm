@@ -46,7 +46,7 @@ RESULTS = REPO_ROOT / "results"
 OUT_DIR = REPO_ROOT / "paper" / "tables"
 
 ENGINES = [("tesseract", "Tesseract"), ("easyocr", "EasyOCR")]
-MODEL_NAMES = {"symspell": "SymSpell (dictionary)", "gemma-2b": "Gemma 2B", "llama3.2-1b": "Llama 3.2 1B",
+MODEL_NAMES = {"symspell": "SymSpell (dictionary)", "gemma-2b": "Gemma-2B-it", "llama3.2-1b": "Llama 3.2 1B",
                "banglat5": "BanglaT5", "titullm-1b": "TituLLMs 1B",
                "qwen3-1.7b": "Qwen3 1.7B", "phi4-mini": "Phi-4-mini",
                "titullm-1b-instruct": "TituLLMs 1B Instruct",
@@ -86,6 +86,10 @@ def sigmark(r: dict) -> str:
     return "$^{-}$" if r["mean_delta"] < 0 else "$^{+}$"
 
 
+def fmt_tost(p: float) -> str:
+    return "$<$0.001" if p < 0.001 else "%.3f" % p
+
+
 def ci(lo: float, hi: float) -> str:
     return "[%+.3f, %+.3f]" % (lo, hi)
 
@@ -107,6 +111,7 @@ def main():
     parser.add_argument("--variants", type=Path, default=RESULTS / "variants_gpu40.json")
     parser.add_argument("--gated", type=Path, default=RESULTS / "gated_gpu40.json")
     parser.add_argument("--sensitivity", type=Path, default=RESULTS / "sensitivity_gpu40.json")
+    parser.add_argument("--review3", type=Path, default=RESULTS / "review3_gpu40.json")
     args = parser.parse_args()
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -125,6 +130,10 @@ def main():
     for r in corrections:
         trunc[(r["engine"], r["model_key"])] += int(r["truncated"])
     n_pages = ext["n_pages"]
+    # Third-review analyses (review3_analysis.py): wMER, equivalence, page counts.
+    r3 = json.loads(args.review3.read_text(encoding="utf-8"))
+    wm = {(r["engine"], r["model"]): r for r in r3["wmer_tests"]}
+    eqv = {(r["engine"], r["model"]): r for r in r3["equivalence"]}
 
     # ---- baseline ----
     rows = []
@@ -132,14 +141,17 @@ def main():
         base = b[(e, models[0], "cer")]["baseline_mean"]
         wbase = b[(e, models[0], "wer")]["baseline_mean"]
         cbase = sig[(e, models[0], "cmer")]["baseline_mean"]
-        rows.append(f"{name} & {base:.3f} & {wbase:.3f} & {cbase:.3f} \\\\")
+        rows.append(f"{name} & {base:.3f} & {wbase:.3f} & {cbase:.3f} & "
+                    f"{r3['wmer_baseline'][e]:.3f} \\\\")
     (OUT_DIR / "baseline.tex").write_text(
         "\\begin{table}[t]\n\\centering\n"
         "\\caption{Uncorrected OCR Baselines (" + str(n_pages) + " Evaluation Pages)}\n"
         "\\label{tab:baseline}\n"
-        "\\begin{tabular}{lccc}\n\\toprule\n"
-        "Engine & CER & WER & cMER \\\\\n\\midrule\n" + "\n".join(rows) + "\n"
-        "\\bottomrule\n\\end{tabular}\n\\end{table}\n", encoding="utf-8")
+        "\\begin{tabular}{lcccc}\n\\toprule\n"
+        "Engine & CER & WER & cMER & wMER \\\\\n\\midrule\n" + "\n".join(rows) + "\n"
+        "\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n\\begin{minipage}{\\linewidth}\\footnotesize "
+        "cMER, wMER: character and word match error rates, $(S{+}D{+}I)/(H{+}S{+}D{+}I)$, "
+        "bounded in $[0,1]$.\\end{minipage}\n\\end{table}\n", encoding="utf-8")
 
     # ---- full evaluation matrix ----
     body = []
@@ -150,10 +162,14 @@ def main():
         wer_d = {m: b[(e, m, "wer")]["mean_delta"] for m in models}
         tr = {m: trunc[(e, m)] / n_pages for m in models}
         first = b[(e, models[0], "cer")]
+        wm_abs = {m: wm[(e, m)]["corrected"] for m in models}
+        better = {m: eqv[(e, m)]["better"] for m in models}
         body.append(f"{name} & (no correction) & {first['baseline_mean']:.3f} & --- & --- & "
-                    f"{b[(e, models[0], 'wer')]['baseline_mean']:.3f} & --- & --- & --- \\\\")
+                    f"{b[(e, models[0], 'wer')]['baseline_mean']:.3f} & --- & --- & "
+                    f"{r3['wmer_baseline'][e]:.3f} & --- & --- \\\\")
         for m in models:
             c, w = b[(e, m, "cer")], b[(e, m, "wer")]
+            q = eqv[(e, m)]
             cols = [
                 name, MODEL_NAMES[m],
                 mark(cer_abs, m, "%.3f" % cer_abs[m]),
@@ -162,6 +178,8 @@ def main():
                 mark(wer_abs, m, "%.3f" % wer_abs[m]),
                 mark(wer_d, m, "%+.3f" % w["mean_delta"]) + " [%+.3f, %+.3f]" % (w["ci_low"], w["ci_high"]),
                 fmt_p(sig[(e, m, "wer")]["wilcoxon_p_holm"]),
+                mark(wm_abs, m, "%.3f" % wm_abs[m]) + sigmark(wm[(e, m)]),
+                mark(better, m, "%d/%d" % (q["better"], q["worse"]), lower_is_better=False),
                 mark(tr, m, "%d\\%%" % round(tr[m] * 100)),
             ]
             body.append(" & ".join(cols) + " \\\\")
@@ -172,18 +190,54 @@ def main():
         "\\caption{Full Evaluation Matrix: " + str(n_pages) + " Pages, 2 Engines, "
         + str(len(models)) + " Models}\n"
         "\\label{tab:matrix}\n"
-        "\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
-        "\\begin{tabular}{llccccccc}\n\\toprule\n"
+        "\\setlength{\\tabcolsep}{3pt}\n\\footnotesize\n"
+        "\\begin{tabular}{llccccccccc}\n\\toprule\n"
         "Engine & Model & CER & $\\Delta$CER [95\\% CI] & $p_{\\mathrm{Holm}}$ & WER & "
-        "$\\Delta$WER [95\\% CI] & $p_{\\mathrm{Holm}}$ & Trunc. \\\\\n\\midrule\n"
+        "$\\Delta$WER [95\\% CI] & $p_{\\mathrm{Holm}}$ & wMER & \\shortstack{Pages\\\\better/worse} & "
+        "Trunc. \\\\\n\\midrule\n"
         + "\n".join(body) + "\n\\bottomrule\n\\end{tabular}\n"
         "\\par\\smallskip\n\\begin{minipage}{\\linewidth}\\footnotesize $\\Delta$ = corrected $-$ uncorrected (positive = worse). "
         "CI: paired bootstrap, 10{,}000 resamples, seed 403. "
-        "$p_{\\mathrm{Holm}}$: two-sided Wilcoxon signed-rank, Holm-corrected over the "
-        + str(n_tests) + " tests. "
-        "ns: not significant. Trunc.: pages whose output hit the token cap. "
-        "\\colorbox{bestbg}{\\textbf{Shaded}}: best corrected model per engine.\\end{minipage}\n"
+        "$p_{\\mathrm{Holm}}$: two-sided Wilcoxon signed-rank test, Holm-corrected over the "
+        + str(n_tests) + " CER and WER tests, the primary family of the study; "
+        "pages whose error rate did not change are dropped by the test (zero differences). "
+        "ns: not significant. wMER: word match error rate; $^{+}$/$^{-}$: significantly higher/lower "
+        "than the raw OCR (exploratory family of " + str(len(wm)) + " tests). "
+        "Pages better/worse: pages whose CER fell/rose, of " + str(n_pages) + ". "
+        "Trunc.: pages whose output hit the token cap. "
+        "\\colorbox{bestbg}{\\textbf{Shaded}}: best value in the column among the corrected methods "
+        "of that engine (lowest error, most pages better, least truncation); it is not compared "
+        "with the raw OCR.\\end{minipage}\n"
         "\\end{table*}\n", encoding="utf-8")
+
+    # ---- equivalence tests (review item E2) ----
+    gp = [m for m in ("gemma-2b", "qwen3-1.7b", "phi4-mini", "llama3.2-1b") if m in models]
+    rows = []
+    for i, (e, name) in enumerate(ENGINES):
+        for m in gp:
+            q = eqv[(e, m)]
+            if m == gp[0]:
+                rows.append(f"\\multicolumn{{6}}{{l}}{{\\textit{{{name}}}}} \\\\")
+            rows.append(" & ".join([
+                MODEL_NAMES[m], "%+.3f" % q["mean_delta"],
+                "[%+.3f, %+.3f]" % tuple(q["ci90"]),
+                fmt_tost(q["tost_p_0.01"]), fmt_tost(q["tost_p_0.02"]),
+                "%d/%d/%d" % (q["better"], q["worse"], q["same"])]) + " \\\\")
+        if i == 0:
+            rows.append("\\midrule")
+    (OUT_DIR / "equivalence.tex").write_text(
+        "\\begin{table}[t]\n\\centering\n"
+        "\\caption{Equivalence Tests for the Models Closest to the Raw OCR}\n\\label{tab:equivalence}\n"
+        "\\setlength{\\tabcolsep}{3pt}\n\\footnotesize\n"
+        "\\begin{tabular}{lccccc}\n\\toprule\n"
+        " & & & \\multicolumn{2}{c}{TOST $p$} & \\\\\n\\cmidrule(lr){4-5}\n"
+        "Model & $\\Delta$CER & 90\\% CI & $\\pm$0.01 & $\\pm$0.02 & \\shortstack{Better/\\\\worse/same} \\\\\n"
+        "\\midrule\n" + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+        "\\begin{minipage}{\\linewidth}\\footnotesize $\\Delta$CER: corrected $-$ raw OCR. 90\\% CI: "
+        "paired bootstrap. TOST: two one-sided paired $t$-tests against an equivalence margin of "
+        "$\\pm$0.01 or $\\pm$0.02 CER; $p<0.05$ means the change is within the margin. Not adjusted for "
+        "multiplicity (exploratory). Last column: pages whose CER fell, rose or stayed the same, "
+        "of " + str(n_pages) + ".\\end{minipage}\n\\end{table}\n", encoding="utf-8")
 
     # ---- diagnostics (both engines together) ----
     # Length ratio and retention are means over outputs (as Table II's raw
@@ -277,7 +331,7 @@ def main():
         "the ground truth). Change ratio: CER of the output against the raw OCR, divided by the raw OCR's CER. "
         "Invented runs: share of output characters in runs of $\\geq$6 characters with no counterpart in "
         "the raw OCR. $^{+}$/$^{-}$: cMER significantly higher/lower than the raw OCR, Wilcoxon "
-        "signed-rank test, Holm-corrected over the 18 cMER tests. "
+        "signed-rank test, Holm-corrected over the 18 cMER tests (exploratory family). "
         "\\colorbox{bestbg}{\\textbf{Shaded}}: best corrected model per engine.\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
 
     # ---- dataset statistics (review item T1) ----
@@ -312,18 +366,21 @@ def main():
             rows = []
             for m in [m for m in models if m in clean]:
                 r = clean[m]
+                cw = r3["clean_word_rates"][m]
                 rows.append(f"{MODEL_NAMES[m]} & {r['mean_cer']:.3f} & {r['pooled_cer']:.3f} & "
-                            f"{r['pages_exact']}/{r['n']} \\\\")
+                            f"{cw['wer']:.3f} & {cw['wmer']:.3f} & {r['pages_exact']}/{r['n']} \\\\")
             (OUT_DIR / "clean.tex").write_text(
                 "\\begin{table}[t]\n\\centering\n"
                 "\\caption{Clean-Text Control: Ground Truth Given as Input}\n\\label{tab:clean}\n"
-                "\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n\\begin{tabular}{lccc}\n\\toprule\n"
-                "Model & Mean CER & Pooled CER & Pages unchanged \\\\\n\\midrule\n"
+                "\\setlength{\\tabcolsep}{3pt}\n\\footnotesize\n\\begin{tabular}{lccccc}\n\\toprule\n"
+                "Model & \\shortstack{Mean\\\\CER} & \\shortstack{Pooled\\\\CER} & WER & wMER & "
+                "\\shortstack{Pages\\\\unchanged} \\\\\n\\midrule\n"
                 + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
                 "\\begin{minipage}{\\linewidth}\\footnotesize Each model receives the reference "
-                "text itself, with the same prompt and decoding. CER is measured against that "
-                "reference, so any value above 0 is damage to correct text. Pages unchanged: "
-                "CER exactly 0 after normalisation.\\end{minipage}\n\\end{table}\n",
+                "text itself, with the same prompt and plain decoding. Error rates are measured "
+                "against that reference, so any value above 0 is damage to correct text; WER and "
+                "wMER are per-page means. Pages unchanged: CER exactly 0 after "
+                "normalisation.\\end{minipage}\n\\end{table}\n",
                 encoding="utf-8")
 
     # ---- edit operations (review item T3) ----
@@ -347,7 +404,7 @@ def main():
     # ---- model and configuration details (review item T2) ----
     if args.profile.exists():
         prof = {r["model"]: r for r in json.loads(args.profile.read_text(encoding="utf-8"))}
-        rows = []
+        conf_rows, cost_rows = [], []
         for m in [m for m in models if m in prof]:
             r = prof[m]
             cpu = "%.1f" % r["cpu_min_per_page"] if r["cpu_min_per_page"] is not None else "---"
@@ -357,31 +414,43 @@ def main():
             ckpt = (r["checkpoint"].replace("_", "\\_").replace("/", "/\\allowbreak ")
                     .replace("-", "-\\allowbreak ") + "@\\allowbreak " + REVISIONS[m])
             weights_gb = PARAMS_B[m] * (2 if GPU_DTYPE[m] == "fp16" else 4)
-            rows.append(f"{MODEL_NAMES[m]} & \\texttt{{{ckpt}}} & "
-                        f"{PARAMS_B[m]:.2f} & {weights_gb:.1f} ({GPU_DTYPE[m]}) & "
-                        f"{r['tokens_per_char']:.2f} & {r['tokens_per_word']:.1f} & "
-                        f"{r['mean_chars_per_chunk']:.0f} & {cpu} & {gpu} \\\\")
+            fmt = "text" if m == "banglat5" else "template"
+            conf_rows.append(f"{MODEL_NAMES[m]} & \\texttt{{{ckpt}}} & {PARAMS_B[m]:.2f} & "
+                             f"{GPU_DTYPE[m]} & {fmt} & {r['mean_chars_per_chunk']:.0f} \\\\")
+            cost_rows.append(f"{MODEL_NAMES[m]} & {r['tokens_per_char']:.2f} & "
+                             f"{r['tokens_per_word']:.1f} & {weights_gb:.1f} & {cpu} & {gpu} \\\\")
         (OUT_DIR / "models.tex").write_text(
-            "\\begin{table*}[t]\n\\centering\n\\caption{Models and Configuration}\n"
-            "\\label{tab:models}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
-            "\\begin{tabular}{l>{\\raggedright\\arraybackslash\\scriptsize}p{4.3cm}ccccccc}\n\\toprule\n"
-            "Model & Checkpoint@revision & \\shortstack{Params\\\\(B)} & "
-            "\\shortstack{GPU weights\\\\GB (precision)} & \\shortstack{Tokens/\\\\char} & "
-            "\\shortstack{Tokens/\\\\word} & \\shortstack{Chars/\\\\chunk} & "
-            "\\shortstack{CPU\\\\min/page} & \\shortstack{GPU\\\\min/page} \\\\\n\\midrule\n"
-            + "\n".join(rows) + "\n"
+            "\\begin{table}[t]\n\\centering\n\\caption{Models and Configuration}\n"
+            "\\label{tab:models}\n\\setlength{\\tabcolsep}{2.5pt}\n\\footnotesize\n"
+            "\\begin{tabular}{>{\\raggedright\\arraybackslash}p{1.85cm}"
+            ">{\\raggedright\\arraybackslash\\scriptsize}p{2.75cm}cccc}\n\\toprule\n"
+            "Model & Checkpoint@revision & \\shortstack{Params\\\\(B)} & \\shortstack{GPU\\\\prec.} & "
+            "Input & \\shortstack{Chars/\\\\chunk} \\\\\n\\midrule\n"
+            + "\n".join(conf_rows) + "\n"
             "\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n\\begin{minipage}{\\linewidth}"
-            "\\footnotesize Checkpoint: Hugging Face model and revision. "
-            "Parameters from each checkpoint's configuration, tied embeddings "
-            "counted once. GPU weights: memory taken by the parameters at the precision used on "
-            "the GPU (parameters $\\times$ 4 bytes in fp32, 2 in fp16); peak memory during "
-            "generation was not recorded. Tokens/char and tokens/word: each tokenizer on the 40 "
-            "reference texts. Chars/chunk: mean characters per chunk of about 250 tokens on raw "
-            "Tesseract text. Decoding for all models: greedy, at most $\\min(512,\\max(64,1.5n))$ "
-            "new tokens, no repetition penalty or n-gram ban. CPU: free Colab runtime, bfloat16, "
-            "15 pages (---: not run on CPU). GPU: NVIDIA T4, 40 pages. Times are per page and "
-            "engine.\\end{minipage}\n"
-            "\\end{table*}\n", encoding="utf-8")
+            "\\footnotesize Checkpoint: Hugging Face model and revision. Parameters from each "
+            "checkpoint's configuration, tied embeddings counted once. GPU prec.: precision on the "
+            "T4 (fp16 for the two models whose fp32 weights exceed its memory). Input: the prompt "
+            "through the chat template shipped with the checkpoint, or the OCR text alone. Chars/chunk: mean "
+            "characters per chunk of about 250 tokens on raw Tesseract text. Decoding for all "
+            "models: greedy, at most $\\min(512,\\max(64,1.5n))$ new tokens, no repetition penalty "
+            "or n-gram ban.\\end{minipage}\n\\end{table}\n", encoding="utf-8")
+        (OUT_DIR / "cost.tex").write_text(
+            "\\begin{table}[t]\n\\centering\n\\caption{Tokenisation and Computational Cost}\n"
+            "\\label{tab:cost}\n\\setlength{\\tabcolsep}{2pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lccccc}\n\\toprule\n"
+            "Model & \\shortstack{Tokens/\\\\char} & \\shortstack{Tokens/\\\\word} & "
+            "\\shortstack{GPU weights\\\\(GB)} & \\shortstack{CPU\\\\min/page} & "
+            "\\shortstack{GPU\\\\min/page} \\\\\n\\midrule\n"
+            + "\n".join(cost_rows) + "\n"
+            "\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n\\begin{minipage}{\\linewidth}"
+            "\\footnotesize Tokens/char and tokens/word: each tokenizer on the 40 reference texts. "
+            "GPU weights: parameters $\\times$ 4 bytes in fp32 or 2 in fp16; peak memory during "
+            "generation was not recorded. GPU: NVIDIA T4, plain decoding, the 40 pages of the main "
+            "setting. CPU: free Colab CPU runtime in bfloat16, plain decoding, on the 15-page "
+            "sample with its August 2026 OCR, a different input from the main setting "
+            "(---: not run on CPU). Times are per page and engine.\\end{minipage}\n"
+            "\\end{table}\n", encoding="utf-8")
 
     # ---- confidence-gated correction (review item E4) ----
     if args.gated.exists():
@@ -413,7 +482,8 @@ def main():
             "\\begin{minipage}{\\linewidth}\\footnotesize A model's edit is kept only where every "
             "OCR word it changes has a confidence below the threshold (column header); elsewhere "
             "the raw OCR is kept. $^{+}$/$^{-}$: significantly higher/lower than the raw OCR, "
-            "Wilcoxon signed-rank test, Holm-corrected over the 54 gated tests.\\end{minipage}\n"
+            "Wilcoxon signed-rank test, Holm-corrected over the 54 gated tests (exploratory "
+            "family); pages left identical to the raw OCR are dropped by the test.\\end{minipage}\n"
             "\\end{table}\n", encoding="utf-8")
 
     # ---- prompt and chunking variants (review items M3, M4) ----
@@ -446,13 +516,19 @@ def main():
             "250 tokens. Each variant changes one thing: the preserve-spelling instruction, the "
             "prompt in Bengali, three worked examples, or chunks of at most 300 characters. "
             "$^{*}$: differs from the original setting, two-sided Wilcoxon signed-rank test, "
-            "Holm-corrected over the 32 variant comparisons.\\end{minipage}\n\\end{table}\n",
+            "Holm-corrected over the 32 variant comparisons (exploratory family).\\end{minipage}\n"
+            "\\end{table}\n",
             encoding="utf-8")
 
     # ---- decoding ablation (review item C1) ----
     if args.decoding.exists():
         abl = {(r["engine"], r["model"]): r
                for r in json.loads(args.decoding.read_text(encoding="utf-8"))}
+        # The ablation's August OCR against the October OCR of the same pages.
+        from metrics import cer
+        aug = {r["page_id"]: r for r in load_jsonl(RESULTS / "ocr_eval.jsonl")}
+        aug_cer = sum(cer(r["ground_truth"], r["tesseract"]) for r in aug.values()) / len(aug)
+        oct_cer = sum(cer(ocr[p]["ground_truth"], ocr[p]["tesseract"]) for p in aug) / len(aug)
         rows = []
         for i, (e, name) in enumerate(ENGINES):
             for m in [m for m in models if (e, m) in abl]:
@@ -474,9 +550,13 @@ def main():
             "\\shortstack{Plain output vs.\\\\its input (median CER)} \\\\\n\\midrule\n"
             + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
             "\\begin{minipage}{\\linewidth}\\footnotesize Guarded: \\texttt{repetition\\_penalty}=1.3 and "
-            "\\texttt{no\\_repeat\\_ngram\\_size}=4, as in the original runs; for decoder-only models both "
+            "\\texttt{no\\_repeat\\_ngram\\_size}=4, a common setting against repetition loops; for decoder-only models both "
             "also act on the prompt, so they penalise copying the OCR text. Plain: neither; greedy decoding "
-            "with only the length cap. CI: paired bootstrap, 10{,}000 resamples, seed 403. Last column: CER "
+            "with only the length cap. Setting: the " + str(len(aug)) + "-page random sample, OCR run "
+            "in August 2026 (Tesseract build not recorded; mean raw Tesseract CER " + "%.3f" % aug_cer
+            + " against " + "%.3f" % oct_cer + " for the same pages in the main setting), Colab CPU in "
+            "bfloat16; the four models run there. "
+            "CI: paired bootstrap, 10{,}000 resamples, seed 403. Last column: CER "
             "of the plain output against its own OCR input (near 0 = the model returned its input almost "
             "unchanged).\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
 
@@ -521,7 +601,8 @@ def main():
             "resamples; $p_{\\mathrm{Holm}}$: Wilcoxon signed-rank test, Holm-corrected over the 18 "
             "length-rule tests. Edit-distance cap: the output is kept only if its CER against the raw "
             "OCR is at most $\\tau$; $^{+}$/$^{-}$: significantly higher/lower than the raw OCR, "
-            "Holm-corrected over the " + str(len(cap)) + " cap tests.\\end{minipage}\n"
+            "Holm-corrected over the " + str(len(cap)) + " cap tests. Both families are "
+            "exploratory.\\end{minipage}\n"
             "\\end{table*}\n", encoding="utf-8")
 
     # ---- robustness: pooled CER, grapheme CER, book bootstrap, reading order,
@@ -537,7 +618,8 @@ def main():
             raw = micro[(e, "(raw OCR)")]
             rows.append(f"\\multicolumn{{9}}{{l}}{{\\textit{{{name}: raw OCR pooled CER "
                         f"{raw['pooled_cer']:.3f}, grapheme CER {raw['mean_grapheme_cer']:.3f}, "
-                        f"word recall {sens[e + '_raw_word_recall']:.3f}}}}} \\\\")
+                        f"word recall {sens[e + '_raw_word_recall']:.3f} "
+                        f"{ci(*r3['recall_vs_grapheme'][e]['recall_ci']).replace('+', '')}}}}} \\\\")
             for m in models:
                 g, c, r_, w = graph[(e, m)], clus[(e, m)], ro[(e, m)], rec[(e, m)]
                 rows.append(" & ".join([
@@ -568,8 +650,9 @@ def main():
             "against a reference whose regions follow the reading order declared in the PAGE-XML "
             "file (" + str(sens["reading_order"]["pages_reference_changed"]) + " of 40 references "
             "change). Word recall: share of reference word tokens found in the output, ignoring "
-            "order and extra text; positive $\\Delta$ = better. Each $p_{\\mathrm{Holm}}$ column is "
-            "its own family of 18 tests.\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
+            "order and extra text; positive $\\Delta$ = better; the raw value is followed by its 95\\% "
+            "bootstrap interval. Each $p_{\\mathrm{Holm}}$ column is its own exploratory family of 18 "
+            "tests.\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
 
     # ---- page type (review item E7) ----
     if sens:
