@@ -11,7 +11,7 @@ Handoff updated 2026-10-16 (night), at the end of the session that put the first
 
 ## 2. Read these, in order
 1. `context/review-draft-03.md`: the items, each with *Status* notes. Ticked = done.
-2. `context/decisions.md`: D39 (first GPU session), **D40** (paper update), **D41** (next runs), **D42** (author's answers; region OCR on Kaggle CPU, region level = full second setting), **D43** (region OCR outcome: EasyOCR valid, Tesseract to be redone on Colab). Earlier entries explain older choices.
+2. `context/decisions.md`: D39 (first GPU session), **D40** (paper update), **D41** (next runs), **D42** (author's answers; region OCR on Kaggle CPU, region level = full second setting), **D43**-**D44** (region OCR outcome; Tesseract output drifted within version 5.3.4). Earlier entries explain older choices.
 3. `context/results.md`: current numbers ("Third-review GPU runs").
 4. `context/engineering-notes.md`: gotchas. Most important here: about 4 GB free RAM; `HF_HUB_CACHE=G:/hf-cache`; **Bash heredocs mangle backslashes** (bit this session twice: use the Edit tool or a script file for LaTeX/Python edits); `PYTHONIOENCODING=utf-8`; locally, `TESSDATA_PREFIX` must point at the repo's `.tessdata` (scoop sets its own).
 5. `paper/WRITING-GUIDE.md` and `paper/README.md` (regeneration commands now include `review3_runs_analysis.py` and the new `make_decoding_figure.py --runs`).
@@ -27,7 +27,7 @@ Handoff updated 2026-10-16 (night), at the end of the session that put the first
 - **Finding to remember:** the pilot's explanation of why literal Grad-CAM fails (attention sink) is not supported by the full run; the paper uses the HiResCAM averaging argument.
 
 ### Not done
-- Runs: Kaggle CPU region OCR done (D43, `results/region/`, scored in `results/region_ocr40.txt`); Tesseract part to be redone on Colab (`notebooks/colab_region_ocr.ipynb` → `ocr_region40_colab.jsonl`; if its verify fails, use the Kaggle file and its same-engine baseline); Kaggle review3b (M3, M1, X1 leftovers). Then scoring scripts for them (not written yet: write `eval/review3b_runs_analysis.py` once outputs exist, following `review3_runs_analysis.py`; M3 plot = F7).
+- Runs: Kaggle CPU region OCR done (D43, `results/region/`, scored in `results/region_ocr40.txt`); the Colab rerun showed that today's Tesseract (Colab = Kaggle) cannot reproduce the main run, so the Kaggle file is final for both engines (D44; Tesseract compared with its same-run whole-page baseline); Kaggle review3b (M3, M1, X1 leftovers). Then scoring scripts for them (not written yet: write `eval/review3b_runs_analysis.py` once outputs exist, following `review3_runs_analysis.py`; M3 plot = F7).
 - Later sessions: correction runs on region OCR text (C5), fine-tuning pilot (M2), Qwen3-30B-A3B 4-bit (M7), M4 edit distance 1 / stronger lexicon (local, cheap), E7.
 - Waiting on the author: W2 page limit (paper is 23 pages), F5, C6/R2 release, E8 labels, title change (WRITING-GUIDE Sec 3; check with Bijon Sir).
 
