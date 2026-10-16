@@ -172,9 +172,15 @@ def main():
             if not rs:
                 continue
             names = dict(zip(rs[0]["layers"], ["embedding", "mid", "late"]))
+            # Chance level of the source-peak test: the peak is the argmax over
+            # the OCR positions and counts if it is within +-1 of the source,
+            # so a random peak hits about 3 / (number of OCR tokens).
+            chance = [min(3, r["n_ocr_tokens"]) / r["n_ocr_tokens"]
+                      for r in rs for t in r["targets"] if t.get("copy_of") is not None]
             row = {"model": m, "engine": e, "chunks": len(rs),
                    "copy_share": float(np.mean([r["copy_share"] for r in rs])),
-                   "tokens": sum(len(r["targets"]) for r in rs)}
+                   "tokens": sum(len(r["targets"]) for r in rs),
+                   "src_peak_chance": float(np.mean(chance)) if chance else None}
             for li, lname in names.items():
                 for kind in ("hires", "literal"):
                     key = f"L{li}_{kind}"

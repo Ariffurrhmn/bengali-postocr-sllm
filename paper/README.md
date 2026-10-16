@@ -21,8 +21,9 @@ python confidence_gate.py --ocr-path ../results/ocr_eval40.jsonl --conf-path ../
 python model_profile.py --ocr-path ../results/ocr_eval40.jsonl --cpu-runs ../results/ablation_plain_decoding.jsonl --gpu-runs ../results/gpu_eval40.jsonl --out ../results/model_profile.json
 python sensitivity_analysis.py --ocr-path ../results/ocr_eval40.jsonl --correction-path ../results/eval40_ocr.jsonl --dataset-dir "G:/New folder/Competition_dataset_ImagesPAGEXML" --out-prefix ../results/sensitivity_gpu40
 python review3_analysis.py --ocr-path ../results/ocr_eval40.jsonl --correction-path ../results/eval40_all.jsonl --gpu-runs ../results/gpu_eval40.jsonl --conf-path ../results/ocr_conf40.jsonl --out-prefix ../results/review3_gpu40
+python review3_runs_analysis.py --runs ../results/review3 --ocr-path ../results/ocr_eval40.jsonl --main ../results/gpu_eval40.jsonl --out-prefix ../results/review3_runs
 python make_paper_tables.py
-python make_decoding_figure.py --ablation ../results/decoding_ablation.json --out ../paper/figures/fig_decoding.pdf
+python make_decoding_figure.py --runs ../results/review3_runs.json --out ../paper/figures/fig_decoding.pdf
 python make_revision_figures.py --ocr-path ../results/ocr_eval40.jsonl --correction-path ../results/eval40_ocr.jsonl --bootstrap-json ../results/bootstrap_gpu40.json --out-dir ../paper/figures
 python make_paper_figures.py --page-image ../data/REID2019/279_42_B_41_0003.tif --page-xml ../data/REID2019/279_42_B_41_0003.xml
 python make_example_table.py --ocr-path ../results/ocr_eval40.jsonl --correction-path ../results/eval40_ocr.jsonl --out ../paper/tables/examples.tex

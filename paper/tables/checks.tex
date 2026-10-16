@@ -1,0 +1,21 @@
+\begin{table*}[t]
+\centering
+\caption{Precision and Prompt-Format Checks (Mean CER, 40 Pages)}
+\label{tab:checks}
+\setlength{\tabcolsep}{3pt}
+\scriptsize
+\begin{tabular}{llcccccc}
+\toprule
+ & & \multicolumn{2}{c}{Tesseract} & \multicolumn{2}{c}{EasyOCR} & \multicolumn{2}{c}{Clean text} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+Check & Model & Main / check & $\Delta$ [95\% CI] & Main / check & $\Delta$ [95\% CI] & Main / check & $\Delta$ [95\% CI] \\
+\midrule
+Float32 & TituLLMs 3B Instruct & 0.958 / 0.959 & +0.000 [-0.001, +0.001] & 0.886 / 0.888 & +0.002 [-0.000, +0.005] & 0.967 / 0.927 & -0.040 [-0.132, +0.032] \\
+Float32 & Phi-4-mini & 0.354 / 0.354 & -0.000 [-0.001, +0.000] & -- & -- & -- & -- \\
+Completion prompt & TituLLMs 1B & 1.084 / 0.877 & -0.206$^{*}$ [-0.276, -0.118] & 1.033 / 0.861 & -0.172$^{*}$ [-0.262, -0.055] & 0.988 / 0.605 & -0.383$^{*}$ [-0.488, -0.295] \\
+Normalised input & BanglaT5 & 0.860 / 0.858 & -0.001 [-0.014, +0.013] & 0.831 / 0.830 & -0.001 [-0.004, +0.002] & 0.833 / 0.831 & -0.002 [-0.007, +0.004] \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Float32: instead of float16. Main: the setting of the main runs (float16 for the two models above 3B parameters; each model's shipped chat template; BanglaT5 on unnormalised text). Check: the same model rerun with one change. $\Delta$: check $-$ main; CI: paired bootstrap, 10{,}000 resamples; $^{*}$: Wilcoxon signed-rank $p<0.05$, unadjusted (exploratory). --: not run (Phi-4-mini in float32 on EasyOCR text) or incomplete (on clean text, 1 of 40 pages within the session's time limit). First-token check of TituLLMs 3B Instruct on all 208 chunks: the same first token in both precisions on 208, end-of-sequence first on 87 in both, no non-finite logits or hidden states, largest activation 1000 (float16 limit 65{,}504). Empty pages (float16/float32, Tesseract, EasyOCR, clean text): 13/13, 14/14, 16/16. Every check of a Bengali-pretrained checkpoint stays significantly worse than the raw OCR ($+$0.52 to $+$0.62 CER on OCR text, $p<0.001$).\end{minipage}
+\end{table*}

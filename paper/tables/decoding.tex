@@ -1,24 +1,28 @@
 \begin{table*}[t]
 \centering
-\caption{Decoding Ablation: Repetition Guards versus Plain Greedy Decoding (Mean CER)}
+\caption{Decoding Ablation on the 40 Pages: Repetition Penalty and $n$-Gram Ban, Alone and Together (Mean CER)}
 \label{tab:decoding}
 \setlength{\tabcolsep}{4pt}
 \footnotesize
-\begin{tabular}{llccccc}
+\begin{tabular}{llcccccll}
 \toprule
-Engine & Model & Raw OCR & Guarded & Plain & Plain $-$ guarded [95\% CI] & \shortstack{Plain output vs.\\its input (median CER)} \\
+Input & Model & Raw OCR & Plain & Penalty only & $n$-gram ban only & Both (guarded) & Guarded $-$ plain [95\% CI] & Truncated \\
 \midrule
-Tesseract & Gemma-2B-it & 0.364 & 0.583 & 0.360 & -0.224 [-0.295, -0.155] & 0.012 \\
-Tesseract & Llama 3.2 1B & 0.364 & 0.844 & 0.430 & -0.413 [-0.510, -0.308] & 0.163 \\
-Tesseract & BanglaT5 & 0.364 & 0.889 & 0.900 & +0.011 [-0.007, +0.028] & 0.875 \\
-Tesseract & TituLLMs 1B & 0.364 & 1.996 & 0.929 & -1.067 [-1.444, -0.685] & 0.956 \\
+Tesseract & Gemma-2B-it & 0.341 & 0.353 & 0.357$^{+}$ & 0.529$^{+}$ & 0.545$^{+}$ & +0.192 [+0.156, +0.230] & 0/0/0 \\
+Tesseract & Qwen3 1.7B & 0.341 & 0.337 & 0.692$^{+}$ & 0.750$^{+}$ & 0.925$^{+}$ & +0.587 [+0.532, +0.639] & 8/3/11 \\
+Tesseract & Phi-4-mini & 0.341 & 0.354 & 1.750$^{+}$ & 0.509$^{+}$ & 1.740$^{+}$ & +1.385 [+1.175, +1.606] & 28/1/24 \\
+Tesseract & Llama 3.2 1B & 0.341 & 0.380 & 0.871$^{+}$ & 0.795$^{+}$ & 0.972$^{+}$ & +0.592 [+0.508, +0.686] & 27/12/27 \\
 \midrule
-EasyOCR & Gemma-2B-it & 0.297 & 0.517 & 0.301 & -0.216 [-0.300, -0.154] & 0.005 \\
-EasyOCR & Llama 3.2 1B & 0.297 & 0.897 & 0.337 & -0.560 [-0.694, -0.434] & 0.065 \\
-EasyOCR & BanglaT5 & 0.297 & 0.817 & 0.837 & +0.020 [+0.005, +0.037] & 0.836 \\
-EasyOCR & TituLLMs 1B & 0.297 & 2.588 & 1.029 & -1.559 [-2.161, -0.958] & 0.957 \\
+EasyOCR & Gemma-2B-it & 0.297 & 0.301 & 0.338$^{+}$ & 0.512$^{+}$ & 0.520$^{+}$ & +0.220 [+0.187, +0.257] & 0/0/0 \\
+EasyOCR & Qwen3 1.7B & 0.297 & 0.315 & 0.721$^{+}$ & 0.695$^{+}$ & 0.917$^{+}$ & +0.602 [+0.548, +0.653] & 14/3/15 \\
+EasyOCR & Llama 3.2 1B & 0.297 & 0.330 & 0.783$^{+}$ & 0.818$^{+}$ & 0.942$^{+}$ & +0.612 [+0.529, +0.700] & 21/21/23 \\
+\midrule
+Clean text & Gemma-2B-it & -- & 0.032 & 0.049$^{+}$ & 0.327$^{+}$ & 0.360$^{+}$ & +0.328 [+0.298, +0.359] & 0/0/0 \\
+Clean text & Qwen3 1.7B & -- & 0.035 & 0.628$^{+}$ & 0.625$^{+}$ & 0.940$^{+}$ & +0.905 [+0.850, +0.966] & 10/7/22 \\
+Clean text & Phi-4-mini & -- & 0.060 & 1.282$^{+}$ & 0.366$^{+}$ & 1.406$^{+}$ & +1.345 [+1.093, +1.618] & 19/2/18 \\
+Clean text & Llama 3.2 1B & -- & 0.119 & 0.812$^{+}$ & 0.797$^{+}$ & 0.942$^{+}$ & +0.824 [+0.766, +0.885] & 27/17/25 \\
 \bottomrule
 \end{tabular}
 \par\smallskip
-\begin{minipage}{\linewidth}\footnotesize Guarded: \texttt{repetition\_penalty}=1.3 and \texttt{no\_repeat\_ngram\_size}=4, a common setting against repetition loops; for decoder-only models both also act on the prompt, so they penalise copying the OCR text. Plain: neither; greedy decoding with only the length cap. Setting: the 15-page random sample, OCR run in August 2026 (Tesseract build not recorded; mean raw Tesseract CER 0.364 against 0.320 for the same pages in the main setting), Colab CPU in bfloat16; the four models run there. CI: paired bootstrap, 10{,}000 resamples, seed 403. Last column: CER of the plain output against its own OCR input (near 0 = the model returned its input almost unchanged).\end{minipage}
+\begin{minipage}{\linewidth}\footnotesize Plain: greedy decoding with only the length cap (the main runs). Penalty: \texttt{repetition\_penalty}=1.3; $n$-gram ban: \texttt{no\_repeat\_ngram\_size}=4; in a decoder-only model both also act on the prompt, so they penalise copying the OCR text. Clean text: the reference given as input, so any change is damage. $^{+}$/$^{-}$: higher/lower than plain decoding, Wilcoxon signed-rank test, Holm-corrected over the 33 preset-versus-plain tests (exploratory family). CI: paired bootstrap, 10{,}000 resamples, seed 403. Truncated: pages that reached the token limit (penalty/$n$-gram/both), of 40. Phi-4-mini was not run on EasyOCR text (time limit of the GPU session). An earlier ablation of guarded against plain decoding on 15 pages (August OCR, CPU, bfloat16) also covered two Bengali-pretrained checkpoints; guarded minus plain CER on Tesseract and EasyOCR text: TituLLMs 1B +1.07 and +1.56; BanglaT5 -0.01 and -0.02.\end{minipage}
 \end{table*}

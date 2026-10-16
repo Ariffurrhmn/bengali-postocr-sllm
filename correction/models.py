@@ -48,21 +48,31 @@ MODEL_IDS = {
     "titullm-3b-instruct": "hishab/titulm-llama-3.2-3b-v2.0-Instruct-v1.0",
     # Third review (M1 size series; also the local pilot of the X1 attribution).
     "qwen3-0.6b": "Qwen/Qwen3-0.6B",
+    # Third review M1: Qwen3 size series, Gemma 3 and the larger Llama 3.2.
+    "qwen3-4b": "Qwen/Qwen3-4B",
+    "qwen3-8b": "Qwen/Qwen3-8B",
+    "gemma3-1b": "google/gemma-3-1b-it",
+    "gemma3-4b": "google/gemma-3-4b-it",
+    "llama3.2-3b": "meta-llama/Llama-3.2-3B-Instruct",
 }
 
 CAUSAL_LM_MODELS = {"phi3-mini", "llama3.2-1b", "gemma-2b", "titullm-1b", "qwen3-1.7b",
                     "phi4-mini", "titullm-1b-instruct", "titullm-3b-instruct",
-                    "qwen3-0.6b"}
+                    "qwen3-0.6b", "qwen3-4b", "qwen3-8b", "gemma3-1b", "gemma3-4b",
+                    "llama3.2-3b"}
 
 # Models above ~3B do not fit the T4's 15GB in float32, so on GPU they run
-# in float16 (see load_model).
-GPU_FLOAT16_MODELS = {"phi3-mini", "phi4-mini", "titullm-3b-instruct"}
+# in float16 (see load_model). Gemma overflows in float16, so Gemma 3 4B runs
+# in float32 split over two GPUs instead (POSTOCR_DTYPE/POSTOCR_DEVICE_MAP).
+# Qwen3 8B (16 GB in float16) also needs both GPUs.
+GPU_FLOAT16_MODELS = {"phi3-mini", "phi4-mini", "titullm-3b-instruct", "qwen3-4b", "qwen3-8b",
+                      "llama3.2-3b"}
 SEQ2SEQ_MODELS = {"banglat5"}
 
 # Qwen3 is a hybrid reasoning model; without this its chat template lets it
 # open a <think> block before answering. Passed only to models that need it.
-CHAT_TEMPLATE_KWARGS = {"qwen3-1.7b": {"enable_thinking": False},
-                        "qwen3-0.6b": {"enable_thinking": False}}
+CHAT_TEMPLATE_KWARGS = {m: {"enable_thinking": False}
+                        for m in ("qwen3-1.7b", "qwen3-0.6b", "qwen3-4b", "qwen3-8b")}
 
 CORRECTION_INSTRUCTION = (
     "The following text was produced by OCR on a historical Bengali document "

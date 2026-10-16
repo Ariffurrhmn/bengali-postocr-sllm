@@ -15,6 +15,7 @@ data/*
 !data/split_eval.txt
 !data/excluded_no_ground_truth.txt
 !data/page_types.tsv
+!data/noise_model_dev.json
 results/*
 !results/.gitkeep
 

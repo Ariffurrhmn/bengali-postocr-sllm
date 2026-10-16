@@ -13,11 +13,17 @@ number is typed by hand.
 The best corrected model per engine and column is marked with \\best{}
 (reviewer item #42). Macros are in paper/tables/preamble.tex.
 
-  paper/tables/decoding.tex     - decoding ablation: guarded vs plain decoding
-                                  (review item C1)
+  paper/tables/decoding.tex     - decoding ablation on the 40 pages: plain,
+                                  penalty only, n-gram ban only, both
+                                  (third review C4; review3_runs.json); falls
+                                  back to the 15-page CPU guarded-vs-plain
+                                  table when review3_runs.json is missing
+  paper/tables/checks.tex       - precision (float32) and prompt-format checks
+                                  (third review C1, C2)
+  paper/tables/attribution.tex  - token-level Grad-CAM maps (third review X1)
 
 Main tables use the plain-decoding runs (repetition_penalty 1.0, no n-gram
-ban); the original guarded runs appear only in decoding.tex.
+ban); the guarded runs appear only in decoding.tex.
 
   paper/tables/dataset.tex      - evaluation pages (review item T1)
   paper/tables/models.tex       - models and configuration (T2)
@@ -25,12 +31,14 @@ ban); the original guarded runs appear only in decoding.tex.
   paper/tables/clean.tex        - clean-text control (E1)
 
 Main tables use the 40-page GPU run with plain decoding. The decoding
-ablation (decoding.tex) uses the 15-page CPU runs, where both settings exist.
+ablation (decoding.tex) uses the 40-page GPU runs of 2026-10-16; its note
+quotes the 15-page CPU comparison for the two Bengali-pretrained checkpoints.
 
 Inputs (defaults, all in results/): ocr_eval40.jsonl, gpu_eval40_ocr.jsonl,
 bootstrap_gpu40.json (bootstrap.py), extended_gpu40.json (extended_analysis.py),
 revision_gpu40.json (revision_analysis.py), model_profile.json
-(model_profile.py), decoding_ablation.json (compare_decoding.py).
+(model_profile.py), decoding_ablation.json (compare_decoding.py),
+review3_runs.json (review3_runs_analysis.py).
 """
 import argparse
 import json
@@ -112,6 +120,8 @@ def main():
     parser.add_argument("--gated", type=Path, default=RESULTS / "gated_gpu40.json")
     parser.add_argument("--sensitivity", type=Path, default=RESULTS / "sensitivity_gpu40.json")
     parser.add_argument("--review3", type=Path, default=RESULTS / "review3_gpu40.json")
+    parser.add_argument("--review3-runs", type=Path, default=RESULTS / "review3_runs.json",
+                        help="third-review GPU runs (review3_runs_analysis.py): C1, C2, C4, X1")
     args = parser.parse_args()
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -520,8 +530,162 @@ def main():
             "\\end{table}\n",
             encoding="utf-8")
 
-    # ---- decoding ablation (review item C1) ----
-    if args.decoding.exists():
+    runs3 = json.loads(args.review3_runs.read_text(encoding="utf-8")) if args.review3_runs.exists() else None
+    INPUTS = ENGINES + [("ground_truth", "Clean text")]
+
+    def star(c):
+        """$^{*}$ when an unadjusted Wilcoxon test is significant (exploratory checks)."""
+        return "$^{*}$" if c["p"] < 0.05 else ""
+
+    # ---- decoding 2x2 on the 40 pages (third review, item C4) ----
+    if runs3 and args.decoding.exists():
+        abl = {(r["engine"], r["model"]): r
+               for r in json.loads(args.decoding.read_text(encoding="utf-8"))}
+        c4 = {(c["model"], c["engine"], c["preset"]): c for c in runs3["C4"]}
+        presets = ["penalty_only", "ngram_only", "guarded"]
+        dec_models = [m for m in MODEL_ORDER if any(k[0] == m for k in c4)]
+        rows = []
+        for i, (e, name) in enumerate(INPUTS):
+            ms = [m for m in dec_models if all((m, e, p) in c4 for p in presets)]
+            if i:
+                rows.append("\\midrule")
+            for m in ms:
+                cs = [c4[(m, e, p)] for p in presets]
+                raw = "--" if e == "ground_truth" else "%.3f" % cs[0]["raw_cer"]
+                cells = ["%.3f%s" % (c["mean_a"], "$^{+}$" if c["p_holm"] < 0.05 and c["delta"] > 0
+                                     else "$^{-}$" if c["p_holm"] < 0.05 else "") for c in cs]
+                rows.append(" & ".join([name, MODEL_NAMES[m], raw, "%.3f" % cs[0]["mean_b"]] + cells
+                                       + ["%+.3f %s" % (cs[2]["delta"], ci(*cs[2]["ci"])),
+                                          "/".join(str(c["truncated"]) for c in cs)]) + " \\\\")
+        n_tests = len(c4)
+        old = "; ".join("%s %s" % (MODEL_NAMES[m], " and ".join(
+            "%+.2f" % (-abl[(e, m)]["plain_minus_guarded"]) for e, _ in ENGINES))
+                        for m in ("titullm-1b", "banglat5") if all((e, m) in abl for e, _ in ENGINES))
+        (OUT_DIR / "decoding.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n"
+            "\\caption{Decoding Ablation on the 40 Pages: Repetition Penalty and $n$-Gram Ban, "
+            "Alone and Together (Mean CER)}\n"
+            "\\label{tab:decoding}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{llcccccll}\n\\toprule\n"
+            "Input & Model & Raw OCR & Plain & Penalty only & $n$-gram ban only & Both (guarded) & "
+            "Guarded $-$ plain [95\\% CI] & Truncated \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize Plain: greedy decoding with only the length "
+            "cap (the main runs). Penalty: \\texttt{repetition\\_penalty}=1.3; $n$-gram ban: "
+            "\\texttt{no\\_repeat\\_ngram\\_size}=4; in a decoder-only model both also act on the "
+            "prompt, so they penalise copying the OCR text. Clean text: the reference given as input, "
+            "so any change is damage. $^{+}$/$^{-}$: higher/lower than plain decoding, Wilcoxon "
+            "signed-rank test, Holm-corrected over the " + str(n_tests) + " preset-versus-plain tests "
+            "(exploratory family). CI: paired bootstrap, 10{,}000 resamples, seed 403. Truncated: "
+            "pages that reached the token limit (penalty/$n$-gram/both), of 40. Phi-4-mini was not run "
+            "on EasyOCR text (time limit of the GPU session). An earlier ablation of guarded against "
+            "plain decoding on " + str(len(load_jsonl(RESULTS / "ocr_eval.jsonl")))
+            + " pages (August OCR, CPU, bfloat16) also covered two Bengali-pretrained checkpoints; "
+            "guarded minus plain CER on Tesseract and EasyOCR text: " + old + ".\\end{minipage}\n"
+            "\\end{table*}\n", encoding="utf-8")
+
+    # ---- precision and prompt-format checks (third review, items C1, C2) ----
+    if runs3:
+        c1 = {(c["label"].split()[0], c["label"].split()[1].rstrip(":")): c for c in runs3["C1"]["outputs"]}
+        c2 = {(c["model"], c["engine"]): c for c in runs3["C2"]}
+        checks = [("Float32", "titullm-3b-instruct", c1),
+                  ("Float32", "phi4-mini", c1),
+                  ("Completion prompt", "titullm-1b", {k: v["vs_main"] for k, v in c2.items()}),
+                  ("Normalised input", "banglat5", {k: v["vs_main"] for k, v in c2.items()})]
+        rows = []
+        for label, m, src in checks:
+            cols = [label, MODEL_NAMES[m]]
+            for e, _ in INPUTS:
+                c = src.get((m, e))
+                if c is None or c["n"] < 40:
+                    cols += ["--", "--"]
+                else:
+                    cols += ["%.3f / %.3f" % (c["mean_b"], c["mean_a"]),
+                             "%+.3f%s %s" % (c["delta"], star(c), ci(*c["ci"]))]
+            rows.append(" & ".join(cols) + " \\\\")
+        ft = runs3["C1"]["first_token"]
+        ag = runs3["C1"]["first_token_agreement"]
+        empty = ", ".join("%d/%d" % (c["empty_fp16"], c["empty_fp32"])
+                          for e, _ in INPUTS for c in [c1[("titullm-3b-instruct", e)]])
+        # Checks of the Bengali-pretrained checkpoints against the raw OCR, OCR inputs only.
+        vs_raw = ([c["vs_raw"] for c in runs3["C2"] if c["engine"] != "ground_truth"]
+                  + [c["fp32_minus_raw"] for (m, e), c in c1.items()
+                     if m == "titullm-3b-instruct" and e != "ground_truth"])
+        assert all(c["p"] < 0.001 and c["delta"] > 0 for c in vs_raw)
+        best, worst = min(c["delta"] for c in vs_raw), max(c["delta"] for c in vs_raw)
+        (OUT_DIR / "checks.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n"
+            "\\caption{Precision and Prompt-Format Checks (Mean CER, 40 Pages)}\n"
+            "\\label{tab:checks}\n\\setlength{\\tabcolsep}{3pt}\n\\scriptsize\n"
+            "\\begin{tabular}{llcccccc}\n\\toprule\n"
+            " & & \\multicolumn{2}{c}{Tesseract} & \\multicolumn{2}{c}{EasyOCR} & "
+            "\\multicolumn{2}{c}{Clean text} \\\\\n"
+            "\\cmidrule(lr){3-4}\\cmidrule(lr){5-6}\\cmidrule(lr){7-8}\n"
+            "Check & Model & Main / check & $\\Delta$ [95\\% CI] & Main / check & $\\Delta$ [95\\% CI] & "
+            "Main / check & $\\Delta$ [95\\% CI] \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize Float32: instead of float16. Main: the setting "
+            "of the main runs (float16 "
+            "for the two models above 3B parameters; each model's shipped chat template; BanglaT5 on "
+            "unnormalised text). Check: the same model rerun with one change. $\\Delta$: check $-$ "
+            "main; CI: paired bootstrap, 10{,}000 resamples; $^{*}$: Wilcoxon signed-rank $p<0.05$, "
+            "unadjusted (exploratory). --: not run (Phi-4-mini in float32 on EasyOCR text) or "
+            "incomplete (on clean text, 1 of 40 pages within the session's time limit). First-token "
+            "check of TituLLMs 3B Instruct on all " + str(ag["chunks"]) + " chunks: the same first "
+            "token in both precisions on " + str(ag["same_first_token"]) + ", end-of-sequence first on "
+            + str(ag["eos_both"]) + " in both, no non-finite logits or hidden states, largest "
+            "activation %.0f (float16 limit 65{,}504). Empty pages (float16/float32, Tesseract, EasyOCR, "
+            "clean text): %s. Every check of a Bengali-pretrained checkpoint stays significantly worse "
+            "than the raw OCR ($+$%.2f to $+$%.2f CER on OCR text, $p<0.001$).\\end{minipage}\n"
+            "\\end{table*}\n" % (max(ft[p]["max_abs_activation"] for p in ft), empty, best, worst),
+            encoding="utf-8")
+
+    # ---- token-level Grad-CAM (third review, item X1) ----
+    if runs3 and runs3.get("X1"):
+        x1 = {(r["model"], r["engine"]): r for r in runs3["X1"]}
+        xm = [m for m in MODEL_ORDER if any(k[0] == m for k in x1)]
+        rows = []
+        for i, (e, name) in enumerate([("tesseract", "Tesseract text"), ("ground_truth", "Clean text")]):
+            rows.append("%s\\multicolumn{9}{l}{\\textit{%s}} \\\\" % ("\\midrule\n" if i else "", name))
+            for m in xm:
+                r = x1[(m, e)]
+                h, lit, late = r["mid_hires"], r["mid_literal"], r["late_hires"]
+                seq2seq = m == "banglat5"
+                shares = (["%.2f" % h["ocr"], "--", "--"] if seq2seq else
+                          ["%.2f" % h["ocr"], "%.2f" % h["prompt_other"], "%.2f" % h["prefix"]])
+                rows.append(" & ".join(
+                    [MODEL_NAMES[m], "%.0f" % (100 * r["copy_share"])] + shares
+                    + ["%.0f" % (100 * h["src_peak"]), "%.0f" % (100 * late["src_peak"]),
+                       "%.0f" % (100 * lit["src_peak"]), "%.1f" % (100 * r["src_peak_chance"])]) + " \\\\")
+        chunks = {r["chunks"] for r in runs3["X1"]}
+        toks = {r["tokens"] for r in runs3["X1"]}
+        (OUT_DIR / "attribution.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n"
+            "\\caption{What the Models Attend To: Token-Level Grad-CAM Maps}\n"
+            "\\label{tab:attribution}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lcccccccc}\n\\toprule\n"
+            " & & \\multicolumn{3}{c}{Share of the map (element-wise, mid)} & "
+            "\\multicolumn{4}{c}{Map peaks on the copied source token (\\%)} \\\\\n"
+            "\\cmidrule(lr){3-5}\\cmidrule(lr){6-9}\n"
+            "Model & \\shortstack{Copied\\\\tokens (\\%)} & OCR text & \\shortstack{Rest of\\\\prompt} & "
+            "\\shortstack{Own earlier\\\\output} & \\shortstack{Element-wise\\\\mid} & "
+            "\\shortstack{Element-wise\\\\late} & \\shortstack{Literal\\\\mid} & Chance \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize " + "/".join(map(str, sorted(chunks)))
+            + " chunks per input (one from each of 10 pages, seed 403), " + "/".join(map(str, sorted(toks)))
+            + " generated tokens scored per model and input; plain greedy decoding, the main prompt. "
+            "Score: the logit of each generated token. Literal: Grad-CAM, gradients averaged over "
+            "positions; element-wise: gradient $\\times$ hidden state per position (as in HiResCAM). "
+            "Mid/late: hidden states at 1/2 and 3/4 of the depth. The first token, special tokens and "
+            "the predicting position are left out of every map. Copied tokens: output tokens aligned "
+            "with an identical OCR token. Peak: the largest map value over the OCR text lies within one "
+            "position of the copied token's source; chance: the rate for a random peak. BanglaT5 is an "
+            "encoder-decoder model, so its map covers only the encoder input, which is the OCR text. Not "
+            "run: Phi-4-mini and TituLLMs 3B Instruct (time limit of the GPU session).\\end{minipage}\n"
+            "\\end{table*}\n", encoding="utf-8")
+
+    # ---- decoding ablation, 15-page CPU version (used only without the 40-page runs) ----
+    if args.decoding.exists() and not runs3:
         abl = {(r["engine"], r["model"]): r
                for r in json.loads(args.decoding.read_text(encoding="utf-8"))}
         # The ablation's August OCR against the October OCR of the same pages.
