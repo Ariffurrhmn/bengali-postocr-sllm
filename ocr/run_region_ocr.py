@@ -9,8 +9,10 @@ and the reference cover the same text in the same order.
   --verify   first re-OCR the whole pages with the code of run_ocr.py and
              compare them with the stored OCR (results/ocr_eval40.jsonl), to
              show that the engine versions match the main run (Tesseract 5.3.4,
-             EasyOCR 1.7.2). Writes <out stem>_verify.json and stops if fewer
-             than --min-verified pages match exactly for Tesseract.
+             EasyOCR 1.7.2). Writes <out stem>_verify.json and the re-OCR texts
+             (<out stem>_wholepage.jsonl, a same-engine whole-page baseline) and
+             stops if fewer than --min-verified pages match exactly for Tesseract
+             (--min-verified 0: record the mismatch and continue).
 
 Region text follows run_ocr.py's rule (region-level TextEquiv). Order: the
 reading order declared in the PAGE-XML (regions it lists, by index), then any
@@ -115,16 +117,23 @@ def verify(dataset_dir: Path, stored: dict, reader, out: Path, min_verified: int
     sys.path.insert(0, str(REPO_ROOT / "eval"))
     from metrics import cer
 
+    # The whole-page texts are kept too: if the engine build differs from the main
+    # run, they are the same-engine whole-page baseline for the region OCR.
     rows = []
+    whole = out.with_name(out.name.replace("_verify.json", "_wholepage.jsonl")).open("w", encoding="utf-8")
     for i, (pid, rec) in enumerate(sorted(stored.items()), 1):
         t = run_tesseract(dataset_dir, pid)
         e = run_easyocr(dataset_dir, pid, reader)
+        whole.write(json.dumps({"page_id": pid, "ground_truth": rec["ground_truth"], "tesseract": t,
+                                "easyocr": e}, ensure_ascii=False) + "\n")
+        whole.flush()
         rows.append({"page_id": pid, "tesseract_identical": t == rec["tesseract"],
                      "easyocr_identical": e == rec["easyocr"],
                      "tesseract_cer_vs_stored": cer(rec["tesseract"], t),
                      "easyocr_cer_vs_stored": cer(rec["easyocr"], e)})
         print(f"[verify {i}/{len(stored)}] {pid} tess same={rows[-1]['tesseract_identical']} "
               f"easy same={rows[-1]['easyocr_identical']}", file=sys.stderr, flush=True)
+    whole.close()
     summary = {"versions": versions(), "pages": len(rows),
                "tesseract_identical": sum(r["tesseract_identical"] for r in rows),
                "easyocr_identical": sum(r["easyocr_identical"] for r in rows), "per_page": rows}
