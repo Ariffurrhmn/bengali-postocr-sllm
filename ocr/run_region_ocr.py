@@ -123,20 +123,22 @@ def verify(dataset_dir: Path, stored: dict, reader, out: Path, min_verified: int
     whole = out.with_name(out.name.replace("_verify.json", "_wholepage.jsonl")).open("w", encoding="utf-8")
     for i, (pid, rec) in enumerate(sorted(stored.items()), 1):
         t = run_tesseract(dataset_dir, pid)
-        e = run_easyocr(dataset_dir, pid, reader)
+        # Without a reader (--tesseract-only) EasyOCR is not re-run.
+        e = run_easyocr(dataset_dir, pid, reader) if reader else None
         whole.write(json.dumps({"page_id": pid, "ground_truth": rec["ground_truth"], "tesseract": t,
                                 "easyocr": e}, ensure_ascii=False) + "\n")
         whole.flush()
         rows.append({"page_id": pid, "tesseract_identical": t == rec["tesseract"],
-                     "easyocr_identical": e == rec["easyocr"],
+                     "easyocr_identical": None if e is None else e == rec["easyocr"],
                      "tesseract_cer_vs_stored": cer(rec["tesseract"], t),
-                     "easyocr_cer_vs_stored": cer(rec["easyocr"], e)})
+                     "easyocr_cer_vs_stored": None if e is None else cer(rec["easyocr"], e)})
         print(f"[verify {i}/{len(stored)}] {pid} tess same={rows[-1]['tesseract_identical']} "
               f"easy same={rows[-1]['easyocr_identical']}", file=sys.stderr, flush=True)
     whole.close()
     summary = {"versions": versions(), "pages": len(rows),
                "tesseract_identical": sum(r["tesseract_identical"] for r in rows),
-               "easyocr_identical": sum(r["easyocr_identical"] for r in rows), "per_page": rows}
+               "easyocr_identical": None if reader is None else sum(r["easyocr_identical"] for r in rows),
+               "per_page": rows}
     out.write_text(json.dumps(summary, indent=1), encoding="utf-8")
     print(f"verify: Tesseract identical on {summary['tesseract_identical']}/{len(rows)} pages, "
           f"EasyOCR on {summary['easyocr_identical']}/{len(rows)}; versions {summary['versions']}")
@@ -156,7 +158,11 @@ def main():
                     help="Tesseract page segmentation mode for the crops (6: one block of text; "
                     "the whole-page default 3 finds no text in many short heading crops)")
     ap.add_argument("--mask", action="store_true", help="paint outside the polygon white (worse in a local test)")
-    ap.add_argument("--tesseract-only", action="store_true", help="for quick local tests")
+    ap.add_argument("--tesseract-only", action="store_true",
+                    help="run Tesseract only (EasyOCR text empty, or taken from --keep-easyocr)")
+    ap.add_argument("--keep-easyocr", type=Path, default=None,
+                    help="an earlier region-OCR file whose EasyOCR region texts are copied (same "
+                    "regions), so only Tesseract is re-run")
     ap.add_argument("--verify", action="store_true")
     ap.add_argument("--min-verified", type=int, default=38,
                     help="Tesseract pages that must match exactly (the confidence re-run matched 40/40)")
@@ -181,6 +187,11 @@ def main():
     if args.out.exists():
         done = {json.loads(l)["page_id"] for l in args.out.read_text(encoding="utf-8").split("\n") if l.strip()}
     vers = versions()
+    kept = {}
+    if args.keep_easyocr:
+        kept = {json.loads(l)["page_id"]: json.loads(l)
+                for l in args.keep_easyocr.read_text(encoding="utf-8").split("\n") if l.strip()}
+        vers["easyocr"] = f"{next(iter(kept.values()))['versions']['easyocr']} (copied from {args.keep_easyocr.name})"
     with args.out.open("a", encoding="utf-8") as f:
         for i, pid in enumerate(sorted(stored), 1):
             if pid in done:
@@ -189,12 +200,16 @@ def main():
             img = Image.open(resolve_file(args.dataset_dir, pid, ".tif"))
             img.load()
             regs = []
+            old = {g["id"]: g for g in kept[pid]["regions"]} if kept else {}
             for r in regions(xml):
                 if len(r["points"]) < 3:
                     print(f"  {pid} {r['id']}: no polygon, skipped", file=sys.stderr)
                     continue
                 tess, easy = ocr_crop(crop_region(img, r["points"], args.pad, args.mask),
                                       reader, args.psm)
+                if kept:
+                    assert old[r["id"]]["ground_truth"] == r["text"], (pid, r["id"])
+                    easy = old[r["id"]]["easyocr"]
                 regs.append({"id": r["id"], "type": r["type"], "ground_truth": r["text"],
                              "tesseract": tess, "easyocr": easy})
             rec = {"page_id": pid,
