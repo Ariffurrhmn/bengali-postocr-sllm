@@ -42,6 +42,11 @@ The sweep only printed a line *after* each page finished, so a 7-minute page loo
 10. **OCR is not reproducible across months.** Colab's apt Tesseract changed between August and October 2026; re-OCR of the same 15 pages changed the Tesseract text on all of them (EasyOCR almost unchanged). Rule: record engine versions in every OCR file; never mix OCR runs from different dates.
 11. **Model size vs T4 memory.** Models above ~3B do not fit the T4's 15 GB in float32; they run in float16 (`GPU_FLOAT16_MODELS`). Gemma is known to overflow in float16, so it stays in float32.
 
+12. **U+2028/U+2029 inside JSONL** (2026-10-16). Qwen3 under guarded decoding writes Unicode line/paragraph separators; `str.splitlines()` breaks the JSON line there. Rule: read JSONL with `.split("
+")`.
+13. **Kaggle secrets are per notebook.** A newly imported notebook does not see `HF_TOKEN` until it is ticked under Add-ons → Secrets; the first review3 run died after one minute for this reason.
+14. **fp32 across two T4s is slow.** Phase 1 (two 3-4B models in fp32 with device_map auto) used its whole 3.5 h cap. Budget about 2x the single-GPU fp16 time.
+
 ## Environment gotchas (added)
 
 - **Local disk C: is nearly full.** Hugging Face downloads default to C:; set `HF_HUB_CACHE=G:/hf-cache`. Google Drive streams files by caching them on C:, so reading a large Drive file can fail with "No space left on device".

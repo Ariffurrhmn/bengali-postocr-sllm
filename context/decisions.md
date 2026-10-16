@@ -252,3 +252,10 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 **Why:** Kaggle counts session time, not GPUs, so two lanes roughly double the work per quota hour. C1 and C2 can change the main tables and come first; X1 is the reviewer's explicit request; C4 fills the rest. Region-level OCR, the noise sweep, new models, fine-tuning and the large model wait for the reset.
 **Settings:** transformers pinned to 5.19.0 (as in the main runs); precision and placement set through `POSTOCR_DTYPE` / `POSTOCR_DEVICE_MAP` (`models.load_model`); every output line now records its dtype; PyTorch/CUDA versions are written to `environment.txt` (R2).
 **Not tested locally:** float32 placement across two GPUs and the BanglaT5 normaliser (no GPU, and the BanglaT5 tokenizer does not load on the local machine). Everything else was smoke-tested on CPU with Qwen3 0.6B.
+
+### D39. First third-review GPU session: outcome (2026-10-16)
+**What ran:** the full plan of D38 except the fp32 clean-text run of Phi-4-mini (1/40 pages) and X1 for TituLLMs 3B Instruct and Phi-4-mini: phase 1 hit its 3.5 h cap, because fp32 split over two T4s is slow. Kaggle quota left afterwards: about 40 min.
+**Consequences for the paper:** (1) C1 is settled: the empty TituLLMs 3B outputs are the model's behaviour, not float16; the precision caveat in Sec IV-J, III-G and the limitations can be replaced by the check. (2) C2: the prompt format matters for the base TituLLMs 1B (CER lower by about 0.2) but does not change any conclusion; report it as a sensitivity result. (3) C4 strengthens the lead contribution on the 40-page setup: guarded decoding damages every general model on OCR and on clean text, and which half does the damage depends on the model. (4) X1 supports copy vs regenerate with model-internal evidence; literal Grad-CAM is reported as failing in transformers.
+**Engineering:** Qwen3 under guarded decoding emits U+2028/U+2029; `str.splitlines()` splits JSON lines there. New analysis code splits on "
+" only.
+

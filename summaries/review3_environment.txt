@@ -1,0 +1,7 @@
+repo commit: b73f20f Respond to the third review: paper edits, analyses and GPU run setup
+python: 3.13.15
+torch: 2.11.0+cu128
+cuda: 12.8
+cudnn: 91900
+transformers: 5.19.0
+gpus: ['Tesla T4', 'Tesla T4']

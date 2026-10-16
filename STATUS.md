@@ -1,5 +1,7 @@
 # Status (2026-10-12)
 
+> **Superseded on 2026-10-15:** a third review (Draft 03) arrived and work on it is under way. Read [context/NEXT-SESSION.md](context/NEXT-SESSION.md) first; the text below describes the state before that review.
+
 **Read this first.** One page on where the project is and which file is current.
 
 ## Where we are

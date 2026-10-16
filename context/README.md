@@ -2,11 +2,13 @@
 
 Working memory for this project, so decisions and the reasons behind them survive between sessions (human or AI). Code comments say *what* the code does; these files say *why* the project is shaped the way it is.
 
-Last updated: 2026-10-12. See also `../STATUS.md`.
+Last updated: 2026-10-15. **New session? Read [NEXT-SESSION.md](NEXT-SESSION.md) first.** See also `../STATUS.md`.
 
 ## Files
 
-- [decisions.md](decisions.md): every design decision, with the reasoning, the alternatives considered, and its consequences. **Start here.** D30–D33 cover the October revision.
+- [NEXT-SESSION.md](NEXT-SESSION.md): handoff for the next session: state, task list, questions to ask the author.
+- [review-draft-03.md](review-draft-03.md) and [plan-draft-03.md](plan-draft-03.md): the third review (43 items + X1) with status notes, and the plan.
+- [decisions.md](decisions.md): every design decision, with the reasoning, the alternatives considered, and its consequences. **Start here.** D30–D35 cover the October revision; D36–D38 the third review.
 - [results.md](results.md): the numbers, current study first, the superseded first version after.
 - [timeline.md](timeline.md): dated history with commit hashes.
 - [engineering-notes.md](engineering-notes.md): bugs found and fixed, plus environment gotchas that will bite again.
