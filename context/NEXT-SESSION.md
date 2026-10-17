@@ -42,7 +42,7 @@ Handoff updated 2026-10-17 (evening). Read this file first, then the files in se
 ## 5. Questions to ask the author at the start of every session
 Ask only those still open, together:
 1. Has review3d finished? Where is `review3d.zip`?
-2. Is Zenodo linked to GitHub yet (for the DOI release after the final pass)? Does the venue review anonymously?
+2. Does the venue review anonymously? (Zenodo is linked: the repository has an active Zenodo webhook on release events since 2026-10-17; a GitHub release, made only with the author's go-ahead after the final pass, will mint the DOI.)
 3. Have you checked the page-type labels in `data/page_types.tsv`? (E8)
 4. Any news from Bijon Sir (Grad-CAM section, title)?
 5. May I commit and push?
