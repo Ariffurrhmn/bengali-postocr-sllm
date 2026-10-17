@@ -8,8 +8,20 @@
       "affiliation": "Bangladesh University of Business and Technology"
     }
   ],
-  "keywords": ["Bengali OCR", "post-OCR correction", "small language models", "historical documents", "negative results"],
+  "keywords": [
+    "Bengali OCR",
+    "post-OCR correction",
+    "small language models",
+    "historical documents",
+    "negative results"
+  ],
   "related_identifiers": [
-    {"identifier": "10.23636/1168", "relation": "references", "resource_type": "dataset", "scheme": "doi"}
-  ]
+    {
+      "identifier": "10.23636/1168",
+      "relation": "references",
+      "resource_type": "dataset",
+      "scheme": "doi"
+    }
+  ],
+  "license": "MIT"
 }

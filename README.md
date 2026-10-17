@@ -40,4 +40,4 @@ Current numbers: [context/results.md](context/results.md).
 On Windows, scripts that print Bengali re-wrap stdout as UTF-8 so the console does not crash.
 
 ## Licence and data
-A licence for the code has not been chosen yet (the author decides; Zenodo needs one for the DOI). The page images are out of copyright and the transcriptions carry the Public Domain Mark. The bundled font, Noto Serif Bengali, is under the SIL Open Font License. Model checkpoints are under their own licences and are not redistributed here.
+The code is released under the [MIT licence](LICENSE). The per-page OCR text and model outputs are not in this repository; they will be released separately under CC BY 4.0 together with the final paper. The page images are out of copyright and the transcriptions carry the Public Domain Mark. The bundled font, Noto Serif Bengali, is under the SIL Open Font License. Model checkpoints are under their own licences and are not redistributed here.

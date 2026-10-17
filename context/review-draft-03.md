@@ -152,6 +152,7 @@ Remaining risks:
   - *Status:* Done 2026-10-15: Hugging Face URLs and revisions for Gemma, Llama, Qwen3, Phi-4-mini.
 - [ ] **R2** ([49] and Sec III-I). Add a commit hash or Zenodo DOI; record PyTorch/CUDA versions; release the raw OCR texts and all model outputs.
   - *Status:* Partly: versions known so far are listed. Commit hash or Zenodo DOI and the output release need the author.
+  - *Status 2026-10-17:* PyTorch/CUDA versions recorded for the third-review runs; MIT licence, `CITATION.cff`, `.zenodo.json` added (D48-D49). DOI after the final pass; OCR text and outputs to be released under CC BY 4.0 with the final paper.
 - [x] **R3** ([24]). Hyphen lost ("languageunderstanding"). Re-run the bibliography for similar breaks.
   - *Status:* Checked 2026-10-15: in the current Tectonic build [24] (BanglaBERT) reads "low-resource language understanding" and no other joined words were found in the extracted text. The break was likely in the reviewer's pdfLaTeX build.
 - [x] **R4** (Sec III-D). Cite the Transformers documentation or source for the repetition-penalty and n-gram scope.

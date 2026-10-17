@@ -30,7 +30,7 @@ Handoff updated 2026-10-17 (evening). Read this file first, then the files in se
 - Score review3d (commands at the end of the "Third-review GPU runs" block in `paper/README.md`; check `results/review3d/m2_train_log.json` for the development CER per checkpoint and `phase2.log` for the 4-bit load).
 - Paper tables and figures are generated but not yet `\input` in `main.tex`: `tables/region.tex` (C5), `scale.tex` (M1), `noise.tex` + `figures/fig_noise.pdf` (M3, F7), `figures/fig_attribution.pdf` (X1 maps; `paper/scripts/make_attribution_figure.py`). `finetune.tex` (M2) and `large.tex` (M7) are written automatically by `make_paper_tables.py` once `results/m2_runs40.json` and `results/m7_runs10.json` exist (score review3d first; the region table then also picks up Qwen3 4B). Then the full paper rewrite, written backwards (WRITING-GUIDE): conclusions, results, methods, discussion, introduction, abstract, title. The text still says Phi-4-mini and TituLLMs 3B Instruct were not analysed (now they are) and lists the noise sweep, fine-tuning, stronger OCR and large model as "not performed".
 - Local and cheap: M4 (SymSpell edit distance 1, stronger lexicon), E7.
-- Author decisions: code licence and DOI (Zenodo link + GitHub release, D48), release of the OCR text and outputs (C6, R2), page-type labels (E8), title, F5 (Figs 5/6), W2 (no page limit given; 23 pages).
+- Author decisions: DOI (Zenodo link + GitHub release after the final pass, D48-D49; licence MIT and data CC BY 4.0 decided), page-type labels (E8), title, F5 (Figs 5/6), W2 (no page limit given; 23 pages).
 
 ## 4. Task list for the next session (in order)
 1. Score review3d; record results (results.md, decision entry, review status for M2, M7, C5).
@@ -42,11 +42,10 @@ Handoff updated 2026-10-17 (evening). Read this file first, then the files in se
 ## 5. Questions to ask the author at the start of every session
 Ask only those still open, together:
 1. Has review3d finished? Where is `review3d.zip`?
-2. Which licence for the code (for example MIT or Apache-2.0), and should I make the GitHub release for the DOI once Zenodo is linked?
-3. May the raw OCR text and model outputs be released (a Zenodo dataset deposit)? (C6, R2)
-4. Have you checked the page-type labels in `data/page_types.tsv`? (E8)
-5. Any news from Bijon Sir (Grad-CAM section, title)?
-6. May I commit and push?
+2. Is Zenodo linked to GitHub yet (for the DOI release after the final pass)? Does the venue review anonymously?
+3. Have you checked the page-type labels in `data/page_types.tsv`? (E8)
+4. Any news from Bijon Sir (Grad-CAM section, title)?
+5. May I commit and push?
 
 ## 6. Rules carried over from the author
 - Do not discard uncommitted changes. Commit or push only when the author says so.
