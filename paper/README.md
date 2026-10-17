@@ -40,6 +40,7 @@ python eval/matrix_analysis.py --ocr-path results/ocr_eval40.jsonl --corrections
 ```
 python paper/scripts/make_paper_tables.py
 python paper/scripts/make_decoding_figure.py --runs results/review3_runs.json --out paper/figures/fig_decoding.pdf
+python paper/scripts/make_attribution_figure.py --maps results/review3b --page 279_2_D_32_0006 --out paper/figures/fig_attribution.pdf
 python paper/scripts/make_noise_figure.py --sweep results/noise_runs40.json --real results/main_general40.json --out paper/figures/fig_noise.pdf
 python paper/scripts/make_revision_figures.py --ocr-path results/ocr_eval40.jsonl --correction-path results/eval40_ocr.jsonl --bootstrap-json results/bootstrap_gpu40.json --out-dir paper/figures
 python paper/scripts/make_paper_figures.py --page-image data/REID2019/279_42_B_41_0003.tif --page-xml data/REID2019/279_42_B_41_0003.xml

@@ -1,0 +1,27 @@
+\begin{table*}[t]
+\centering
+\caption{General-Purpose Models by Family and Size (Change Against Raw OCR, 40 Pages)}
+\label{tab:scale}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{lccccccc}
+\toprule
+ & \multicolumn{2}{c}{$\Delta$CER} & Clean text & \multicolumn{2}{c}{$\Delta$WER} & \multicolumn{2}{c}{Broken / fixed (\%)} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+Model & Tesseract & EasyOCR & CER & Tesseract & EasyOCR & Tesseract & EasyOCR \\
+\midrule
+Qwen3 0.6B & +0.043 & +0.065$^{+}$ & 0.212 & -0.048 & +0.012 & 18 / 4 & 19 / 4 \\
+Qwen3 1.7B$^{\dagger}$ & -0.004 & +0.017 & 0.035 & -0.028$^{-}$ & +0.013 & 3 / 3 & 5 / 3 \\
+Qwen3 4B & +0.003 & +0.004 & 0.032 & -0.021$^{-}$ & -0.032$^{-}$ & 5 / 8 & 5 / 8 \\
+Qwen3 8B & +0.004 & +0.003 & 0.029 & -0.029$^{-}$ & -0.065$^{-}$ & 6 / 10 & 6 / 13 \\
+Gemma-2B-it$^{\dagger}$ & +0.012 & +0.003 & 0.032 & +0.002 & -0.001 & 4 / 0 & 4 / 0 \\
+Gemma 3 1B & +0.022$^{+}$ & +0.029$^{+}$ & 0.024 & -0.027 & +0.036 & 9 / 1 & 9 / 1 \\
+Gemma 3 4B & +0.062$^{+}$ & +0.057$^{+}$ & 0.069 & -0.014 & -0.020 & 22 / 7 & 16 / 9 \\
+Llama 3.2 1B$^{\dagger}$ & +0.039$^{+}$ & +0.033$^{+}$ & 0.119 & -0.023 & -0.009 & 11 / 1 & 8 / 1 \\
+Llama 3.2 3B & +0.016 & +0.004 & 0.059 & -0.014 & -0.033$^{-}$ & 7 / 3 & 6 / 5 \\
+Phi-4-mini$^{\dagger}$ & +0.013 & +0.017 & 0.060 & -0.005 & +0.005 & 10 / 1 & 11 / 2 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize $\Delta$: corrected $-$ raw OCR (positive = worse); clean text: CER of the output when the reference itself is the input. $^{\dagger}$: models of the main runs; the others were added for the third review (same prompt, chunking and plain decoding; float16 above 3B parameters, Gemma 3 in float32). $^{+}$/$^{-}$: Holm-significant, Wilcoxon signed-rank, within each run's exploratory family (main run 24 cells, added models 18 cells, per metric). Broken and fixed as in Table~\ref{tab:damage}.\end{minipage}
+\end{table*}

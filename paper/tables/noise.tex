@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\caption{Correction of Synthetic Noise (Mean CER After Correction)}
+\label{tab:noise}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{lccccc}
+\toprule
+Input CER & 0.020 & 0.048 & 0.100 & 0.199 & 0.297 \\
+\midrule
+Gemma-2B-it & 0.054$^{+}$ & 0.080$^{+}$ & 0.119$^{+}$ & 0.215$^{+}$ & 0.312$^{+}$ \\
+Qwen3 1.7B & 0.064$^{+}$ & 0.090$^{+}$ & 0.162$^{+}$ & 0.279$^{+}$ & 0.362$^{+}$ \\
+Phi-4-mini & 0.044$^{+}$ & 0.083$^{+}$ & 0.177$^{+}$ & 0.256$^{+}$ & 0.365$^{+}$ \\
+Llama 3.2 1B & 0.107$^{+}$ & 0.145$^{+}$ & 0.239$^{+}$ & 0.352$^{+}$ & 0.465$^{+}$ \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize The 40 references corrupted with a character-level noise model estimated from the OCR of the 10 development pages only, scaled to each target CER. $^{+}$/$^{-}$: higher/lower than the input, Wilcoxon signed-rank, Holm-corrected over the 20 cells (exploratory).\end{minipage}
+\end{table}

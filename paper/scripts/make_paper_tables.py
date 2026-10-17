@@ -61,7 +61,15 @@ MODEL_NAMES = {"symspell": "SymSpell (dictionary)", "gemma-2b": "Gemma-2B-it", "
                "banglat5": "BanglaT5", "titullm-1b": "TituLLMs 1B",
                "qwen3-1.7b": "Qwen3 1.7B", "phi4-mini": "Phi-4-mini",
                "titullm-1b-instruct": "TituLLMs 1B Instruct",
-               "titullm-3b-instruct": "TituLLMs 3B Instruct"}
+               "titullm-3b-instruct": "TituLLMs 3B Instruct",
+               # Third review: new models (M1, M7) and the fine-tuning pilot (M2).
+               "qwen3-0.6b": "Qwen3 0.6B", "qwen3-4b": "Qwen3 4B", "qwen3-8b": "Qwen3 8B",
+               "qwen3-32b": "Qwen3 32B (4-bit)", "gemma3-1b": "Gemma 3 1B", "gemma3-4b": "Gemma 3 4B",
+               "llama3.2-3b": "Llama 3.2 3B", "byt5-small-ft": "ByT5-small, fine-tuned"}
+# Order of the scale table: families, smallest first.
+SCALE_ORDER = ["qwen3-0.6b", "qwen3-1.7b", "qwen3-4b", "qwen3-8b", "qwen3-32b", "gemma-2b", "gemma3-1b",
+               "gemma3-4b", "llama3.2-1b", "llama3.2-3b", "phi4-mini"]
+NOISE_ORDER = ["gemma-2b", "qwen3-1.7b", "phi4-mini", "llama3.2-1b"]
 # Computed from each checkpoint's configuration, tied embeddings counted once
 # (BanglaT5's input and output embeddings are not tied in the checkpoint).
 PARAMS_B = {"gemma-2b": 2.51, "qwen3-1.7b": 1.72, "phi4-mini": 3.84, "llama3.2-1b": 1.24,
@@ -123,6 +131,14 @@ def main():
     parser.add_argument("--gated", type=Path, default=RESULTS / "gated_gpu40.json")
     parser.add_argument("--sensitivity", type=Path, default=RESULTS / "sensitivity_gpu40.json")
     parser.add_argument("--review3", type=Path, default=RESULTS / "review3_gpu40.json")
+    parser.add_argument("--region-ocr", type=Path, default=RESULTS / "region_ocr40.json")
+    parser.add_argument("--region-runs", type=Path, default=RESULTS / "region_runs40.json")
+    parser.add_argument("--m1-runs", type=Path, default=RESULTS / "m1_runs40.json")
+    parser.add_argument("--main-matrix", type=Path, default=RESULTS / "main_general40.json")
+    parser.add_argument("--noise-runs", type=Path, default=RESULTS / "noise_runs40.json")
+    parser.add_argument("--m2-runs", type=Path, default=RESULTS / "m2_runs40.json")
+    parser.add_argument("--m2-log", type=Path, default=RESULTS / "review3d" / "m2_train_log.json")
+    parser.add_argument("--m7-runs", type=Path, default=RESULTS / "m7_runs10.json")
     parser.add_argument("--review3-runs", type=Path, default=RESULTS / "review3_runs.json",
                         help="third-review GPU runs (review3_runs_analysis.py): C1, C2, C4, X1")
     args = parser.parse_args()
@@ -853,6 +869,197 @@ def main():
             "verse with a commentary; prose: running prose; list: contents, indexes, tables and "
             "dictionary entries. Descriptive only: the groups are too small for separate "
             "tests.\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
+
+    # ---- later third-review runs (matrix_analysis.py summaries) ----
+    def matrix(path):
+        if not path.exists():
+            return None
+        return {(c["engine"], c["model"]): c for c in json.loads(path.read_text(encoding="utf-8"))["cells"]}
+
+    def hmark(m):
+        """$^{+}$/$^{-}$ for a Holm-significant increase/decrease in one metric of a matrix cell."""
+        if m["p_holm"] >= 0.05:
+            return ""
+        return "$^{+}$" if m["delta"] > 0 else "$^{-}$"
+
+    def pct(x):
+        return "--" if x != x else "%.0f" % (100 * x)
+
+    # ---- region-level OCR (item C5) ----
+    reg_ocr = json.loads(args.region_ocr.read_text(encoding="utf-8")) if args.region_ocr.exists() else None
+    reg = matrix(args.region_runs)
+    if reg and reg_ocr:
+        methods = [m for m in MODEL_ORDER if all((e, m) in reg for e, _ in ENGINES)]
+        methods += sorted({m for (_, m) in reg} - set(methods), key=lambda m: SCALE_ORDER.index(m)
+                          if m in SCALE_ORDER else 99)
+        raw = {e: reg[(e, methods[0])]["cer"]["input"] for e, _ in ENGINES}
+        rows = [" & ".join(["Raw region OCR"] + sum([["%.3f" % raw[e], "", "", ""] for e, _ in ENGINES], []))
+                + " \\\\", "\\midrule"]
+        for m in methods:
+            cols = [MODEL_NAMES[m]]
+            for e, _ in ENGINES:
+                c = reg.get((e, m))
+                if c is None:
+                    cols += ["--"] * 4
+                    continue
+                cols += ["%.3f%s" % (c["cer"]["output"], hmark(c["cer"])),
+                         "%+.3f %s" % (c["cer"]["delta"], ci(*c["cer"]["ci"])),
+                         "%+.3f%s" % (c["wer"]["delta"], hmark(c["wer"])),
+                         "%s / %s" % (pct(c["broken_share"]), pct(c["fixed_share"]))]
+            rows.append(" & ".join(cols) + " \\\\")
+        t, ez = reg_ocr["engines"]["tesseract"], reg_ocr["engines"]["easyocr"]
+        (OUT_DIR / "region.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n"
+            "\\caption{Correction of Region-Level OCR (Mean CER and Change, 40 Pages)}\n"
+            "\\label{tab:region}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lcccccccc}\n\\toprule\n"
+            " & \\multicolumn{4}{c}{Tesseract} & \\multicolumn{4}{c}{EasyOCR} \\\\\n"
+            "\\cmidrule(lr){2-5}\\cmidrule(lr){6-9}\n"
+            "Method & CER & $\\Delta$CER [95\\% CI] & $\\Delta$WER & \\shortstack{Broken /\\\\fixed (\\%)} & "
+            "CER & $\\Delta$CER [95\\% CI] & $\\Delta$WER & \\shortstack{Broken /\\\\fixed (\\%)} \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize Each PAGE-XML text region read separately (" +
+            str(reg_ocr["regions"]) + " regions with text) and scored against the regions in reading "
+            "order. Whole-page OCR from the same run: Tesseract %.3f, EasyOCR %.3f; region OCR changes "
+            "them by %+.3f %s and %+.3f %s (paired bootstrap). The Tesseract build of this run does not "
+            "reproduce the main run's text (CER %.2f between them), so Tesseract region results are "
+            "compared only within this run; EasyOCR reproduces the main run (CER %.3f between them). "
+            "$\\Delta$: corrected $-$ raw region OCR (positive = worse). $^{+}$/$^{-}$: significantly "
+            "higher/lower, Wilcoxon signed-rank, Holm-corrected over the %d cells of the table for each "
+            "metric (exploratory). Broken: share of words the raw OCR had right that the output gets "
+            "wrong; fixed: share of wrong words it gets right.\\end{minipage}\n\\end{table*}\n" % (
+                t["region_vs_same_run_wholepage"]["mean_b"], ez["region_vs_same_run_wholepage"]["mean_b"],
+                t["region_vs_same_run_wholepage"]["delta"], ci(*t["region_vs_same_run_wholepage"]["ci"]),
+                ez["region_vs_same_run_wholepage"]["delta"], ci(*ez["region_vs_same_run_wholepage"]["ci"]),
+                t["rerun_vs_main_cer_mean"], ez["rerun_vs_main_cer_mean"], len(reg)),
+            encoding="utf-8")
+
+    # ---- model scale and family (item M1; M7 separately on 10 pages) ----
+    m1, mainm = matrix(args.m1_runs), matrix(args.main_matrix)
+    if m1 and mainm:
+        src = {**mainm, **m1}
+        rows = []
+        for m in [m for m in SCALE_ORDER if ("tesseract", m) in src]:
+            new = ("tesseract", m) in m1
+            cols = [MODEL_NAMES[m] + ("" if new else "$^{\\dagger}$")]
+            for e, _ in ENGINES:
+                c = src[(e, m)]
+                cols.append("%+.3f%s" % (c["cer"]["delta"], hmark(c["cer"])))
+            g = src[("ground_truth", m)]
+            cols.append("%.3f" % g["cer"]["output"])
+            for e, _ in ENGINES:
+                c = src[(e, m)]
+                cols.append("%+.3f%s" % (c["wer"]["delta"], hmark(c["wer"])))
+            for e, _ in ENGINES:
+                c = src[(e, m)]
+                cols.append("%s / %s" % (pct(c["broken_share"]), pct(c["fixed_share"])))
+            rows.append(" & ".join(cols) + " \\\\")
+        (OUT_DIR / "scale.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n"
+            "\\caption{General-Purpose Models by Family and Size (Change Against Raw OCR, 40 Pages)}\n"
+            "\\label{tab:scale}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lccccccc}\n\\toprule\n"
+            " & \\multicolumn{2}{c}{$\\Delta$CER} & Clean text & \\multicolumn{2}{c}{$\\Delta$WER} & "
+            "\\multicolumn{2}{c}{Broken / fixed (\\%)} \\\\\n"
+            "\\cmidrule(lr){2-3}\\cmidrule(lr){4-4}\\cmidrule(lr){5-6}\\cmidrule(lr){7-8}\n"
+            "Model & Tesseract & EasyOCR & CER & Tesseract & EasyOCR & Tesseract & EasyOCR \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize $\\Delta$: corrected $-$ raw OCR (positive = "
+            "worse); clean text: CER of the output when the reference itself is the input. "
+            "$^{\\dagger}$: models of the main runs; the others were added for the third review (same "
+            "prompt, chunking and plain decoding; float16 above 3B parameters, Gemma 3 in float32). "
+            "$^{+}$/$^{-}$: Holm-significant, Wilcoxon signed-rank, within each run's exploratory family "
+            "(main run %d cells, added models %d cells, per metric). Broken and fixed as in "
+            "Table~\\ref{tab:damage}.\\end{minipage}\n\\end{table*}\n" % (len(mainm), len(m1)),
+            encoding="utf-8")
+
+    # ---- noise sweep (item M3) ----
+    noise = matrix(args.noise_runs)
+    if noise:
+        levels = sorted({e for (e, _) in noise}, key=lambda e: float(e.split("_")[1]))
+        inp = {e: next(c["cer"]["input"] for (ee, _), c in noise.items() if ee == e) for e in levels}
+        rows = []
+        for m in [m for m in NOISE_ORDER if any(mm == m for (_, mm) in noise)]:
+            rows.append(" & ".join([MODEL_NAMES[m]] + ["%.3f%s" % (noise[(e, m)]["cer"]["output"],
+                                                                    hmark(noise[(e, m)]["cer"]))
+                                                       for e in levels]) + " \\\\")
+        (OUT_DIR / "noise.tex").write_text(
+            "\\begin{table}[t]\n\\centering\n"
+            "\\caption{Correction of Synthetic Noise (Mean CER After Correction)}\n"
+            "\\label{tab:noise}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{l" + "c" * len(levels) + "}\n\\toprule\n"
+            "Input CER & " + " & ".join("%.3f" % inp[e] for e in levels) + " \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize The 40 references corrupted with a "
+            "character-level noise model estimated from the OCR of the 10 development pages only, "
+            "scaled to each target CER. $^{+}$/$^{-}$: higher/lower than the input, Wilcoxon "
+            "signed-rank, Holm-corrected over the %d cells (exploratory).\\end{minipage}\n"
+            "\\end{table}\n" % len(noise), encoding="utf-8")
+
+    # ---- fine-tuning pilot (item M2) ----
+    m2 = matrix(args.m2_runs)
+    if m2:
+        log = json.loads(args.m2_log.read_text(encoding="utf-8")) if args.m2_log.exists() else None
+        rows = []
+        for e, name in INPUTS:
+            c = m2.get((e, "byt5-small-ft"))
+            if c is None:
+                continue
+            rows.append(" & ".join([name, "%.3f" % c["cer"]["input"], "%.3f%s" % (c["cer"]["output"], hmark(c["cer"])),
+                                    "%+.3f %s" % (c["cer"]["delta"], ci(*c["cer"]["ci"])),
+                                    "%+.3f%s" % (c["wer"]["delta"], hmark(c["wer"])),
+                                    "%s / %s" % (pct(c["broken_share"]), pct(c["fixed_share"])),
+                                    "%d/%d" % (c["cer"]["better"], c["cer"]["worse"]),
+                                    str(c["truncated"])]) + " \\\\")
+        note = ""
+        if log:
+            note = (" Training: %d synthetic pairs, %d steps (%.0f min); development-page CER %.3f after "
+                    "correction against %.3f raw (checkpoint chosen on it)." %
+                    (log["pairs"], log["steps"], log["train_minutes"], log["best_dev_cer"], log["raw_dev_cer"]))
+        (OUT_DIR / "finetune.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n"
+            "\\caption{Fine-Tuning Pilot: ByT5-Small Trained on Synthetic OCR Noise (40 Pages)}\n"
+            "\\label{tab:finetune}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lccccccc}\n\\toprule\n"
+            "Input & Raw CER & Corrected CER & $\\Delta$CER [95\\% CI] & $\\Delta$WER & "
+            "\\shortstack{Broken /\\\\fixed (\\%)} & \\shortstack{Pages better /\\\\worse} & Truncated \\\\\n"
+            "\\midrule\n" + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize google/byt5-small fine-tuned on Bengali "
+            "Wikipedia segments and development-page reference lines, corrupted with the development-page "
+            "noise model (no evaluation text in training)." + note + " $^{+}$/$^{-}$: Holm-significant "
+            "over the %d cells (exploratory).\\end{minipage}\n\\end{table*}\n" % len(m2), encoding="utf-8")
+
+    # ---- large model on 10 pages (item M7) ----
+    m7 = matrix(args.m7_runs)
+    if m7 and any(m == "qwen3-32b" for (_, m) in m7):
+        sizes = [m for m in SCALE_ORDER if m.startswith("qwen3") and ("tesseract", m) in m7]
+        rows = []
+        for m in sizes:
+            cols = [MODEL_NAMES[m]]
+            for e, _ in INPUTS:
+                c = m7.get((e, m))
+                cols.append("--" if c is None else "%+.3f%s" % (c["cer"]["delta"], hmark(c["cer"])))
+            for e, _ in ENGINES:
+                c = m7.get((e, m))
+                cols.append("--" if c is None else "%+.3f%s" % (c["wer"]["delta"], hmark(c["wer"])))
+            rows.append(" & ".join(cols) + " \\\\")
+        n = next(iter(m7.values()))["n"]
+        raw = {e: next(c["cer"]["input"] for (ee, _), c in m7.items() if ee == e) for e, _ in ENGINES}
+        (OUT_DIR / "large.tex").write_text(
+            "\\begin{table}[t]\n\\centering\n"
+            "\\caption{Qwen3 from 0.6B to 32B Parameters on %d Pages (Change Against the Input)}\n"
+            "\\label{tab:large}\n\\setlength{\\tabcolsep}{3pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lccccc}\n\\toprule\n"
+            " & \\multicolumn{3}{c}{$\\Delta$CER} & \\multicolumn{2}{c}{$\\Delta$WER} \\\\\n"
+            "\\cmidrule(lr){2-4}\\cmidrule(lr){5-6}\n"
+            "Model & Tess. & Easy. & Clean & Tess. & Easy. \\\\\n\\midrule\n" % n
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize The %d pages of the attribution analysis "
+            "(raw CER %.3f Tesseract, %.3f EasyOCR). Qwen3 32B in 4-bit (NF4) on two T4 GPUs; the others "
+            "as in Table~\\ref{tab:scale}, restricted to the same pages. $^{+}$/$^{-}$: Holm-significant "
+            "over the %d cells (exploratory; with %d pages only large effects can be detected)."
+            "\\end{minipage}\n\\end{table}\n" % (n, raw["tesseract"], raw["easyocr"], len(m7), n),
+            encoding="utf-8")
 
     print(f"Wrote tables to {OUT_DIR}")
 

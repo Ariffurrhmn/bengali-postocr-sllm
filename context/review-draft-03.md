@@ -146,6 +146,7 @@ Remaining risks:
   - *Status 2026-10-16 (paper):* Done for six models. New Sec V-E "What the models attend to", attribution.tex, Attribution paragraph in III-H, Grad-CAM and HiResCAM cited (checked). The full run does not support the pilot's attention-sink explanation for literal Grad-CAM (sink share 0-19%), so the paper gives the averaging argument of HiResCAM instead. Missing: Phi-4-mini, TituLLMs 3B Instruct (next GPU session); no map figure yet (needs --save-maps).
 
   - *Status 2026-10-17:* All eight models now (Phi-4-mini and TituLLMs 3B Instruct from review3b); full maps of two chunks saved for a figure (`xai_maps_*`), figure not yet drawn.
+  - *Status 2026-10-17 (later):* map figure drawn (`paper/figures/fig_attribution.pdf`): Gemma-2B-it's maps follow the copied source token along the diagonal; TituLLMs 1B Instruct's are spread over the prompt. Not yet in the paper.
 ## F. References and reproducibility
 - [x] **R1** ([40], [43]). Model cards: add Hugging Face URLs and revisions.
   - *Status:* Done 2026-10-15: Hugging Face URLs and revisions for Gemma, Llama, Qwen3, Phi-4-mini.

@@ -28,13 +28,13 @@ Handoff updated 2026-10-17 (evening). Read this file first, then the files in se
 
 ### Not done
 - Score review3d (commands at the end of the "Third-review GPU runs" block in `paper/README.md`; check `results/review3d/m2_train_log.json` for the development CER per checkpoint and `phase2.log` for the 4-bit load).
-- Paper tables for C5, M1, M2, M3, M7 and the Grad-CAM map figure (generators in `paper/scripts/`; check `git log` for what is done), then the full paper rewrite, written backwards (WRITING-GUIDE): conclusions, results, methods, discussion, introduction, abstract, title. The text still says Phi-4-mini and TituLLMs 3B Instruct were not analysed (now they are) and lists the noise sweep, fine-tuning, stronger OCR and large model as "not performed".
+- Paper tables and figures are generated but not yet `\input` in `main.tex`: `tables/region.tex` (C5), `scale.tex` (M1), `noise.tex` + `figures/fig_noise.pdf` (M3, F7), `figures/fig_attribution.pdf` (X1 maps; `paper/scripts/make_attribution_figure.py`). `finetune.tex` (M2) and `large.tex` (M7) are written automatically by `make_paper_tables.py` once `results/m2_runs40.json` and `results/m7_runs10.json` exist (score review3d first; the region table then also picks up Qwen3 4B). Then the full paper rewrite, written backwards (WRITING-GUIDE): conclusions, results, methods, discussion, introduction, abstract, title. The text still says Phi-4-mini and TituLLMs 3B Instruct were not analysed (now they are) and lists the noise sweep, fine-tuning, stronger OCR and large model as "not performed".
 - Local and cheap: M4 (SymSpell edit distance 1, stronger lexicon), E7.
 - Author decisions: code licence and DOI (Zenodo link + GitHub release, D48), release of the OCR text and outputs (C6, R2), page-type labels (E8), title, F5 (Figs 5/6), W2 (no page limit given; 23 pages).
 
 ## 4. Task list for the next session (in order)
 1. Score review3d; record results (results.md, decision entry, review status for M2, M7, C5).
-2. Finish the table and figure generators for C5, M1, M2, M3, M7 and the Grad-CAM maps; regenerate; check they render.
+2. Regenerate all tables (`python paper/scripts/make_paper_tables.py`) after scoring review3d; check `finetune.tex` and `large.tex` render (test-render with a scratch document that inputs `tables/preamble` and the tables, as done on 2026-10-17).
 3. Rewrite the paper with all results (write backwards); rebuild with Tectonic; check the Bengali table; tick items.
 4. Ask the author about the licence and the DOI release; if they agree, create the GitHub release with `gh` (Zenodo must be linked first).
 5. Ask before every commit/push.
