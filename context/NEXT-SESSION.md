@@ -11,10 +11,11 @@ Handoff updated 2026-10-16 (night), at the end of the session that put the first
 
 ## 2. Read these, in order
 1. `context/review-draft-03.md`: the items, each with *Status* notes. Ticked = done.
-2. `context/decisions.md`: D39 (first GPU session), **D40** (paper update), **D41** (next runs), **D42** (author's answers; region OCR on Kaggle CPU, region level = full second setting), **D43**-**D44** (region OCR outcome; Tesseract output drifted within version 5.3.4). **D45** (GPU session review3c: all models on region text; run before review3b). Earlier entries explain older choices.
+2. `context/decisions.md`: D39 (first GPU session), **D40** (paper update), **D41** (next runs), **D42** (author's answers; region OCR on Kaggle CPU, region level = full second setting), **D43**-**D44** (region OCR outcome; Tesseract output drifted within version 5.3.4). **D45** (review3c), **D46** (review3b/c scored), **D47** (last GPU session review3d: M2, M7). Earlier entries explain older choices.
 3. `context/results.md`: current numbers ("Third-review GPU runs").
 4. `context/engineering-notes.md`: gotchas. Most important here: about 4 GB free RAM; `HF_HUB_CACHE=G:/hf-cache`; **Bash heredocs mangle backslashes** (bit this session twice: use the Edit tool or a script file for LaTeX/Python edits); `PYTHONIOENCODING=utf-8`; locally, `TESSDATA_PREFIX` must point at the repo's `.tessdata` (scoop sets its own).
 5. `paper/WRITING-GUIDE.md` and `paper/README.md` (regeneration commands now include `review3_runs_analysis.py` and the new `make_decoding_figure.py --runs`).
+   Also the local folder `writing-tips/` (kept out of git): tips on writing the paper; `02-abstract.md` has the six-block abstract formula and a draft abstract.
 
 ## 3. Where things stand
 
@@ -33,7 +34,7 @@ Handoff updated 2026-10-16 (night), at the end of the session that put the first
 - Waiting on the author: W2 page limit (paper is 23 pages), F5, C6/R2 release, E8 labels, title change (WRITING-GUIDE Sec 3; check with Bijon Sir).
 
 ## 4. Task list for the next session (in order)
-1. Both GPU sessions (review3c and review3b) were started by the author on 2026-10-17 in parallel. When their zips arrive: unpack to `results/review3c/` and `results/review3b/` (gitignored), then run the scoring commands at the end of `paper/README.md` (written and tested 2026-10-17: `matrix_analysis.py` reproduces the main SymSpell numbers exactly; `make_noise_figure.py` layout checked with real points; `review3_runs_analysis.py --x1-extra` adds the review3b Grad-CAM models). Still to write: a figure from the `xai_maps_*` files (full maps of two chunks), and table generators in `make_paper_tables.py` for the region matrix (C5), M1 and M3.
+1. review3b and review3c are scored (D46; `results/{region_runs40,m1_runs40,noise_runs40}.txt`, summaries in `summaries/`). The last GPU session, review3d (M2, M7, Qwen3 4B on region text; D47), is prepared: the author uploads `G:/kaggle-upload/postocr-dev10/ocr_dev.jsonl` as Kaggle dataset `postocr-dev10` and runs `notebooks/kaggle_review3d_run.ipynb`. When `review3d.zip` arrives: unpack to `results/review3d/`, run the review3d commands at the end of `paper/README.md`, check `m2_train_log.json` (development CER per checkpoint). Then write the paper tables for C5, M1, M2, M3, M7 in `make_paper_tables.py`, the Grad-CAM map figure from `results/review3b/xai_maps_*`, and add the new rows (Phi-4-mini, TituLLMs 3B) to `attribution.tex` (regenerate: `make_paper_tables.py` reads `review3_runs.json`).
 2. Put the results in the paper (write backwards, WRITING-GUIDE), regenerate tables/figures, rebuild, tick items, decision entry.
 3. Prepare the next GPU session: all models on region OCR text (`run_sweep.py --ocr-path ocr_region40.jsonl`), M2 (ByT5-small fine-tuned on text corrupted with `make_noise.py`'s model; clean training text must not include eval pages), M7.
 4. Ask before every commit/push; the Kaggle and Colab notebooks need the code on GitHub.

@@ -54,12 +54,14 @@ MODEL_IDS = {
     "gemma3-1b": "google/gemma-3-1b-it",
     "gemma3-4b": "google/gemma-3-4b-it",
     "llama3.2-3b": "meta-llama/Llama-3.2-3B-Instruct",
+    # Third review M7: one large model, 4-bit (POSTOCR_QUANT=4bit) across two T4s.
+    "qwen3-32b": "Qwen/Qwen3-32B",
 }
 
 CAUSAL_LM_MODELS = {"phi3-mini", "llama3.2-1b", "gemma-2b", "titullm-1b", "qwen3-1.7b",
                     "phi4-mini", "titullm-1b-instruct", "titullm-3b-instruct",
                     "qwen3-0.6b", "qwen3-4b", "qwen3-8b", "gemma3-1b", "gemma3-4b",
-                    "llama3.2-3b"}
+                    "llama3.2-3b", "qwen3-32b"}
 
 # Models above ~3B do not fit the T4's 15GB in float32, so on GPU they run
 # in float16 (see load_model). Gemma overflows in float16, so Gemma 3 4B runs
@@ -72,7 +74,7 @@ SEQ2SEQ_MODELS = {"banglat5"}
 # Qwen3 is a hybrid reasoning model; without this its chat template lets it
 # open a <think> block before answering. Passed only to models that need it.
 CHAT_TEMPLATE_KWARGS = {m: {"enable_thinking": False}
-                        for m in ("qwen3-1.7b", "qwen3-0.6b", "qwen3-4b", "qwen3-8b")}
+                        for m in ("qwen3-1.7b", "qwen3-0.6b", "qwen3-4b", "qwen3-8b", "qwen3-32b")}
 
 CORRECTION_INSTRUCTION = (
     "The following text was produced by OCR on a historical Bengali document "
@@ -177,13 +179,23 @@ def load_model(model_key: str, hf_token: str | None = None):
     if os.environ.get("POSTOCR_DEVICE_MAP"):
         device_map = os.environ["POSTOCR_DEVICE_MAP"]
 
+    # Third review M7: 4-bit NF4 weights (bitsandbytes), float16 compute, for
+    # the large model split over two T4s. Set POSTOCR_QUANT=4bit.
+    extra = {}
+    if os.environ.get("POSTOCR_QUANT") == "4bit":
+        from transformers import BitsAndBytesConfig
+
+        extra["quantization_config"] = BitsAndBytesConfig(
+            load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=torch.float16)
+        dtype = torch.float16
+
     if model_key in SEQ2SEQ_MODELS:
         model = AutoModelForSeq2SeqLM.from_pretrained(
-            model_id, token=hf_token, dtype=dtype, device_map=device_map
+            model_id, token=hf_token, dtype=dtype, device_map=device_map, **extra
         )
     else:
         model = AutoModelForCausalLM.from_pretrained(
-            model_id, token=hf_token, dtype=dtype, device_map=device_map
+            model_id, token=hf_token, dtype=dtype, device_map=device_map, **extra
         )
     model.eval()
     return tokenizer, model

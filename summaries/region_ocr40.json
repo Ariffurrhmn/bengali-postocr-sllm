@@ -1,0 +1,76 @@
+{
+ "versions": {
+  "tesseract": "tesseract 5.3.4",
+  "easyocr": "1.7.2"
+ },
+ "pages": 40,
+ "regions": 576,
+ "engines": {
+  "tesseract": {
+   "identical_to_main": 0,
+   "rerun_vs_main_cer_mean": 0.2240744450684901,
+   "rerun_vs_main_cer_max": 0.5161290322580645,
+   "main_wholepage_cer": 0.3409257396536577,
+   "region_vs_same_run_wholepage": {
+    "mean_a": 0.33269152442026795,
+    "mean_b": 0.42470545971647145,
+    "delta": -0.09201393529620357,
+    "ci": [
+     -0.15161643512311415,
+     -0.029483823318647906
+    ],
+    "p": 1.040497409121599e-05,
+    "better": 32,
+    "worse": 8
+   },
+   "region_vs_main_wholepage": {
+    "mean_a": 0.33269152442026795,
+    "mean_b": 0.3409257396536577,
+    "delta": -0.00823421523338977,
+    "ci": [
+     -0.07340835542761863,
+     0.06122253472692381
+    ],
+    "p": 0.42797189528209856,
+    "better": 14,
+    "worse": 26
+   },
+   "empty_regions": 21,
+   "regions": 576,
+   "main_comparison_valid": false
+  },
+  "easyocr": {
+   "identical_to_main": 17,
+   "rerun_vs_main_cer_mean": 0.0018885429976737522,
+   "rerun_vs_main_cer_max": 0.01838235294117647,
+   "main_wholepage_cer": 0.29729029673210716,
+   "region_vs_same_run_wholepage": {
+    "mean_a": 0.22494176219589548,
+    "mean_b": 0.2972713172485525,
+    "delta": -0.07232955505265702,
+    "ci": [
+     -0.12023012162909269,
+     -0.03312334476463628
+    ],
+    "p": 0.0029725709217872675,
+    "better": 26,
+    "worse": 14
+   },
+   "region_vs_main_wholepage": {
+    "mean_a": 0.22494176219589548,
+    "mean_b": 0.29729029673210716,
+    "delta": -0.07234853453621169,
+    "ci": [
+     -0.12066641528527144,
+     -0.03313338803877576
+    ],
+    "p": 0.002060566714135348,
+    "better": 26,
+    "worse": 14
+   },
+   "empty_regions": 93,
+   "regions": 576,
+   "main_comparison_valid": true
+  }
+ }
+}

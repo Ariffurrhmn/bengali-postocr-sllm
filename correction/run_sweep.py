@@ -14,6 +14,7 @@ Usage:
 import argparse
 import io
 import json
+import os
 import sys
 import time
 import traceback
@@ -199,6 +200,8 @@ def main():
                             "prompt": args.prompt,
                             "device": str(model.device),
                             "dtype": str(model.dtype),
+                            **({"quant": os.environ["POSTOCR_QUANT"]}
+                               if os.environ.get("POSTOCR_QUANT") else {}),
                             "raw_output": raw_output,
                             "truncated": truncated,
                             "skipped": skipped,

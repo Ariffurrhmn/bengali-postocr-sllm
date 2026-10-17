@@ -47,4 +47,8 @@ python matrix_analysis.py --ocr-path ../results/review3b/noise40.jsonl --correct
 python matrix_analysis.py --ocr-path ../results/ocr_eval40.jsonl --corrections ../results/gpu_eval40.jsonl --engines ground_truth,tesseract,easyocr --label "main run" --out-prefix ../results/main_general40
 python make_noise_figure.py --sweep ../results/noise_runs40.json --real ../results/main_general40.json --out ../paper/figures/fig_noise.pdf
 python review3_runs_analysis.py --runs ../results/review3 --x1-extra ../results/review3b --ocr-path ../results/ocr_eval40.jsonl --main ../results/gpu_eval40.jsonl --out-prefix ../results/review3_runs
+# after review3d (M2, M7, Qwen3 4B on region text):
+python matrix_analysis.py --ocr-path ../results/region/ocr_region40.jsonl --corrections "../results/review3c/c5_*.jsonl" ../results/region/dict_region40.jsonl ../results/review3d/c5_qwen3-4b.jsonl --engines tesseract,easyocr --label "region-level OCR" --out-prefix ../results/region_runs40
+python matrix_analysis.py --ocr-path ../results/ocr_eval40.jsonl --corrections ../results/review3d/m2_byt5.jsonl --engines tesseract,easyocr,ground_truth --label "fine-tuned ByT5-small (M2)" --out-prefix ../results/m2_runs40
+python matrix_analysis.py --ocr-path ../results/ocr_eval40.jsonl --corrections ../results/review3d/m7_qwen3-32b.jsonl ../results/gpu_eval40.jsonl "../results/review3b/m1_qwen3-*.jsonl" --pages-file ../data/m7_pages.txt --engines tesseract,easyocr,ground_truth --label "Qwen3 size series on the 10 M7 pages" --out-prefix ../results/m7_runs10
 ```

@@ -65,7 +65,7 @@ def main():
     if real:
         handles.append(plt.Line2D([], [], marker="o", ls="", mfc="white", mec=INK, ms=5))
         labels.append("clean text / real OCR (main run)")
-    ax.legend(handles, labels, loc="upper left", frameon=False)
+    ax.legend(handles, labels, loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=2, frameon=False)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(args.out, bbox_inches="tight")
     fig.savefig(args.out.with_suffix(".png"), dpi=300, bbox_inches="tight")

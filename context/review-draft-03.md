@@ -62,6 +62,7 @@ Remaining risks:
   - *Status 2026-10-16:* `ocr/run_region_ocr.py` written and tested locally (8 pages, Tesseract 5.5.3: region CER 0.379 vs 0.547 whole-page with the same engine; psm 6, plain crops). Full run on Kaggle CPU with Tesseract 5.3.4 pending (D41, D42). Region level will be a full second setting (D42).
   - *Status 2026-10-17:* Kaggle CPU run done (D43). EasyOCR region CER 0.225 vs 0.297 whole-page (p 0.002). Tesseract build on Kaggle differs from the main run, so its region OCR is being redone on Colab.
   - *Status 2026-10-17 (later):* Colab gives the same text as Kaggle today, neither reproduces the 11 October main run (D44). Region OCR final: `results/region/ocr_region40.jsonl`; Tesseract compared with its same-run whole-page OCR (0.425 → 0.333). Next: all models on region text (GPU).
+  - *Status 2026-10-17:* All eight models and SymSpell run on region text (review3c, D46): no method lowers CER; all significantly worse (`results/region_runs40.txt`). Paper text to do.
 - [ ] **C6** (Sec III-C; Sec III-H "Confidence-gated correction"; Sec IV-I). OCR output is not stable: Tesseract changed (CER 0.364 to 0.320) and EasyOCR text matched between CPU and GPU runs on only 5 of 15 pages. Release the exact raw OCR text files and state the OCR hardware. The confidence re-run reproduced only 37 of 40 EasyOCR pages: say how the other 3 pages were gated.
   - *Status:* Partly done 2026-10-15: OCR hardware stated; how the 3 non-reproduced EasyOCR pages were gated is stated (unmatched words count as confident and are never changed). Release of the raw OCR text needs the author's decision.
 - [x] **C7** (Table III footnote versus Sec III-G). The note says decoding had no repetition penalty, but the CPU minutes per page come from the earlier guarded runs on the 15-page sample (different Tesseract text, bf16). Re-time under plain decoding or state this; the claim "saves two to fourteen minutes per page" (VI-D) depends on it.
@@ -91,14 +92,18 @@ Remaining risks:
 
 ## C. Models and experiments
 - [ ] **M1** (Sec III-E, more models). Add Gemma 3 (1B, 4B), Llama 3.2 3B-Instruct and SmolLM3 3B. Qwen3 gave the only gains, so a Qwen3 size series (0.6B, 1.7B, 4B, 8B) gives a clean scale trend on a T4 (4B in fp16 is about 8 GB). Check Hugging Face for newer releases at submission; the reviewer's knowledge of releases ends mid-2026.
+  - *Status 2026-10-17:* Run (review3b, D46): Qwen3 0.6B/4B/8B, Gemma 3 1B/4B, Llama 3.2 3B on 40 pages x 3 inputs. No CER gain; Qwen3 4B and 8B lower WER significantly. Qwen3-32B (M7) and Qwen3 4B on region text in review3d. Paper text to do.
 - [ ] **M2** (Sec VI-E (ii), fine-tuning). Do the pilot before submission. Fine-tune BanglaT5, ByT5-small or mT5-small on synthetic noised Bengali text, with noise built from the Tesseract/EasyOCR confusions measured on the 10 development pages. Test on the same 40 pages with the same statistics. A small T4 job answers the "fine-tuning untested" caveat.
+  - *Status 2026-10-17:* Code ready (D47): ByT5-small fine-tuned on dev-noise-corrupted Wikipedia + dev text; runs in review3d.
 - [ ] **M3** (Sec VI-E (v), noise sweep). Reuse the clean-text control code: corrupt the 40 references at CER 0.02, 0.05, 0.10, 0.20, 0.30, run the four general-purpose models, and plot corrected versus input CER. It directly tests the "input noise" explanation that VI-C says it cannot quantify, and compares with the ~0.15 break-even in [7].
+  - *Status 2026-10-17:* Run (review3b, D46): four models x five noise levels (0.02-0.30): every model raises CER at every level; no break-even. Figure `paper/figures/fig_noise.pdf` (F7). Paper text to do.
 - [ ] **M4** (Sec IV-F, classical baseline). The OpenSubtitles lexicon is modern and colloquial, a poor match for 1713-1914 literary text. Report the share of reference words missing from the lexicon (a proxy for historical spelling), try edit distance 1, and add a stronger lexicon (e.g. Bengali Wikipedia text). Optional: n-gram or masked-LM rescoring.
   - *Status:* Partly done 2026-10-15: share of reference words missing from the lexicon reported (52%). Edit distance 1 and a stronger lexicon not yet run (local, cheap).
 - [ ] **M5** (Sec III-C, OCR input). Add region-crop OCR (C5) and one stronger engine or VLM transcription (bbOCR, Surya, Google Cloud Vision; check Bengali support) to test the findings at lower input CER.
 - [ ] **M6** (new, optional). Edit-list or constrained prompting (the model outputs only word replacements), and Tesseract+EasyOCR fusion, as do-no-harm alternatives to free regeneration.
 - [ ] **M7** (Sec VI-E (i), upper bound). Run one large open model (30-70B, 4-bit, on a larger GPU) on a page subset to show how much scale alone changes the outcome.
 
+  - *Status 2026-10-17:* Code ready (D47): Qwen3-32B 4-bit on 10 pages; runs in review3d.
 ## D. Metrics and statistics
 - [x] **E1** (Sec III-H; Tables V, IX). Add a bounded word match error rate (wMER); WER reaches 3.03 in Table V. *(Handwritten tick beside this item on the hardcopy.)*
   - *Status:* Done 2026-10-15: wMER in the baseline table, the main matrix (with exploratory Holm marks) and the clean-text table (`eval/review3_analysis.py`).
@@ -133,12 +138,14 @@ Remaining risks:
   - *Status:* Done 2026-10-15 for rendering: conjuncts and vowel signs print correctly under Tectonic; dotted circles come from the text itself (doubled virama), now explained in the note. Page type and a longer chunk not added (space).
 - [ ] **F7** (new, from M3). Noise-sweep line plot (corrected versus input CER): likely the most informative new figure.
 
+  - *Status 2026-10-17:* Figure drawn: `eval/make_noise_figure.py` → `paper/figures/fig_noise.pdf`. Not yet in the paper.
 ## G. Explainability (verbal request)
 - [x] **X1** (title note "Grad Cam"; Sec VI-E "Scope of the analysis", which says no attribution method was applied). Add an explainability analysis in the spirit of Grad-CAM. Grad-CAM was built for CNN feature maps; here it is adapted to token positions of the correction models (gradient-weighted hidden states), to show which input tokens each output token relies on: the aligned OCR token (copying), the instruction, or the model's own earlier output (regeneration).
   - *Status:* Script ready and piloted 2026-10-15 (`eval/xai_gradcam.py`; Qwen3 0.6B on CPU, 3 chunks, `results/xai_pilot_qwen3-0.6b.jsonl`). The element-wise variant (HiResCAM-style) at mid/late layers peaks on the copied OCR token for 43-87% of copied tokens (chance about 1-2%). Literal Grad-CAM does not localise: about half its mass is on the attention-sink token. Maps exclude the first/special tokens and the predicting position. Full run for all eight models needs GPU (session A).
   - *Status 2026-10-16:* run for six models (not TituLLMs 3B, Phi-4). Copying models' maps peak on the copied source token 58-78%; Bengali checkpoints copy 11-23%. Literal Grad-CAM fails (0-8%). Table, figure and paper text still to do.
   - *Status 2026-10-16 (paper):* Done for six models. New Sec V-E "What the models attend to", attribution.tex, Attribution paragraph in III-H, Grad-CAM and HiResCAM cited (checked). The full run does not support the pilot's attention-sink explanation for literal Grad-CAM (sink share 0-19%), so the paper gives the averaging argument of HiResCAM instead. Missing: Phi-4-mini, TituLLMs 3B Instruct (next GPU session); no map figure yet (needs --save-maps).
 
+  - *Status 2026-10-17:* All eight models now (Phi-4-mini and TituLLMs 3B Instruct from review3b); full maps of two chunks saved for a figure (`xai_maps_*`), figure not yet drawn.
 ## F. References and reproducibility
 - [x] **R1** ([40], [43]). Model cards: add Hugging Face URLs and revisions.
   - *Status:* Done 2026-10-15: Hugging Face URLs and revisions for Gemma, Llama, Qwen3, Phi-4-mini.

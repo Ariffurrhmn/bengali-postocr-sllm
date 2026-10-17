@@ -48,10 +48,15 @@ def main():
     ap.add_argument("--corrections", nargs="+", required=True, help="run_sweep.py outputs (globs allowed)")
     ap.add_argument("--engines", required=True, help="comma-separated input fields")
     ap.add_argument("--label", default="")
+    ap.add_argument("--pages-file", type=Path, default=None,
+                    help="restrict to these page ids (one per line), e.g. data/m7_pages.txt")
     ap.add_argument("--out-prefix", type=Path, required=True)
     args = ap.parse_args()
     rng = np.random.default_rng(DEFAULT_SEED)
     pages = {r["page_id"]: r for r in load(args.ocr_path)}
+    if args.pages_file:
+        keep = set(args.pages_file.read_text(encoding="utf-8").split())
+        pages = {p: r for p, r in pages.items() if p in keep}
     engines = args.engines.split(",")
     files = sorted({f for pattern in args.corrections for f in glob.glob(pattern)})
     cells = defaultdict(dict)
