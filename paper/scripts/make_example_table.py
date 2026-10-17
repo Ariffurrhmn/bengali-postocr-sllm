@@ -9,16 +9,18 @@ the reference word by word. Bengali text is set with \\bn{} (preamble.tex),
 which needs XeLaTeX and the bundled Noto Serif Bengali font.
 
 Usage:
-    python make_example_table.py --ocr-path ../results/ocr_eval40.jsonl \\
-        --correction-path ../results/eval40_ocr.jsonl --out ../paper/tables/examples.tex
+    python paper/scripts/make_example_table.py --ocr-path results/ocr_eval40.jsonl \\
+        --correction-path results/eval40_ocr.jsonl --out paper/tables/examples.tex
 """
 import argparse
 import difflib
 import json
+import sys
 from pathlib import Path
 
-from find_examples import best_span
-from metrics import cer, normalize
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
+from find_examples import best_span  # noqa: E402
+from metrics import cer, normalize  # noqa: E402
 
 EXAMPLES = [
     ("VT_961_k_0172", "শাখায় ঝুলিয়া থাকে, রাত্রি কালে আহার নিমিত্ত বহির্গত",
@@ -128,7 +130,7 @@ def main():
         "\\else\n  % pdfLaTeX: the same table, rendered by XeLaTeX (render_examples_pdf.py)\n"
         "  \\includegraphics[width=\\textwidth]{tables/" + body.stem + ".pdf}\n"
         "\\fi\n\\end{table*}\n", encoding="utf-8")
-    print(f"Wrote {args.out} and {body}; now run ../paper/render_examples_pdf.py")
+    print(f"Wrote {args.out} and {body}; now run paper/scripts/render_examples_pdf.py")
 
 
 if __name__ == "__main__":

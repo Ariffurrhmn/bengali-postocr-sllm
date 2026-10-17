@@ -12,9 +12,9 @@ time on CPU and GPU.
 Needs a Hugging Face login for the gated tokenizers (Gemma, Llama).
 
 Usage:
-    python model_profile.py --ocr-path ../results/ocr_eval40.jsonl \\
-        --cpu-runs ../results/ablation_plain_decoding.jsonl \\
-        --gpu-runs ../results/gpu_eval40.jsonl --out ../results/model_profile.json
+    python eval/model_profile.py --ocr-path results/ocr_eval40.jsonl \\
+        --cpu-runs results/ablation_plain_decoding.jsonl \\
+        --gpu-runs results/gpu_eval40.jsonl --out results/model_profile.json
 """
 import argparse
 import io

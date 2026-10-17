@@ -9,9 +9,9 @@ Holm-corrected over all variant comparisons. Also the mean CER of the
 output against its own input (how much the model changed).
 
 Usage:
-    python compare_variants.py --ocr-path ../results/ocr_eval40.jsonl \\
-        --original ../results/gpu_eval40_ocr.jsonl \\
-        --variants ../results/gpu_variants40.jsonl --out-prefix ../results/variants_gpu40
+    python eval/compare_variants.py --ocr-path results/ocr_eval40.jsonl \\
+        --original results/gpu_eval40_ocr.jsonl \\
+        --variants results/gpu_variants40.jsonl --out-prefix results/variants_gpu40
 """
 import argparse
 import json

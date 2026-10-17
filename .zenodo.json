@@ -1,0 +1,15 @@
+{
+  "title": "bengali-postocr-sllm: zero-shot small-language-model post-correction of historical Bengali OCR",
+  "upload_type": "software",
+  "description": "Code, frozen page lists, prompts, analysis scripts and numeric summaries for a study of zero-shot post-correction of historical Bengali OCR (40 pages of the REID2019 British Library ground truth, Tesseract and EasyOCR) with small open language models, a dictionary baseline, a fine-tuning pilot and a large model. Per-page OCR text and model outputs are not included unless released separately.",
+  "creators": [
+    {
+      "name": "Rahman, Arifur",
+      "affiliation": "Bangladesh University of Business and Technology"
+    }
+  ],
+  "keywords": ["Bengali OCR", "post-OCR correction", "small language models", "historical documents", "negative results"],
+  "related_identifiers": [
+    {"identifier": "10.23636/1168", "relation": "references", "resource_type": "dataset", "scheme": "doi"}
+  ]
+}

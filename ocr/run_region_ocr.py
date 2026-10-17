@@ -28,9 +28,9 @@ Output, one JSON line per page: page_id, ground_truth / tesseract / easyocr
 scoring scripts can use the file like ocr_eval40.jsonl), regions (per-region
 id, type, text and both OCR outputs) and the engine versions.
 
-Usage (Colab CPU, see notebooks/colab_region_ocr.ipynb):
-    python run_region_ocr.py --dataset-dir /content/Competition_dataset_ImagesPAGEXML \\
-        --stored ../results/ocr_eval40.jsonl --verify --out <dir>/ocr_region40.jsonl
+Usage (Kaggle CPU, see notebooks/kaggle/region_ocr_cpu.ipynb):
+    python ocr/run_region_ocr.py --dataset-dir /content/Competition_dataset_ImagesPAGEXML \\
+        --stored results/ocr_eval40.jsonl --verify --out <dir>/ocr_region40.jsonl
 """
 import argparse
 import json

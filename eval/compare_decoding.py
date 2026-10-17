@@ -4,7 +4,7 @@ the same (page, engine, model, approach), page by page, on whatever pages
 the plain file has so far.
 
 Usage:
-    python compare_decoding.py --ocr-path results/ocr_eval.jsonl \
+    python eval/compare_decoding.py --ocr-path results/ocr_eval.jsonl \
         --guarded results/correction_eval.jsonl \
         --plain results/ablation_plain_decoding.jsonl
 """

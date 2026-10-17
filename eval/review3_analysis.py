@@ -20,11 +20,11 @@ model runs. Item codes refer to context/review-draft-03.md.
   C1  empty outputs per model, with the generation time of empty and
       non-empty pages
 
-Usage (from eval/):
-    python review3_analysis.py --ocr-path ../results/ocr_eval40.jsonl \\
-        --correction-path ../results/eval40_all.jsonl \\
-        --gpu-runs ../results/gpu_eval40.jsonl --conf-path ../results/ocr_conf40.jsonl \\
-        --out-prefix ../results/review3_gpu40
+Usage (from the repo root):
+    python eval/review3_analysis.py --ocr-path results/ocr_eval40.jsonl \\
+        --correction-path results/eval40_all.jsonl \\
+        --gpu-runs results/gpu_eval40.jsonl --conf-path results/ocr_conf40.jsonl \\
+        --out-prefix results/review3_gpu40
 """
 import argparse
 import json

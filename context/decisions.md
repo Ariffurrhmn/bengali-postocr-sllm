@@ -309,3 +309,23 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 - **C5 extra:** Qwen3 4B on the region text (one GPU, float16).
 **Tested locally:** the whole fine-tuning pipeline with a tiny random model, Wikipedia streaming and the overlap filter, the noise corruption; the dry run of the orchestrator. Not testable locally: the 4-bit 32B load and the real ByT5 training on a T4.
 **Environment note:** installing `datasets` locally upgraded `huggingface-hub` to 2.2.0, which Transformers 5.14 rejects; restored to 1.33. The notebook pins `huggingface-hub<2` for the same reason.
+
+### D48. Repository reorganized; DOI metadata added (2026-10-17)
+**Decision:** clean the repo to the current study (the author's request), with one rule for commands: everything runs from the repository root (`paper/README.md`).
+- **Removed** (in git history): `STATUS.md` (superseded on 2026-10-15), `context/open-items.md` and `context/checklist-status.md` (second review, replaced by `review-draft-03.md`), `context/plan-draft-03.md` (third-review plan, now done and recorded in D36-D47), `ocr/test_env.py` (unused), `notebooks/colab_region_ocr.ipynb` (made unnecessary by D44).
+- **Moved** (older entries in this file and in `timeline.md` use the old paths):
+
+| Old path | New path |
+|---|---|
+| `eval/make_paper_tables.py`, `make_decoding_figure.py`, `make_noise_figure.py`, `make_example_table.py`, `make_paper_figures.py`, `make_revision_figures.py` | `paper/scripts/` (same names) |
+| `paper/check_refs.py`, `make_overleaf_zip.py`, `render_examples_pdf.py` | `paper/scripts/` |
+| `correction/run_review3_kaggle.py`, `run_review3b_kaggle.py`, `run_review3c_kaggle.py`, `run_review3d_kaggle.py` | `correction/sessions/` (same names; still run with `correction/` as working directory) |
+| `notebooks/kaggle_gpu_run.ipynb` | `notebooks/kaggle/main_run_40pages.ipynb` |
+| `notebooks/kaggle_variants_run.ipynb` | `notebooks/kaggle/prompt_variants.ipynb` |
+| `notebooks/kaggle_region_ocr.ipynb` | `notebooks/kaggle/region_ocr_cpu.ipynb` |
+| `notebooks/kaggle_review3_run.ipynb` | `notebooks/kaggle/review3a_precision_prompt_decoding_xai.ipynb` |
+| `notebooks/kaggle_review3b_run.ipynb`, `_review3c_`, `_review3d_` | `notebooks/kaggle/review3b_noise_newmodels.ipynb`, `review3c_region_text.ipynb`, `review3d_finetune_largemodel.ipynb` |
+| `notebooks/setup_and_dry_run.ipynb` | `notebooks/colab/first_version_cpu_15pages.ipynb` |
+
+- **Verified after the move:** every script compiles; all 22 tables regenerate byte-identical (except `attribution.tex`, which gained the two models of review3b and a data-driven note); `compare_decoding.py`, `bootstrap.py` and `region_ocr_analysis.py` run from the root reproduce their stored outputs exactly; all figures redraw; the four session drivers dry-run from `correction/`; the paper builds with no overfull boxes and all references resolve; the Overleaf zip builds. The running review3d session was unaffected (it had already cloned the code).
+- **DOI (C6/R2):** `CITATION.cff` (valid against CFF 1.2.0) and `.zenodo.json` added. Minting the DOI needs the author: link Zenodo to the GitHub account, enable the repository, then publish a GitHub release; Zenodo archives that release and assigns a DOI, which then replaces the plain repository URL in the paper's reference `rahman2026repo`. Two decisions are the author's: a licence for the code (none chosen yet; Zenodo needs one) and whether the per-page OCR text and model outputs are released (they are not in the repo; a separate Zenodo dataset deposit would hold them; the Tesseract drift of D44 makes the OCR text impossible to regenerate, which argues for releasing it).

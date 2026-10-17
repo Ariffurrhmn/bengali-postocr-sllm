@@ -17,8 +17,8 @@ evaluation scripts read them unchanged. "ground_truth" as an engine gives the
 clean-text control.
 
 Usage:
-    python dictionary_baseline.py --ocr-path ../results/ocr_eval40.jsonl \\
-        --engines tesseract,easyocr,ground_truth --out ../results/dict_eval40.jsonl
+    python correction/dictionary_baseline.py --ocr-path results/ocr_eval40.jsonl \\
+        --engines tesseract,easyocr,ground_truth --out results/dict_eval40.jsonl
 """
 import argparse
 import io

@@ -5,9 +5,9 @@ clean text and the real OCR of the main run, passed with --real, are drawn as
 open markers so the synthetic curve can be checked against real OCR noise.
 Points below the identity line are inputs the model improved.
 
-Usage (from eval/):
-    python make_noise_figure.py --sweep ../results/noise_runs40.json \\
-        --real ../results/main_general40.json --out ../paper/figures/fig_noise.pdf
+Usage (from the repo root):
+    python paper/scripts/make_noise_figure.py --sweep results/noise_runs40.json \\
+        --real results/main_general40.json --out paper/figures/fig_noise.pdf
 """
 import argparse
 import json

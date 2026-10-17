@@ -14,7 +14,7 @@ results/ocr_eval40.jsonl) this writes:
 Resumable like run_ocr.py: pages already in the output file are skipped.
 
 Usage (Colab, same setup as run_ocr.py):
-    python run_ocr_conf.py --dataset-dir /content/Competition_dataset_ImagesPAGEXML \\
+    python ocr/run_ocr_conf.py --dataset-dir /content/Competition_dataset_ImagesPAGEXML \\
         --ocr-path "/content/drive/My Drive/bengali-postocr-results/ocr_eval40.jsonl" \\
         --out "/content/drive/My Drive/bengali-postocr-results/ocr_conf40.jsonl"
 """

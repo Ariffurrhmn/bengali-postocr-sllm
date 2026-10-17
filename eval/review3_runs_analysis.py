@@ -12,10 +12,10 @@ Paired bootstrap (10,000 resamples, seed 403) and Wilcoxon signed-rank as in
 extended_analysis.py. Holm families are stated in the output; all of them
 are exploratory (the primary family is the 36 main CER/WER tests).
 
-Usage (from eval/):
-    python review3_runs_analysis.py --runs ../results/review3 \\
-        --ocr-path ../results/ocr_eval40.jsonl --main ../results/gpu_eval40.jsonl \\
-        --out-prefix ../results/review3_runs
+Usage (from the repo root):
+    python eval/review3_runs_analysis.py --runs results/review3 \\
+        --ocr-path results/ocr_eval40.jsonl --main results/gpu_eval40.jsonl \\
+        --out-prefix results/review3_runs
 """
 import argparse
 import json

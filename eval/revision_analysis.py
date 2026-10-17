@@ -16,8 +16,8 @@ Book = page_id without its trailing page number (e.g. 279_2_D_32_0006 and
 279_2_D_32_0007 are one book).
 
 Usage:
-    python revision_analysis.py --ocr-path ../results/ocr_eval40.jsonl \\
-        --correction-path ../results/gpu_eval40.jsonl --out-prefix ../results/revision_gpu40
+    python eval/revision_analysis.py --ocr-path results/ocr_eval40.jsonl \\
+        --correction-path results/gpu_eval40.jsonl --out-prefix results/revision_gpu40
 """
 import argparse
 import json

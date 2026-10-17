@@ -8,7 +8,7 @@ any (page, engine, model, approach) combination already done. Re-running the
 same command after a disconnect resumes rather than restarts.
 
 Usage:
-    python run_sweep.py --split dev --models titullm-1b,phi3-mini \
+    python correction/run_sweep.py --split dev --models titullm-1b,phi3-mini \
         --approaches whole,chunked --engines tesseract,easyocr
 """
 import argparse

@@ -10,9 +10,9 @@
                      identity line, one panel per model (review item E3)
 
 Usage:
-    python make_revision_figures.py --ocr-path ../results/ocr_eval40.jsonl \\
-        --correction-path ../results/gpu_eval40_ocr.jsonl \\
-        --bootstrap-json ../results/bootstrap_gpu40.json --out-dir ../paper/figures
+    python paper/scripts/make_revision_figures.py --ocr-path results/ocr_eval40.jsonl \\
+        --correction-path results/gpu_eval40_ocr.jsonl \\
+        --bootstrap-json results/bootstrap_gpu40.json --out-dir paper/figures
 """
 import argparse
 import json
@@ -23,7 +23,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from metrics import cer
+import sys  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
+from metrics import cer  # noqa: E402
 
 # Fixed order best-to-worst so every figure tells the story the same way.
 _ORDER = ["symspell", "gemma-2b", "qwen3-1.7b", "phi4-mini", "llama3.2-1b", "banglat5",

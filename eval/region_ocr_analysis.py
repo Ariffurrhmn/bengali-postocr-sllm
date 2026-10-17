@@ -17,11 +17,11 @@ how far the same-run whole-page OCR is from the main run (if far, the
 main-run comparison is not valid for that engine and only the same-engine
 comparison is reported as a result).
 
-Usage (from eval/):
-    python region_ocr_analysis.py --region ../results/region/ocr_region40.jsonl \\
-        --wholepage ../results/region/ocr_region40_wholepage.jsonl \\
-        --verify ../results/region/ocr_region40_verify.json \\
-        --main ../results/ocr_eval40.jsonl --out-prefix ../results/region_ocr40
+Usage (from the repo root):
+    python eval/region_ocr_analysis.py --region results/region/ocr_region40.jsonl \\
+        --wholepage results/region/ocr_region40_wholepage.jsonl \\
+        --verify results/region/ocr_region40_verify.json \\
+        --main results/ocr_eval40.jsonl --out-prefix results/region_ocr40
 """
 import argparse
 import json

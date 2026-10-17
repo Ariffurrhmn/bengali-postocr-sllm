@@ -16,9 +16,9 @@ with no counterpart counts as confident, so it is never changed.
 Thresholds are fixed in advance: Tesseract 50/70/90, EasyOCR 0.5/0.7/0.9.
 
 Usage:
-    python confidence_gate.py --ocr-path ../results/ocr_eval40.jsonl \\
-        --conf-path ../results/ocr_conf40.jsonl \\
-        --correction-path ../results/eval40_ocr.jsonl --out-prefix ../results/gated_gpu40
+    python eval/confidence_gate.py --ocr-path results/ocr_eval40.jsonl \\
+        --conf-path results/ocr_conf40.jsonl \\
+        --correction-path results/eval40_ocr.jsonl --out-prefix results/gated_gpu40
 """
 import argparse
 import difflib

@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this code or its results, please cite it as below."
+title: "bengali-postocr-sllm: zero-shot small-language-model post-correction of historical Bengali OCR"
+type: software
+authors:
+  - family-names: Rahman
+    given-names: Arifur
+    affiliation: "Department of Computer Science and Engineering, Bangladesh University of Business and Technology"
+repository-code: "https://github.com/Ariffurrhmn/bengali-postocr-sllm"
+abstract: >-
+  Code, frozen page lists, prompts, analysis scripts and numeric summaries for a
+  study of zero-shot post-correction of historical Bengali OCR (40 pages of the
+  REID2019 British Library ground truth, Tesseract and EasyOCR) with small open
+  language models, a dictionary baseline, a fine-tuning pilot and a large model.
+keywords:
+  - Bengali OCR
+  - post-OCR correction
+  - small language models
+  - historical documents
+  - negative results
+references:
+  - type: data
+    title: "Ground Truth transcriptions for training OCR of historical Bengali printed texts (REID2019), version 2"
+    authors:
+      - name: "Tom Derrick"
+      - name: "British Library"
+    doi: "10.23636/1168"

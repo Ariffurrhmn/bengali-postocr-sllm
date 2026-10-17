@@ -1,11 +1,11 @@
 """Sanity check for the LaTeX source: every \\cite key exists in references.bib,
 every \\ref has a \\label, and no bib entry is left uncited.
-Run from the paper/ folder:  python check_refs.py
+Run from anywhere:  python paper/scripts/check_refs.py
 """
 import re
 from pathlib import Path
 
-here = Path(__file__).parent
+here = Path(__file__).resolve().parents[1]  # the paper/ folder
 files = [here / "main.tex"] + sorted((here / "tables").glob("*.tex"))
 tex = "\n".join(f.read_text(encoding="utf-8") for f in files)
 bib = (here / "references.bib").read_text(encoding="utf-8")

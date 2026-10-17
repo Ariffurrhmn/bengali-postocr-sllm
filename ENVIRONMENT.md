@@ -12,6 +12,8 @@ What the reported runs used, as far as it was recorded (review item W9). Where a
 - EasyOCR 1.7.2 with Bengali enabled, on default settings.
 - Both used the page image as released.
 - The August 2026 Tesseract build (15-page CPU runs) was not recorded. Its output differs from 5.3.4.
+- **Tesseract output drifted within version 5.3.4** (D44): on 17 October 2026 both Colab's apt build and Kaggle's conda-forge build gave identical text to each other but not the text of the 11 October main run (CER 0.22 between them), although Colab still reproduced it on 12 October. The Bengali model file, image decoding and resolution were ruled out. The main run's OCR is therefore kept as released data, and any new OCR setting is compared with whole-page OCR from the same run.
+- **Region-level OCR (17 October 2026, Kaggle CPU):** Tesseract 5.3.4 (conda-forge) with `--psm 6` on each region crop (bounding box + 8 px), EasyOCR 1.7.2 (`ocr/run_region_ocr.py`, `notebooks/kaggle/region_ocr_cpu.ipynb`).
 
 ## Correction runs
 - **GPU (main results, 10–12 October 2026):**
@@ -19,9 +21,10 @@ What the reported runs used, as far as it was recorded (review item W9). Where a
   - Recorded versions: Transformers 5.19.0 and Python 3.11.
   - Not recorded: the PyTorch and CUDA versions of the image.
   - Precision: float32, or float16 for Phi-4-mini and TituLLMs 3B Instruct.
-  - Driver: notebooks `notebooks/kaggle_gpu_run.ipynb` and `notebooks/kaggle_variants_run.ipynb`.
-- **CPU (decoding ablation and CPU timing, 15 pages, August 2026):** free Google Colab CPU runtime in bfloat16. The package versions were not recorded.
-- **Checkpoints and revisions:** see `REVISIONS` in `eval/make_paper_tables.py` and Table III of the paper.
+  - Driver: notebooks `notebooks/kaggle/main_run_40pages.ipynb` and `notebooks/kaggle/prompt_variants.ipynb`.
+- **GPU (third-review runs a-d, 16-17 October 2026):** Kaggle, two T4 GPUs; PyTorch 2.11.0+cu128, CUDA 12.8, Transformers 5.19.0, Python 3.13 (recorded in `summaries/review3*_environment.txt`). Drivers in `correction/sessions/`, notebooks in `notebooks/kaggle/review3*.ipynb`. Precision per model as recorded in each output line (`dtype`; `quant` for the 4-bit model).
+- **CPU (decoding comparison and CPU timing, 15 pages, August 2026):** free Google Colab CPU runtime in bfloat16 (`notebooks/colab/first_version_cpu_15pages.ipynb`). The package versions were not recorded.
+- **Checkpoints and revisions:** see `REVISIONS` in `paper/scripts/make_paper_tables.py` and Table III of the paper (the models added in the third review were loaded at their default branch on the day of the run).
 - **Chat template:** each model's own template, as shipped with that revision, applied with `apply_chat_template(add_generation_prompt=True)`. Qwen3 additionally gets `enable_thinking=False`. BanglaT5 gets the OCR text alone, with no template. The prompts are in `correction/models.py` (`PROMPTS`).
 - **Generation:**
   - Greedy decoding (`do_sample=False`).

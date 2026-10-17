@@ -13,7 +13,7 @@ Same scheme as run_review3_kaggle.py: priority order, deadline, one output
 file per job, resume from an attached earlier output (the fine-tuning job
 restarts from scratch if it did not finish).
 
-Usage (Kaggle): python run_review3d_kaggle.py --ocr-path <ocr_eval40.jsonl> \\
+Usage (Kaggle, from correction/): python sessions/run_review3d_kaggle.py --ocr-path <ocr_eval40.jsonl> \\
     --region-path <ocr_region40.jsonl> --dev-path <ocr_dev.jsonl> \\
     --out-dir /kaggle/working/review3d --hours 6
 """
@@ -27,7 +27,7 @@ import threading
 import time
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parents[1]  # correction/: the jobs run from here
 M7_PAGES = ",".join((HERE.parent / "data" / "m7_pages.txt").read_text(encoding="utf-8").split())
 
 

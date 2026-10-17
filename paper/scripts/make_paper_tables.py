@@ -42,14 +42,17 @@ review3_runs.json (review3_runs_analysis.py).
 """
 import argparse
 import json
+import sys
 from collections import defaultdict
 from pathlib import Path
 
-# Imported before anything prints: inspect_examples re-wraps stdout for UTF-8.
-from inspect_examples import MODEL_ORDER, script_profile, token_retention
-from metrics import normalize
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT / "eval"))
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+# Imported before anything prints: inspect_examples re-wraps stdout for UTF-8.
+from inspect_examples import MODEL_ORDER, script_profile, token_retention  # noqa: E402
+from metrics import normalize  # noqa: E402
+
 RESULTS = REPO_ROOT / "results"
 OUT_DIR = REPO_ROOT / "paper" / "tables"
 
@@ -644,6 +647,7 @@ def main():
     if runs3 and runs3.get("X1"):
         x1 = {(r["model"], r["engine"]): r for r in runs3["X1"]}
         xm = [m for m in MODEL_ORDER if any(k[0] == m for k in x1)]
+        missing = [m for m in MODEL_ORDER if m != "symspell" and m not in xm]
         rows = []
         for i, (e, name) in enumerate([("tesseract", "Tesseract text"), ("ground_truth", "Clean text")]):
             rows.append("%s\\multicolumn{9}{l}{\\textit{%s}} \\\\" % ("\\midrule\n" if i else "", name))
@@ -672,17 +676,22 @@ def main():
             "\\shortstack{Element-wise\\\\late} & \\shortstack{Literal\\\\mid} & Chance \\\\\n\\midrule\n"
             + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
             "\\begin{minipage}{\\linewidth}\\footnotesize " + "/".join(map(str, sorted(chunks)))
-            + " chunks per input (one from each of 10 pages, seed 403), " + "/".join(map(str, sorted(toks)))
-            + " generated tokens scored per model and input; plain greedy decoding, the main prompt. "
+            + " chunks per input (one from each of 10 pages, seed 403), up to 24 generated tokens scored "
+            "per chunk (" + str(max(toks)) + " per model and input" + "".join(
+                "; %s: %s, because of empty outputs" % (MODEL_NAMES[m], " and ".join(
+                    "%d on %s" % (x1[(m, e)]["tokens"], n) for e, n in (("tesseract", "Tesseract"),
+                                                                          ("ground_truth", "clean text"))))
+                for m in xm if min(x1[(m, e)]["tokens"] for e in ("tesseract", "ground_truth")) < max(toks))
+            + "); plain greedy decoding, the main prompt. "
             "Score: the logit of each generated token. Literal: Grad-CAM, gradients averaged over "
             "positions; element-wise: gradient $\\times$ hidden state per position (as in HiResCAM). "
             "Mid/late: hidden states at 1/2 and 3/4 of the depth. The first token, special tokens and "
             "the predicting position are left out of every map. Copied tokens: output tokens aligned "
             "with an identical OCR token. Peak: the largest map value over the OCR text lies within one "
             "position of the copied token's source; chance: the rate for a random peak. BanglaT5 is an "
-            "encoder-decoder model, so its map covers only the encoder input, which is the OCR text. Not "
-            "run: Phi-4-mini and TituLLMs 3B Instruct (time limit of the GPU session).\\end{minipage}\n"
-            "\\end{table*}\n", encoding="utf-8")
+            "encoder-decoder model, so its map covers only the encoder input, which is the OCR text."
+            + ("" if not missing else " Not run: " + " and ".join(MODEL_NAMES[m] for m in missing) + ".")
+            + "\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
 
     # ---- decoding ablation, 15-page CPU version (used only without the 40-page runs) ----
     if args.decoding.exists() and not runs3:

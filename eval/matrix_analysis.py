@@ -17,10 +17,10 @@ pages better/worse/unchanged, correct words broken and wrong words fixed
 (pooled over pages), the change ratio (median), truncated and empty outputs.
 The per-page measures are those of extended_analysis.page_measures.
 
-Usage (from eval/):
-    python matrix_analysis.py --ocr-path ../results/region/ocr_region40.jsonl \\
-        --corrections ../results/review3c/c5_*.jsonl ../results/region/dict_region40.jsonl \\
-        --engines tesseract,easyocr --label "region-level OCR" --out-prefix ../results/region_runs40
+Usage (from the repo root):
+    python eval/matrix_analysis.py --ocr-path results/region/ocr_region40.jsonl \\
+        --corrections results/review3c/c5_*.jsonl results/region/dict_region40.jsonl \\
+        --engines tesseract,easyocr --label "region-level OCR" --out-prefix results/region_runs40
 """
 import argparse
 import glob

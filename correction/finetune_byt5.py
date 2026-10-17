@@ -20,11 +20,11 @@ to correct synthetic OCR noise, then tested on the 40 evaluation pages.
          records follow run_sweep.py (model_key "byt5-small-ft"), so
          eval/matrix_analysis.py scores them like any other method.
 
-Usage (Kaggle GPU, see run_review3d_kaggle.py):
-    python finetune_byt5.py --ocr-path <ocr_eval40.jsonl> --dev-path <ocr_dev.jsonl> \\
+Usage (Kaggle GPU, see sessions/run_review3d_kaggle.py):
+    python correction/finetune_byt5.py --ocr-path <ocr_eval40.jsonl> --dev-path <ocr_dev.jsonl> \\
         --out-dir /kaggle/working/review3d --train-minutes 100
 Local smoke test (tiny random model, no download of the real weights):
-    python finetune_byt5.py --ocr-path ../results/ocr_eval40.jsonl --dev-path ../results/ocr_dev.jsonl \\
+    python correction/finetune_byt5.py --ocr-path results/ocr_eval40.jsonl --dev-path results/ocr_dev.jsonl \\
         --out-dir <tmp> --tiny --no-wiki --train-steps 3 --test-pages 1
 """
 import argparse

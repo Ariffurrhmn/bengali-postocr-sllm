@@ -5,12 +5,12 @@ Overleaf does not read as folders, so tables/ and figures/ go missing.)
 Upload on Overleaf with New Project -> Upload Project. It builds with either
 compiler: under pdfLaTeX the Bengali table comes from tables/examples_body.pdf.
 
-Usage (from paper/):  python make_overleaf_zip.py
+Usage:  python paper/scripts/make_overleaf_zip.py
 """
 import zipfile
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parents[1]  # the paper/ folder
 FILES = ["main.tex", "references.bib"]
 FOLDERS = ["tables", "figures", "fonts"]
 

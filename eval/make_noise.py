@@ -19,9 +19,9 @@ fine-tuning pilot (M2).
          field per level, "noise_0.02" ..., usable as engines by run_sweep.py.
 
 Usage:
-    python make_noise.py fit --dev ../results/ocr_dev.jsonl --out ../data/noise_model_dev.json
-    python make_noise.py apply --model ../data/noise_model_dev.json \\
-        --ocr-path ../results/ocr_eval40.jsonl --out ../results/noise40.jsonl
+    python eval/make_noise.py fit --dev results/ocr_dev.jsonl --out data/noise_model_dev.json
+    python eval/make_noise.py apply --model data/noise_model_dev.json \\
+        --ocr-path results/ocr_eval40.jsonl --out results/noise40.jsonl
 """
 import argparse
 import json

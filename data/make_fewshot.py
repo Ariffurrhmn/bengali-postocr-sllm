@@ -9,7 +9,7 @@ three in total. Writes data/fewshot_examples.json, which is gitignored like
 the rest of the dataset text.
 
 Usage:
-    python make_fewshot.py --ocr-dev ../results/ocr_dev.jsonl
+    python data/make_fewshot.py --ocr-dev results/ocr_dev.jsonl
 """
 import argparse
 import json

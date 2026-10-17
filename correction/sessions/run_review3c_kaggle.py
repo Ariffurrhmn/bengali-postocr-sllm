@@ -12,7 +12,7 @@ Two lanes, one GPU each, balanced by the main runs' times; same scheme as
 run_review3_kaggle.py (priority order, deadline, resume from an attached
 earlier output).
 
-Usage (Kaggle): python run_review3c_kaggle.py --ocr-path <ocr_region40.jsonl> \\
+Usage (Kaggle, from correction/): python sessions/run_review3c_kaggle.py --ocr-path <ocr_region40.jsonl> \\
     --out-dir /kaggle/working/review3c --hours 5
 """
 import argparse
@@ -25,7 +25,7 @@ import threading
 import time
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parents[1]  # correction/: the jobs run from here
 ENGINES = "tesseract,easyocr"
 
 

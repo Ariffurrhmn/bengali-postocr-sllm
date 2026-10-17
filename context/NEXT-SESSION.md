@@ -1,53 +1,52 @@
 # Next session: start here
 
-Handoff updated 2026-10-16 (night), at the end of the session that put the first third-review GPU session into the paper and prepared the next runs. A new session should read this file first, then the files it points to. This session's work was committed and pushed to `master` on 2026-10-16 (see `git log`; the commit after `93b323e`).
+Handoff updated 2026-10-17 (evening). Read this file first, then the files in section 2. Everything up to the repository reorganization (D48) is committed and pushed to `master` unless `git status` says otherwise.
 
 ## 1. The project in five lines
-- Paper: "Does Zero-Shot Small-Model Post-Correction Help Bengali OCR? A Negative Result Across Eight Models and Two OCR Engines" (`paper/main.tex`, author Arifur Rahman, course CSE403, reviewer **Bijon Sir**).
-- 40 historical Bengali pages (REID2019, British Library), Tesseract 5.3.4 and EasyOCR 1.7.2, eight models (0.25-3.8B) plus a SymSpell dictionary baseline, zero-shot, plain greedy decoding.
-- Finding: no method significantly lowers CER. General-purpose models copy their input (now also shown with token-level Grad-CAM maps); the Bengali-pretrained checkpoints regenerate or drop it, also in float32 and with a completion prompt; every method damages clean text.
-- Lead contribution: a repetition penalty and n-gram ban (common decoding defaults) also act on the prompt in Transformers; on the 40 pages every constraint, alone or together, makes every copying model harmful, even on error-free input.
-- The reviewer's third round is 43 items plus a verbal Grad-CAM request (item X1).
+- Paper: "Does Zero-Shot Small-Model Post-Correction Help Bengali OCR? ..." (`paper/main.tex`, author Arifur Rahman, course CSE403, reviewer **Bijon Sir**). The title is to become a statement of the finding once all results are in (WRITING-GUIDE Sec 3; check with Bijon Sir).
+- 40 historical Bengali pages (REID2019), Tesseract 5.3.4 and EasyOCR 1.7.2, zero-shot correction by open models (0.25-8B, and 32B in review3d), a SymSpell baseline, plain greedy decoding.
+- Finding so far: no method lowers CER, on whole-page OCR, on region-level OCR, or on synthetic noise at any level (0.02-0.30); general models copy (shown also by Grad-CAM maps), Bengali-pretrained checkpoints regenerate; every method damages clean text. Qwen3 4B/8B lower WER significantly without lowering CER.
+- Lead contribution: repetition penalty and n-gram ban also act on the prompt in Transformers and make copying models look harmful (40-page 2x2, including clean text).
+- The reviewer's third round: `context/review-draft-03.md` (43 items + X1, with status notes).
 
 ## 2. Read these, in order
-1. `context/review-draft-03.md`: the items, each with *Status* notes. Ticked = done.
-2. `context/decisions.md`: D39 (first GPU session), **D40** (paper update), **D41** (next runs), **D42** (author's answers; region OCR on Kaggle CPU, region level = full second setting), **D43**-**D44** (region OCR outcome; Tesseract output drifted within version 5.3.4). **D45** (review3c), **D46** (review3b/c scored), **D47** (last GPU session review3d: M2, M7). Earlier entries explain older choices.
-3. `context/results.md`: current numbers ("Third-review GPU runs").
-4. `context/engineering-notes.md`: gotchas. Most important here: about 4 GB free RAM; `HF_HUB_CACHE=G:/hf-cache`; **Bash heredocs mangle backslashes** (bit this session twice: use the Edit tool or a script file for LaTeX/Python edits); `PYTHONIOENCODING=utf-8`; locally, `TESSDATA_PREFIX` must point at the repo's `.tessdata` (scoop sets its own).
-5. `paper/WRITING-GUIDE.md` and `paper/README.md` (regeneration commands now include `review3_runs_analysis.py` and the new `make_decoding_figure.py --runs`).
-   Also the local folder `writing-tips/` (kept out of git): tips on writing the paper; `02-abstract.md` has the six-block abstract formula and a draft abstract.
+1. `context/review-draft-03.md`: item status.
+2. `context/decisions.md`: D39-D48 (third-review runs, region OCR, Tesseract drift, reorganization with the old→new path map).
+3. `context/results.md`: all numbers, including "Third-review GPU runs 2 and 3".
+4. `context/engineering-notes.md`: gotchas. Most important: about 4 GB free RAM; `HF_HUB_CACHE=G:/hf-cache`; **Bash heredocs mangle backslashes** (use the Edit tool or a script file); `PYTHONIOENCODING=utf-8`; local `TESSDATA_PREFIX` must point at `.tessdata`; **do not let pip upgrade `huggingface-hub` to 2.x** (Transformers 5 refuses it; D47); Tesseract output drifted within 5.3.4 (note 15).
+5. `paper/WRITING-GUIDE.md` and `paper/README.md` (every command runs from the repository root).
 
 ## 3. Where things stand
 
-### This session (2026-10-16, committed and pushed)
-- **Paper updated with the first GPU session (D40):** new tables `decoding.tex` (40-page 2x2, replaces the 15-page CPU table), `checks.tex` (C1 float32, C2 prompt format), `attribution.tex` (X1); Fig 4 redrawn; Sec IV-D rewritten, new Sec IV-J "Precision and prompt format", new Sec V-E "What the models attend to", Attribution paragraph in III-H; abstract, contributions, gap paragraph (risk framing), RQ3/RQ4, discussion, threats and conclusion updated; Grad-CAM and HiResCAM references added (checked). Built with Tectonic: no overfull boxes, all refs resolve, Bengali table renders. **23 pages** (was 21).
-- `eval/review3_runs_analysis.py` also writes the source-peak chance rate; regenerated `results/review3_runs.*` and `summaries/review3_runs.json` (all other numbers identical).
-- Review items ticked: C1, C2, C4, E4, F1, X1.
-- **Prepared, not yet run:** `ocr/run_region_ocr.py` + `notebooks/kaggle_region_ocr.ipynb` (C5, Kaggle CPU overnight, Tesseract 5.3.4 from conda-forge; the Colab notebook is a fallback); `eval/make_noise.py` + `data/noise_model_dev.json` (M3); new model keys in `correction/models.py` (M1); `correction/run_review3b_kaggle.py` + `notebooks/kaggle_review3b_run.ipynb` (M3, M1, X1 leftovers, map figure). See D41.
-- **Region OCR local check (D41):** on 8 pages, region crops with `--psm 6` and no polygon mask gave Tesseract CER 0.379 against 0.547 for whole pages with the same local engine (5.5.3); the real run must use 5.3.4 on Colab.
-- **Finding to remember:** the pilot's explanation of why literal Grad-CAM fails (attention sink) is not supported by the full run; the paper uses the HiResCAM averaging argument.
+### Done
+- Paper updated with the first third-review GPU session (C1, C2, C4, X1; D40). 23 pages.
+- Region-level OCR (Kaggle CPU; D42-D44) and all models on it (review3c); noise sweep and new models (review3b); Grad-CAM for all eight models. Scored (D46): `results/{region_ocr40,region_runs40,m1_runs40,noise_runs40,main_general40}.txt`, summaries in `summaries/`. Noise figure `paper/figures/fig_noise.pdf` (F7), not yet in the paper.
+- Repository reorganized (D48); `CITATION.cff` and `.zenodo.json` added.
+
+### Running
+- **review3d** on Kaggle (started 2026-10-17): M2 ByT5-small fine-tuning pilot, M7 Qwen3-32B 4-bit on 10 pages, Qwen3 4B on region text (D47). Output `review3d.zip` → unpack to `results/review3d/`.
 
 ### Not done
-- Runs: Kaggle CPU region OCR done (D43, `results/region/`, scored in `results/region_ocr40.txt`); the Colab rerun showed that today's Tesseract (Colab = Kaggle) cannot reproduce the main run, so the Kaggle file is final for both engines (D44; Tesseract compared with its same-run whole-page baseline); Kaggle review3b (M3, M1, X1 leftovers). Then scoring scripts for them (not written yet: write `eval/review3b_runs_analysis.py` once outputs exist, following `review3_runs_analysis.py`; M3 plot = F7).
-- GPU session review3c (C5, all models on region text; prepared, D45; Kaggle dataset `region-ocr40` with `ocr_region40.jsonl`). Score with a new script mirroring the main matrix; SymSpell region output is in `results/region/dict_region40.jsonl`.
-- Later sessions: fine-tuning pilot (M2), Qwen3-30B-A3B 4-bit (M7), M4 edit distance 1 / stronger lexicon (local, cheap), E7.
-- Waiting on the author: W2 page limit (paper is 23 pages), F5, C6/R2 release, E8 labels, title change (WRITING-GUIDE Sec 3; check with Bijon Sir).
+- Score review3d (commands at the end of the "Third-review GPU runs" block in `paper/README.md`; check `results/review3d/m2_train_log.json` for the development CER per checkpoint and `phase2.log` for the 4-bit load).
+- Paper tables for C5, M1, M2, M3, M7 and the Grad-CAM map figure (generators in `paper/scripts/`; check `git log` for what is done), then the full paper rewrite, written backwards (WRITING-GUIDE): conclusions, results, methods, discussion, introduction, abstract, title. The text still says Phi-4-mini and TituLLMs 3B Instruct were not analysed (now they are) and lists the noise sweep, fine-tuning, stronger OCR and large model as "not performed".
+- Local and cheap: M4 (SymSpell edit distance 1, stronger lexicon), E7.
+- Author decisions: code licence and DOI (Zenodo link + GitHub release, D48), release of the OCR text and outputs (C6, R2), page-type labels (E8), title, F5 (Figs 5/6), W2 (no page limit given; 23 pages).
 
 ## 4. Task list for the next session (in order)
-1. review3b and review3c are scored (D46; `results/{region_runs40,m1_runs40,noise_runs40}.txt`, summaries in `summaries/`). The last GPU session, review3d (M2, M7, Qwen3 4B on region text; D47), is prepared: the author uploads `G:/kaggle-upload/postocr-dev10/ocr_dev.jsonl` as Kaggle dataset `postocr-dev10` and runs `notebooks/kaggle_review3d_run.ipynb`. When `review3d.zip` arrives: unpack to `results/review3d/`, run the review3d commands at the end of `paper/README.md`, check `m2_train_log.json` (development CER per checkpoint). Then write the paper tables for C5, M1, M2, M3, M7 in `make_paper_tables.py`, the Grad-CAM map figure from `results/review3b/xai_maps_*`, and add the new rows (Phi-4-mini, TituLLMs 3B) to `attribution.tex` (regenerate: `make_paper_tables.py` reads `review3_runs.json`).
-2. Put the results in the paper (write backwards, WRITING-GUIDE), regenerate tables/figures, rebuild, tick items, decision entry.
-3. Prepare the next GPU session: all models on region OCR text (`run_sweep.py --ocr-path ocr_region40.jsonl`), M2 (ByT5-small fine-tuned on text corrupted with `make_noise.py`'s model; clean training text must not include eval pages), M7.
-4. Ask before every commit/push; the Kaggle and Colab notebooks need the code on GitHub.
+1. Score review3d; record results (results.md, decision entry, review status for M2, M7, C5).
+2. Finish the table and figure generators for C5, M1, M2, M3, M7 and the Grad-CAM maps; regenerate; check they render.
+3. Rewrite the paper with all results (write backwards); rebuild with Tectonic; check the Bengali table; tick items.
+4. Ask the author about the licence and the DOI release; if they agree, create the GitHub release with `gh` (Zenodo must be linked first).
+5. Ask before every commit/push.
 
 ## 5. Questions to ask the author at the start of every session
 Ask only those still open, together:
-1. How much Kaggle GPU quota is left, and when does it reset?
-2. Has the Kaggle region-OCR run (CPU) or the review3b run (GPU) finished? Where are the outputs?
-3. Any venue or page limit yet? (None given as of 2026-10-16; W2, F5; the paper is 23 pages.)
-4. May the raw OCR text and model outputs be released (Zenodo or the repo)? (C6, R2)
-5. Have you checked the page-type labels in `data/page_types.tsv`? (E8)
-6. Any news from Bijon Sir (Grad-CAM section, title)?
-7. May I commit and push?
+1. Has review3d finished? Where is `review3d.zip`?
+2. Which licence for the code (for example MIT or Apache-2.0), and should I make the GitHub release for the DOI once Zenodo is linked?
+3. May the raw OCR text and model outputs be released (a Zenodo dataset deposit)? (C6, R2)
+4. Have you checked the page-type labels in `data/page_types.tsv`? (E8)
+5. Any news from Bijon Sir (Grad-CAM section, title)?
+6. May I commit and push?
 
 ## 6. Rules carried over from the author
 - Do not discard uncommitted changes. Commit or push only when the author says so.
@@ -56,4 +55,4 @@ Ask only those still open, together:
 - Keep decisions in `context/decisions.md` (decision, why, consequence). Tick items in `context/review-draft-03.md` with a *Status* note.
 - Rebuild the paper with Tectonic after edits and check that the Bengali table renders.
 - Heavy model runs happen on Kaggle, run by the author; local runs are CPU only and limited by RAM.
-- The author does not want to babysit runs: give clear, short instructions for each Kaggle/Colab step.
+- The author does not want to babysit runs: give clear, short instructions for each Kaggle step.

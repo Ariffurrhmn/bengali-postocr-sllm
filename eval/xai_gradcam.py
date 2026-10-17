@@ -23,9 +23,9 @@ Decoder-only models: maps over the whole sequence. BanglaT5 (encoder-decoder):
 maps over the encoder states, which hold only the OCR text, so only the
 source-peak measure applies.
 
-Usage (from eval/; CPU for small models, GPU for the rest):
-    python xai_gradcam.py --model qwen3-0.6b --engines tesseract,ground_truth \\
-        --n-pages 4 --out ../results/xai_qwen3-0.6b.jsonl
+Usage (from the repo root; CPU for small models, GPU for the rest):
+    python eval/xai_gradcam.py --model qwen3-0.6b --engines tesseract,ground_truth \\
+        --n-pages 4 --out results/xai_qwen3-0.6b.jsonl
 """
 import argparse
 import difflib

@@ -2,15 +2,15 @@
 (Tectonic), so the Bengali example table also appears when the paper is
 compiled with pdfLaTeX, Overleaf's default compiler.
 
-Run after eval/make_example_table.py, from any directory:
-    python render_examples_pdf.py
+Run after paper/scripts/make_example_table.py, from any directory:
+    python paper/scripts/render_examples_pdf.py
 """
 import shutil
 import subprocess
 import tempfile
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parents[1]  # the paper/ folder
 WIDTH = "516pt"  # IEEEtran conference \textwidth, so the table is included at scale 1
 
 with tempfile.TemporaryDirectory() as tmp:

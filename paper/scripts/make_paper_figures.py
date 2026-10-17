@@ -10,7 +10,7 @@ Counts in the dataset figure are read from the committed split files, not
 typed in, so the figure can't drift from the data.
 
 Usage:
-    python make_paper_figures.py --page-image <tif> --page-xml <xml>
+    python paper/scripts/make_paper_figures.py --page-image <tif> --page-xml <xml>
     (the paper uses 279_42_B_41_0003, the median-difficulty page also shown
     in examples_*.txt; the dataset itself is not in the repo)
 """
@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Polygon
 from PIL import Image
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = REPO_ROOT / "paper" / "figures"
 
 TOTAL_PAGES = 81  # image + PAGE-XML pairs in the REID2019 Bengali release

@@ -14,10 +14,10 @@ no new model runs.
       from data/page_types.tsv; descriptive, the groups are small.
 
 Usage:
-    python sensitivity_analysis.py --ocr-path ../results/ocr_eval40.jsonl \\
-        --correction-path ../results/eval40_ocr.jsonl \\
+    python eval/sensitivity_analysis.py --ocr-path results/ocr_eval40.jsonl \\
+        --correction-path results/eval40_ocr.jsonl \\
         --dataset-dir "G:/New folder/Competition_dataset_ImagesPAGEXML" \\
-        --out-prefix ../results/sensitivity_gpu40
+        --out-prefix results/sensitivity_gpu40
 """
 import argparse
 import json

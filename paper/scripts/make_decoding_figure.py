@@ -8,9 +8,9 @@
     of review item C4, 40 pages), from results/review3_runs.json
     (review3_runs_analysis.py), with the raw OCR as reference.
 
-Usage (from eval/):
-    python make_decoding_figure.py --runs ../results/review3_runs.json \\
-        --out ../paper/figures/fig_decoding.pdf
+Usage (from the repo root):
+    python paper/scripts/make_decoding_figure.py --runs results/review3_runs.json \\
+        --out paper/figures/fig_decoding.pdf
 """
 import argparse
 import json

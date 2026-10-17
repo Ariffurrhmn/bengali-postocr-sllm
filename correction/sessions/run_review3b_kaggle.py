@@ -19,7 +19,7 @@ a rerun with an earlier output attached as a Kaggle input resumes it.
 M1 models run on Tesseract text, then the clean text, then EasyOCR text, so a
 time cut drops EasyOCR first. All runs: plain greedy decoding, the main prompt.
 
-Usage (Kaggle): python run_review3b_kaggle.py --ocr-path <ocr_eval40.jsonl> \\
+Usage (Kaggle, from correction/): python sessions/run_review3b_kaggle.py --ocr-path <ocr_eval40.jsonl> \\
     --out-dir /kaggle/working/review3b --hours 11
 """
 import argparse
@@ -32,7 +32,7 @@ import threading
 import time
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parents[1]  # correction/: the jobs run from here
 EVAL = HERE.parent / "eval"
 NOISE = "noise_0.02,noise_0.05,noise_0.10,noise_0.20,noise_0.30"
 M1_INPUTS = "tesseract,ground_truth,easyocr"

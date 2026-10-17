@@ -29,7 +29,7 @@ model runs). Each analysis follows a published protocol, cited in the comments:
   H. Difficulty    - CER change by baseline-CER band (thirds of pages per engine).
 
 Usage:
-    python extended_analysis.py            # eval split, writes results/extended_eval.{json,txt}
+    python eval/extended_analysis.py            # eval split, writes results/extended_eval.{json,txt}
 """
 import argparse
 import io
