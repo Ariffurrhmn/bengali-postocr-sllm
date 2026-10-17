@@ -51,6 +51,8 @@ def main():
     ap.add_argument("--ocr-path", type=Path, required=True)
     ap.add_argument("--main", type=Path, required=True, help="gpu_eval40.jsonl (plain, main run)")
     ap.add_argument("--out-prefix", type=Path, required=True)
+    ap.add_argument("--x1-extra", type=Path, nargs="*", default=[],
+                    help="further run folders whose xai_*.jsonl join the X1 rows (review3b)")
     args = ap.parse_args()
     rng = np.random.default_rng(DEFAULT_SEED)
     pages = {r["page_id"]: r for r in load(args.ocr_path)}
@@ -164,7 +166,10 @@ def main():
     # ---------------- X1 ----------------
     p("\nX1: Grad-CAM maps; mean over scored output tokens (mid = 1/2 depth, late = 3/4 depth)")
     x1 = []
-    for f in sorted(args.runs.glob("xai_*.jsonl")):
+    # xai_maps_* files (full maps of two chunks, for a figure) are not part of the table.
+    xai_files = [f for d in [args.runs, *args.x1_extra] for f in sorted(d.glob("xai_*.jsonl"))
+                 if not f.name.startswith("xai_maps_")]
+    for f in xai_files:
         rows = load(f)
         m = rows[0]["model"]
         for e in ("tesseract", "ground_truth"):

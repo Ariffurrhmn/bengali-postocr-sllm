@@ -37,3 +37,14 @@ python ../paper/render_examples_pdf.py
 - `CHECK-BEFORE-SUBMITTING.md` (local, gitignored): what still needs a human check.
 - `main.pdf`: the compiled paper (Tectonic/XeLaTeX), committed so readers need not compile it.
 - `make_overleaf_zip.py`: builds a correct Overleaf upload zip. `render_examples_pdf.py`: renders `tables/examples_body.pdf` (run after `make_example_table.py`).
+
+### Later third-review runs (score after unpacking each Kaggle zip into results/)
+```
+python region_ocr_analysis.py --region ../results/region/ocr_region40.jsonl --wholepage ../results/region/ocr_region40_wholepage.jsonl --verify ../results/region/ocr_region40_verify.json --main ../results/ocr_eval40.jsonl --out-prefix ../results/region_ocr40
+python matrix_analysis.py --ocr-path ../results/region/ocr_region40.jsonl --corrections "../results/review3c/c5_*.jsonl" ../results/region/dict_region40.jsonl --engines tesseract,easyocr --label "region-level OCR" --out-prefix ../results/region_runs40
+python matrix_analysis.py --ocr-path ../results/ocr_eval40.jsonl --corrections "../results/review3b/m1_*.jsonl" --engines tesseract,easyocr,ground_truth --label "new models (M1)" --out-prefix ../results/m1_runs40
+python matrix_analysis.py --ocr-path ../results/review3b/noise40.jsonl --corrections "../results/review3b/m3_*.jsonl" --engines noise_0.02,noise_0.05,noise_0.10,noise_0.20,noise_0.30 --label "noise sweep (M3)" --out-prefix ../results/noise_runs40
+python matrix_analysis.py --ocr-path ../results/ocr_eval40.jsonl --corrections ../results/gpu_eval40.jsonl --engines ground_truth,tesseract,easyocr --label "main run" --out-prefix ../results/main_general40
+python make_noise_figure.py --sweep ../results/noise_runs40.json --real ../results/main_general40.json --out ../paper/figures/fig_noise.pdf
+python review3_runs_analysis.py --runs ../results/review3 --x1-extra ../results/review3b --ocr-path ../results/ocr_eval40.jsonl --main ../results/gpu_eval40.jsonl --out-prefix ../results/review3_runs
+```
