@@ -3,7 +3,7 @@
 Handoff updated 2026-10-18 (evening). Read this file first, then the files in section 2. Claude commits and pushes itself (author, 2026-10-18), with plain messages: no Co-Authored-By line and no Claude email; never force-push.
 
 ## 1. The project in five lines
-- Paper: working title "Small Language Models Do Not Correct Historical Bengali OCR, and a Decoding Default Makes Them Look Worse" (`paper/main.tex`, author Arifur Rahman, course CSE403, reviewer **Bijon Sir**). Alternatives in D52; the author checks with Bijon Sir. `CITATION.cff` and `.zenodo.json` still carry the old title.
+- Paper: working title "Small Language Models for Historical Bengali OCR Correction: Word-Level Gains, Character-Level Damage, and a Decoding Pitfall" (D56; the old one claimed a decoding "default", which the editorial review showed is wrong) (`paper/main.tex`, author Arifur Rahman, course CSE403, reviewer **Bijon Sir**). Alternatives in D52; the author checks with Bijon Sir. `CITATION.cff` and `.zenodo.json` still carry the old title.
 - 40 historical Bengali pages (REID2019), Tesseract 5.3.4 and EasyOCR 1.7.2; 14 zero-shot open models (0.25-8B), Qwen3-32B 4-bit on 10 pages, a fine-tuned ByT5-small, SymSpell variants, engine fusion; plain greedy decoding.
 - Finding: no language model lowers CER (whole page, region level, synthetic noise down to 0.02); general models copy (Grad-CAM), Bengali-pretrained checkpoints regenerate; larger Qwen3 and the fine-tuned model fix words (WER down) but not characters; every method changes clean text; gating and fusion avoid damage but gain under 1%.
 - Lead contribution: repetition penalty and n-gram ban also act on the prompt in Transformers and make copying models look harmful (no prior paper found, D53).
@@ -11,7 +11,7 @@ Handoff updated 2026-10-18 (evening). Read this file first, then the files in se
 
 ## 2. Read these, in order
 1. `context/review-draft-03.md`: item status (still open: C6, W2, M5, E7, R2).
-2. `context/decisions.md`: D50-D54.
+2. `context/decisions.md`: D50-D57 (D56-D57: revision after the external editorial review).
 3. `context/results.md`: all numbers (review3d, local runs, review3e, and the fusion-claim correction).
 4. `context/engineering-notes.md`: gotchas (heredocs mangle backslashes, also in `python -c` and `python - <<EOF`: use the Edit tool or a script file).
 5. `paper/WRITING-GUIDE.md`, `paper/README.md`.
@@ -22,6 +22,7 @@ Handoff updated 2026-10-18 (evening). Read this file first, then the files in se
 - **References: published work only, no preprints** (author's rule). Models are cited by model cards. Check every new citation for a published version.
 
 ## 3. What is left (needs the author)
+0. **Bengali examples (Table XXI):** say which changed forms are OCR errors and which are valid historical spellings (editorial review); the student-ID line in the author block.
 1. **Title:** the author picks one (D52) with Bijon Sir; then update `main.tex`, README, `CITATION.cff`, `.zenodo.json`.
 2. **Bijon Sir's reading** of the new draft (`paper/main.pdf`): Grad-CAM section, title, anonymous review (the repo is public under the author's name).
 3. **Page-type labels** (`data/page_types.tsv`, E8): the author has not checked them.

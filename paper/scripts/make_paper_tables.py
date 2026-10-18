@@ -683,7 +683,7 @@ def main():
         toks = {r["tokens"] for r in runs3["X1"]}
         (OUT_DIR / "attribution.tex").write_text(
             "\\begin{table*}[t]\n\\centering\n"
-            "\\caption{What the Models Attend To: Token-Level Grad-CAM Maps}\n"
+            "\\caption{Gradient-Based Attribution of Generated Tokens: Token-Level Grad-CAM Maps}\n"
             "\\label{tab:attribution}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
             "\\begin{tabular}{lcccccccc}\n\\toprule\n"
             " & & \\multicolumn{3}{c}{Share of the map (element-wise, mid)} & "

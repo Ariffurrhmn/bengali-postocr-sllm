@@ -182,7 +182,7 @@ def dataset_figure(page_image: Path, page_xml: Path):
     d.add("pool", main_x, H * 0.57, f"{pool}-page pool")
     d.add("drop", side_x, H * 0.65, f"{usable - pool} dropped", "thinnest\ntranscriptions")
     d.add("dev", W * 0.19, H * 0.36, f"{len(dev)} development pages",
-          "pipeline debugging and\nfew-shot examples;\nnever scored")
+          "debugging, few-shot examples,\nnoise model, fine-tuning;\nnot in reported scores")
     d.add("eval", W * 0.63, H * 0.36, f"{len(eval_ids)} evaluation pages",
           "split frozen and committed\nbefore any correction\nmodel was run", "data")
     d.add("scored", W * 0.63, H * 0.10, f"all {len(scored)} pages scored",
