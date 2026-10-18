@@ -6,13 +6,13 @@
 \footnotesize
 \begin{tabular}{lccccccc}
 \toprule
-Input & Raw CER & Corrected CER & $\Delta$CER [95\% CI] & $\Delta$WER & \shortstack{Broken /\\fixed (\%)} & \shortstack{Pages better /\\worse} & Truncated \\
+Input & Raw CER & Corrected CER & $\Delta$CER [95\% CI] & $\Delta$WER & \shortstack{Broken /\\fixed (words)} & \shortstack{Pages better /\\worse} & Truncated \\
 \midrule
-Tesseract & 0.341 & 0.353$^{+}$ & +0.012 [-0.001, +0.026] & -0.024$^{-}$ & 5 / 4 & 11/25 & 5 \\
-EasyOCR & 0.297 & 0.313 & +0.016 [+0.001, +0.034] & -0.037$^{-}$ & 7 / 11 & 19/19 & 5 \\
-Clean text & 0.000 & 0.015$^{+}$ & +0.015 [+0.009, +0.023] & +0.051$^{+}$ & 4 / -- & 0/33 & 1 \\
+Tesseract & 0.341 & 0.353$^{+}$ & +0.012 [-0.001, +0.026] & -0.024$^{-}$ & 102 / 113 & 11/25 & 5 \\
+EasyOCR & 0.297 & 0.313 & +0.016 [+0.001, +0.034] & -0.037$^{-}$ & 146 / 282 & 19/19 & 5 \\
+Clean text & 0.000 & 0.015$^{+}$ & +0.015 [+0.009, +0.023] & +0.051$^{+}$ & 196 / -- & 0/33 & 1 \\
 \bottomrule
 \end{tabular}
 \par\smallskip
-\begin{minipage}{\linewidth}\footnotesize google/byt5-small fine-tuned on Bengali Wikipedia segments and development-page reference lines, corrupted with the development-page noise model (no evaluation text in training). Training: 43{,}312 training pairs, 1{,}793 updates of 8 pairs (155 min on one T4 GPU, including the development evaluations); development-page CER 0.365 after correction against 0.362 raw (checkpoint chosen on it). $^{+}$/$^{-}$: Holm-significant over the 3 cells (exploratory).\end{minipage}
+\begin{minipage}{\linewidth}\footnotesize google/byt5-small fine-tuned on Bengali Wikipedia segments and development-page reference lines, corrupted with the development-page noise model (no evaluation text in training). Training: 43{,}312 training pairs, 1{,}793 updates of 8 pairs (155 min on one T4 GPU, including the development evaluations); development-page CER 0.365 after correction against 0.362 raw (checkpoint chosen on it). $^{+}$/$^{-}$: Holm-significant over the 3 cells (exploratory). Broken / fixed: reference words the raw OCR had right that the output gets wrong, and words it had wrong that the output gets right, as counts of the 4{,}497 aligned reference words, so the two can be compared directly.\end{minipage}
 \end{table*}

@@ -65,6 +65,12 @@
    },
    "broken_share": 0.9818857408267534,
    "fixed_share": 0.012798634812286689,
+   "words": {
+    "raw_correct": 2153,
+    "raw_wrong": 2344,
+    "broken": 2114,
+    "fixed": 30
+   },
    "change_ratio_median": 3.16170672796153
   },
   {
@@ -119,6 +125,12 @@
    },
    "broken_share": 0.058987459359033906,
    "fixed_share": 0.0034129692832764505,
+   "words": {
+    "raw_correct": 2153,
+    "raw_wrong": 2344,
+    "broken": 127,
+    "fixed": 8
+   },
    "change_ratio_median": 0.06106129727303532
   },
   {
@@ -173,6 +185,12 @@
    },
    "broken_share": 0.15141662796098468,
    "fixed_share": 0.008959044368600682,
+   "words": {
+    "raw_correct": 2153,
+    "raw_wrong": 2344,
+    "broken": 326,
+    "fixed": 21
+   },
    "change_ratio_median": 0.5156381407969436
   },
   {
@@ -227,6 +245,12 @@
    },
    "broken_share": 0.058987459359033906,
    "fixed_share": 0.006825938566552901,
+   "words": {
+    "raw_correct": 2153,
+    "raw_wrong": 2344,
+    "broken": 127,
+    "fixed": 16
+   },
    "change_ratio_median": 0.15116529995684075
   },
   {
@@ -281,6 +305,12 @@
    },
    "broken_share": 0.0580585229911751,
    "fixed_share": 0.02431740614334471,
+   "words": {
+    "raw_correct": 2153,
+    "raw_wrong": 2344,
+    "broken": 125,
+    "fixed": 57
+   },
    "change_ratio_median": 0.2425607022561016
   },
   {
@@ -335,6 +365,12 @@
    },
    "broken_share": 0.07338597306084534,
    "fixed_share": 0.07380546075085324,
+   "words": {
+    "raw_correct": 2153,
+    "raw_wrong": 2344,
+    "broken": 158,
+    "fixed": 173
+   },
    "change_ratio_median": 0.5231145598544805
   },
   {
@@ -389,6 +425,12 @@
    },
    "broken_share": 0.2777519739897817,
    "fixed_share": 0.021331058020477817,
+   "words": {
+    "raw_correct": 2153,
+    "raw_wrong": 2344,
+    "broken": 598,
+    "fixed": 50
+   },
    "change_ratio_median": 0.2045477137858412
   },
   {
@@ -443,6 +485,12 @@
    },
    "broken_share": 0.7556897352531352,
    "fixed_share": 0.03967576791808874,
+   "words": {
+    "raw_correct": 2153,
+    "raw_wrong": 2344,
+    "broken": 1627,
+    "fixed": 93
+   },
    "change_ratio_median": 3.496259928344214
   },
   {
@@ -497,6 +545,12 @@
    },
    "broken_share": 0.7292150487691593,
    "fixed_share": 0.017064846416382253,
+   "words": {
+    "raw_correct": 2153,
+    "raw_wrong": 2344,
+    "broken": 1570,
+    "fixed": 40
+   },
    "change_ratio_median": 5.4599629161157575
   },
   {
@@ -551,6 +605,12 @@
    },
    "broken_share": 0.9660938225731538,
    "fixed_share": 0.0017064846416382253,
+   "words": {
+    "raw_correct": 2153,
+    "raw_wrong": 2344,
+    "broken": 2080,
+    "fixed": 4
+   },
    "change_ratio_median": 3.295846001699198
   },
   {
@@ -605,6 +665,12 @@
    },
    "broken_share": 0.9836295603367633,
    "fixed_share": 0.03815175922000848,
+   "words": {
+    "raw_correct": 2138,
+    "raw_wrong": 2359,
+    "broken": 2103,
+    "fixed": 90
+   },
    "change_ratio_median": 4.006563712648243
   },
   {
@@ -659,6 +725,12 @@
    },
    "broken_share": 0.02806361085126286,
    "fixed_share": 0.000847816871555744,
+   "words": {
+    "raw_correct": 2138,
+    "raw_wrong": 2359,
+    "broken": 60,
+    "fixed": 2
+   },
    "change_ratio_median": 0.03081086032608082
   },
   {
@@ -713,6 +785,12 @@
    },
    "broken_share": 0.07904583723105706,
    "fixed_share": 0.01526070368800339,
+   "words": {
+    "raw_correct": 2138,
+    "raw_wrong": 2359,
+    "broken": 169,
+    "fixed": 36
+   },
    "change_ratio_median": 0.3008677184130066
   },
   {
@@ -767,6 +845,12 @@
    },
    "broken_share": 0.09775491113189898,
    "fixed_share": 0.010173802458668928,
+   "words": {
+    "raw_correct": 2138,
+    "raw_wrong": 2359,
+    "broken": 209,
+    "fixed": 24
+   },
    "change_ratio_median": 0.09575205204695975
   },
   {
@@ -821,6 +905,12 @@
    },
    "broken_share": 0.04443405051449953,
    "fixed_share": 0.046206019499788045,
+   "words": {
+    "raw_correct": 2138,
+    "raw_wrong": 2359,
+    "broken": 95,
+    "fixed": 109
+   },
    "change_ratio_median": 0.1073371468952367
   },
   {
@@ -875,6 +965,12 @@
    },
    "broken_share": 0.05659494855004677,
    "fixed_share": 0.09198813056379822,
+   "words": {
+    "raw_correct": 2138,
+    "raw_wrong": 2359,
+    "broken": 121,
+    "fixed": 217
+   },
    "change_ratio_median": 0.2863853310055211
   },
   {
@@ -929,6 +1025,12 @@
    },
    "broken_share": 0.30963517305893357,
    "fixed_share": 0.0635862653666808,
+   "words": {
+    "raw_correct": 2138,
+    "raw_wrong": 2359,
+    "broken": 662,
+    "fixed": 150
+   },
    "change_ratio_median": 0.3560854446100348
   },
   {
@@ -983,6 +1085,12 @@
    },
    "broken_share": 0.7572497661365762,
    "fixed_share": 0.04281475201356507,
+   "words": {
+    "raw_correct": 2138,
+    "raw_wrong": 2359,
+    "broken": 1619,
+    "fixed": 101
+   },
    "change_ratio_median": 4.670381700116916
   },
   {
@@ -1037,6 +1145,12 @@
    },
    "broken_share": 0.813376987839102,
    "fixed_share": 0.01526070368800339,
+   "words": {
+    "raw_correct": 2138,
+    "raw_wrong": 2359,
+    "broken": 1739,
+    "fixed": 36
+   },
    "change_ratio_median": 7.256397361887311
   },
   {
@@ -1091,6 +1205,12 @@
    },
    "broken_share": 0.9354536950420954,
    "fixed_share": 0.000847816871555744,
+   "words": {
+    "raw_correct": 2138,
+    "raw_wrong": 2359,
+    "broken": 2000,
+    "fixed": 2
+   },
    "change_ratio_median": 3.890985259947287
   }
  ]

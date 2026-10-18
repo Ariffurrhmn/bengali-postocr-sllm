@@ -56,6 +56,12 @@
    },
    "broken_share": 0.05217391304347826,
    "fixed_share": 0.04445318646734855,
+   "words": {
+    "raw_correct": 1955,
+    "raw_wrong": 2542,
+    "broken": 102,
+    "fixed": 113
+   },
    "change_ratio_median": 0.20580523066944342
   },
   {
@@ -110,6 +116,12 @@
    },
    "broken_share": 0.07487179487179488,
    "fixed_share": 0.11071849234393404,
+   "words": {
+    "raw_correct": 1950,
+    "raw_wrong": 2547,
+    "broken": 146,
+    "fixed": 282
+   },
    "change_ratio_median": 0.30855037733777757
   },
   {
@@ -164,6 +176,12 @@
    },
    "broken_share": 0.04358461196353124,
    "fixed_share": NaN,
+   "words": {
+    "raw_correct": 4497,
+    "raw_wrong": 0,
+    "broken": 196,
+    "fixed": 0
+   },
    "change_ratio_median": NaN
   }
  ]

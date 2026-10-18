@@ -83,6 +83,10 @@ def main():
         wrong = sum(x["fixed"] + x["still_wrong"] for x in meas)
         row["broken_share"] = sum(x["broke_correct"] for x in meas) / ok if ok else float("nan")
         row["fixed_share"] = sum(x["fixed"] for x in meas) / wrong if wrong else float("nan")
+        # Absolute counts: the two shares have different denominators (words the raw OCR
+        # had right vs. had wrong), so only counts show whether more words were fixed than broken.
+        row["words"] = {"raw_correct": ok, "raw_wrong": wrong,
+                        "broken": sum(x["broke_correct"] for x in meas), "fixed": sum(x["fixed"] for x in meas)}
         ratios = [x["change_ratio"] for x in meas if not np.isnan(x["change_ratio"])]
         row["change_ratio_median"] = float(np.median(ratios)) if ratios else float("nan")
         rows.append(row)

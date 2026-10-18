@@ -219,7 +219,7 @@ def main():
     (OUT_DIR / "eval_matrix.tex").write_text(
         "\\begin{table*}[t]\n\\centering\n"
         "\\caption{Full Evaluation Matrix: " + str(n_pages) + " Pages, 2 Engines, "
-        + str(len(models)) + " Models}\n"
+        + str(len(models)) + " Correction Methods}\n"
         "\\label{tab:matrix}\n"
         "\\setlength{\\tabcolsep}{3pt}\n\\footnotesize\n"
         "\\begin{tabular}{llccccccccc}\n\\toprule\n"
@@ -887,6 +887,20 @@ def main():
     def pct(x):
         return "--" if x != x else "%.0f" % (100 * x)
 
+    def bf(c):
+        """Broken / fixed as word counts: the shares have different denominators
+        (words the raw OCR had right vs. wrong), so only counts can be compared."""
+        w = c["words"]
+        return "%d / %s" % (w["broken"], w["fixed"] if w["raw_wrong"] else "--")
+
+    def nref(m):
+        c = next(iter(m.values()))["words"]
+        return format(c["raw_correct"] + c["raw_wrong"], ",").replace(",", "{,}")
+
+    BF_NOTE = ("Broken / fixed: reference words the raw OCR had right that the output gets wrong, and words "
+               "it had wrong that the output gets right, as counts of the %s aligned reference words, so the "
+               "two can be compared directly.")
+
     # ---- region-level OCR (item C5) ----
     reg_ocr = json.loads(args.region_ocr.read_text(encoding="utf-8")) if args.region_ocr.exists() else None
     reg = matrix(args.region_runs)
@@ -907,7 +921,7 @@ def main():
                 cols += ["%.3f%s" % (c["cer"]["output"], hmark(c["cer"])),
                          "%+.3f %s" % (c["cer"]["delta"], ci(*c["cer"]["ci"])),
                          "%+.3f%s" % (c["wer"]["delta"], hmark(c["wer"])),
-                         "%s / %s" % (pct(c["broken_share"]), pct(c["fixed_share"]))]
+                         bf(c)]
             rows.append(" & ".join(cols) + " \\\\")
         t, ez = reg_ocr["engines"]["tesseract"], reg_ocr["engines"]["easyocr"]
         (OUT_DIR / "region.tex").write_text(
@@ -917,8 +931,8 @@ def main():
             "\\begin{tabular}{lcccccccc}\n\\toprule\n"
             " & \\multicolumn{4}{c}{Tesseract} & \\multicolumn{4}{c}{EasyOCR} \\\\\n"
             "\\cmidrule(lr){2-5}\\cmidrule(lr){6-9}\n"
-            "Method & CER & $\\Delta$CER [95\\% CI] & $\\Delta$WER & \\shortstack{Broken /\\\\fixed (\\%)} & "
-            "CER & $\\Delta$CER [95\\% CI] & $\\Delta$WER & \\shortstack{Broken /\\\\fixed (\\%)} \\\\\n\\midrule\n"
+            "Method & CER & $\\Delta$CER [95\\% CI] & $\\Delta$WER & \\shortstack{Broken /\\\\fixed (words)} & "
+            "CER & $\\Delta$CER [95\\% CI] & $\\Delta$WER & \\shortstack{Broken /\\\\fixed (words)} \\\\\n\\midrule\n"
             + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
             "\\begin{minipage}{\\linewidth}\\footnotesize Each PAGE-XML text region read separately (" +
             str(reg_ocr["regions"]) + " regions with text) and scored against the regions in reading "
@@ -928,12 +942,12 @@ def main():
             "compared only within this run; EasyOCR reproduces the main run (CER %.3f between them). "
             "$\\Delta$: corrected $-$ raw region OCR (positive = worse). $^{+}$/$^{-}$: significantly "
             "higher/lower, Wilcoxon signed-rank, Holm-corrected over the %d cells of the table for each "
-            "metric (exploratory). Broken: share of words the raw OCR had right that the output gets "
-            "wrong; fixed: share of wrong words it gets right.\\end{minipage}\n\\end{table*}\n" % (
+            "metric (exploratory). " % (
                 t["region_vs_same_run_wholepage"]["mean_b"], ez["region_vs_same_run_wholepage"]["mean_b"],
                 t["region_vs_same_run_wholepage"]["delta"], ci(*t["region_vs_same_run_wholepage"]["ci"]),
                 ez["region_vs_same_run_wholepage"]["delta"], ci(*ez["region_vs_same_run_wholepage"]["ci"]),
-                t["rerun_vs_main_cer_mean"], ez["rerun_vs_main_cer_mean"], len(reg)),
+                t["rerun_vs_main_cer_mean"], ez["rerun_vs_main_cer_mean"], len(reg))
+            + BF_NOTE % nref(reg) + "\\end{minipage}\n\\end{table*}\n",
             encoding="utf-8")
 
     # ---- model scale and family (item M1; M7 separately on 10 pages) ----
@@ -954,7 +968,7 @@ def main():
                 cols.append("%+.3f%s" % (c["wer"]["delta"], hmark(c["wer"])))
             for e, _ in ENGINES:
                 c = src[(e, m)]
-                cols.append("%s / %s" % (pct(c["broken_share"]), pct(c["fixed_share"])))
+                cols.append(bf(c))
             rows.append(" & ".join(cols) + " \\\\")
         (OUT_DIR / "scale.tex").write_text(
             "\\begin{table*}[t]\n\\centering\n"
@@ -962,17 +976,18 @@ def main():
             "\\label{tab:scale}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
             "\\begin{tabular}{lccccccc}\n\\toprule\n"
             " & \\multicolumn{2}{c}{$\\Delta$CER} & Clean text & \\multicolumn{2}{c}{$\\Delta$WER} & "
-            "\\multicolumn{2}{c}{Broken / fixed (\\%)} \\\\\n"
+            "\\multicolumn{2}{c}{Broken / fixed (words)} \\\\\n"
             "\\cmidrule(lr){2-3}\\cmidrule(lr){4-4}\\cmidrule(lr){5-6}\\cmidrule(lr){7-8}\n"
             "Model & Tesseract & EasyOCR & CER & Tesseract & EasyOCR & Tesseract & EasyOCR \\\\\n\\midrule\n"
             + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
             "\\begin{minipage}{\\linewidth}\\footnotesize $\\Delta$: corrected $-$ raw OCR (positive = "
             "worse); clean text: CER of the output when the reference itself is the input. "
-            "$^{\\dagger}$: models of the main runs; the others were added for the third review (same "
+            "$^{\\dagger}$: core models of the main runs; the others extend the comparison to newer "
+            "checkpoints and to size within the Qwen3, Gemma and Llama families (same "
             "prompt, chunking and plain decoding; float16 above 3B parameters, Gemma 3 in float32). "
             "$^{+}$/$^{-}$: Holm-significant, Wilcoxon signed-rank, within each run's exploratory family "
-            "(main run %d cells, added models %d cells, per metric). Broken and fixed as in "
-            "Table~\\ref{tab:damage}.\\end{minipage}\n\\end{table*}\n" % (len(mainm), len(m1)),
+            "(main run %d cells, added models %d cells, per metric). " % (len(mainm), len(m1))
+            + BF_NOTE % nref(m1) + "\\end{minipage}\n\\end{table*}\n",
             encoding="utf-8")
 
     # ---- noise sweep (item M3) ----
@@ -1010,7 +1025,7 @@ def main():
             rows.append(" & ".join([name, "%.3f" % c["cer"]["input"], "%.3f%s" % (c["cer"]["output"], hmark(c["cer"])),
                                     "%+.3f %s" % (c["cer"]["delta"], ci(*c["cer"]["ci"])),
                                     "%+.3f%s" % (c["wer"]["delta"], hmark(c["wer"])),
-                                    "%s / %s" % (pct(c["broken_share"]), pct(c["fixed_share"])),
+                                    bf(c),
                                     "%d/%d" % (c["cer"]["better"], c["cer"]["worse"]),
                                     str(c["truncated"])]) + " \\\\")
         note = ""
@@ -1027,12 +1042,13 @@ def main():
             "\\label{tab:finetune}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
             "\\begin{tabular}{lccccccc}\n\\toprule\n"
             "Input & Raw CER & Corrected CER & $\\Delta$CER [95\\% CI] & $\\Delta$WER & "
-            "\\shortstack{Broken /\\\\fixed (\\%)} & \\shortstack{Pages better /\\\\worse} & Truncated \\\\\n"
+            "\\shortstack{Broken /\\\\fixed (words)} & \\shortstack{Pages better /\\\\worse} & Truncated \\\\\n"
             "\\midrule\n" + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
             "\\begin{minipage}{\\linewidth}\\footnotesize google/byt5-small fine-tuned on Bengali "
             "Wikipedia segments and development-page reference lines, corrupted with the development-page "
             "noise model (no evaluation text in training)." + note + " $^{+}$/$^{-}$: Holm-significant "
-            "over the %d cells (exploratory).\\end{minipage}\n\\end{table*}\n" % len(m2), encoding="utf-8")
+            "over the %d cells (exploratory). " % len(m2) + BF_NOTE % nref(m2)
+            + "\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
 
     # ---- dictionary variants (item M4) and engine fusion (item M6) ----
     m4, fus = matrix(args.m4_runs), matrix(args.fusion_runs)
@@ -1058,7 +1074,7 @@ def main():
                     cols.append("--" if c is None else "%+.3f%s" % (c["wer"]["delta"], hmark(c["wer"])))
                 for e, _ in ENGINES:
                     c = None if src is fus and e == "tesseract" else src.get((e, m))
-                    cols.append("--" if c is None else "%s / %s" % (pct(c["broken_share"]), pct(c["fixed_share"])))
+                    cols.append("--" if c is None else bf(c))
                 rows.append(" & ".join(cols) + " \\\\")
         n_fus = sum(1 for (e, _) in fus if e == "easyocr")
         (OUT_DIR / "classical.tex").write_text(
@@ -1067,7 +1083,7 @@ def main():
             "\\label{tab:classical}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
             "\\begin{tabular}{lccccccc}\n\\toprule\n"
             " & \\multicolumn{2}{c}{$\\Delta$CER [95\\% CI]} & Clean text & \\multicolumn{2}{c}{$\\Delta$WER} & "
-            "\\multicolumn{2}{c}{Broken / fixed (\\%)} \\\\\n"
+            "\\multicolumn{2}{c}{Broken / fixed (words)} \\\\\n"
             "\\cmidrule(lr){2-3}\\cmidrule(lr){4-4}\\cmidrule(lr){5-6}\\cmidrule(lr){7-8}\n"
             "Method & Tesseract & EasyOCR & CER & Tesseract & EasyOCR & Tesseract & EasyOCR \\\\\n\\midrule\n"
             + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
@@ -1078,8 +1094,8 @@ def main():
             "Tesseract's reading if its confidence ranks higher within the page (margin: by at least "
             "0.25); it is compared with EasyOCR, its base, only, and needs two OCR readings, so it has "
             "no clean-text control. $^{+}$/$^{-}$: Holm-significant, Wilcoxon signed-rank, over the "
-            "%d dictionary cells and, separately, the %d fusion cells, per metric (exploratory)."
-            "\\end{minipage}\n\\end{table*}\n" % (len(m4), n_fus), encoding="utf-8")
+            "%d dictionary cells and, separately, the %d fusion cells, per metric (exploratory). "
+            % (len(m4), n_fus) + BF_NOTE % nref(m4) + "\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
 
     # ---- large model on 10 pages (item M7) ----
     m7 = matrix(args.m7_runs)

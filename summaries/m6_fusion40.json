@@ -56,6 +56,12 @@
    },
    "broken_share": 0.03641025641025641,
    "fixed_share": 0.05496662740478995,
+   "words": {
+    "raw_correct": 1950,
+    "raw_wrong": 2547,
+    "broken": 71,
+    "fixed": 140
+   },
    "change_ratio_median": 0.07358952891774384
   },
   {
@@ -110,6 +116,12 @@
    },
    "broken_share": 0.015384615384615385,
    "fixed_share": 0.03415783274440518,
+   "words": {
+    "raw_correct": 1950,
+    "raw_wrong": 2547,
+    "broken": 30,
+    "fixed": 87
+   },
    "change_ratio_median": 0.035087084212054746
   }
  ]
