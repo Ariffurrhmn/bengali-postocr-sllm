@@ -1113,6 +1113,11 @@ def main():
             rows.append(" & ".join(cols) + " \\\\")
         n = next(iter(m7.values()))["n"]
         raw = {e: next(c["cer"]["input"] for (ee, _), c in m7.items() if ee == e) for e, _ in ENGINES}
+        # The Holm family is every model scored on these pages, not only the Qwen3 rows shown.
+        m7_models = sorted({m for (_, m) in m7})
+        core = [m for m in m7_models if m in MODEL_ORDER]
+        extra = [MODEL_NAMES[m] for m in SCALE_ORDER if m in m7_models and m not in MODEL_ORDER]
+        m7_desc = "the %d core models and %s" % (len(core), ", ".join(extra))
         (OUT_DIR / "large.tex").write_text(
             "\\begin{table}[t]\n\\centering\n"
             "\\caption{Qwen3 from 0.6B to 32B Parameters on %d Pages (Change Against the Input)}\n"
@@ -1124,11 +1129,14 @@ def main():
             + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
             "\\begin{minipage}{\\linewidth}\\footnotesize The %d pages of the attribution analysis "
             "(raw CER %.3f Tesseract, %.3f EasyOCR). Qwen3 32B in 4-bit (NF4) on two T4 GPUs; the others "
-            "as in Table~\\ref{tab:scale}, restricted to the same pages. With %d pages the smallest "
-            "possible two-sided Wilcoxon $p$ is $2/2^{%d}$, so after Holm over the %d cells no change can be "
-            "significant (smallest adjusted $p$ %.3f); the text gives 95\\%% intervals."
-            "\\end{minipage}\n\\end{table}\n"
-            % (n, raw["tesseract"], raw["easyocr"], n, n, len(m7), min(1.0, len(m7) * 2 / 2 ** n)),
+            "as in Table~\\ref{tab:scale}, restricted to the same pages. Tests: Wilcoxon signed-rank, "
+            "Holm-corrected over the %d cells of each metric, that is, all %d models rescored on these pages "
+            "(%s) on the %d inputs; the table shows the Qwen3 rows. With %d pages the smallest possible "
+            "two-sided Wilcoxon $p$ is $2/2^{%d}$, so after this correction no change can reach significance "
+            "(smallest adjusted $p$ %.3f): the table gives descriptive estimates, and the text gives 95\\%% "
+            "intervals.\\end{minipage}\n\\end{table}\n"
+            % (n, raw["tesseract"], raw["easyocr"], len(m7), len(m7_models), m7_desc,
+               len({e for (e, _) in m7}), n, n, min(1.0, len(m7) * 2 / 2 ** n)),
             encoding="utf-8")
 
     print(f"Wrote tables to {OUT_DIR}")

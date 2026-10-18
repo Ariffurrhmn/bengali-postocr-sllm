@@ -18,5 +18,5 @@ Qwen3 32B (4-bit) & -0.003 & -0.006 & +0.073 & -0.092 & -0.110 \\
 \bottomrule
 \end{tabular}
 \par\smallskip
-\begin{minipage}{\linewidth}\footnotesize The 10 pages of the attribution analysis (raw CER 0.377 Tesseract, 0.272 EasyOCR). Qwen3 32B in 4-bit (NF4) on two T4 GPUs; the others as in Table~\ref{tab:scale}, restricted to the same pages. With 10 pages the smallest possible two-sided Wilcoxon $p$ is $2/2^{10}$, so after Holm over the 36 cells no change can be significant (smallest adjusted $p$ 0.070); the text gives 95\% intervals.\end{minipage}
+\begin{minipage}{\linewidth}\footnotesize The 10 pages of the attribution analysis (raw CER 0.377 Tesseract, 0.272 EasyOCR). Qwen3 32B in 4-bit (NF4) on two T4 GPUs; the others as in Table~\ref{tab:scale}, restricted to the same pages. Tests: Wilcoxon signed-rank, Holm-corrected over the 36 cells of each metric, that is, all 12 models rescored on these pages (the 8 core models and Qwen3 0.6B, Qwen3 4B, Qwen3 8B, Qwen3 32B (4-bit)) on the 3 inputs; the table shows the Qwen3 rows. With 10 pages the smallest possible two-sided Wilcoxon $p$ is $2/2^{10}$, so after this correction no change can reach significance (smallest adjusted $p$ 0.070): the table gives descriptive estimates, and the text gives 95\% intervals.\end{minipage}
 \end{table}
