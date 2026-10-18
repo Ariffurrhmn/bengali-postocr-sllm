@@ -37,7 +37,7 @@ Everything up to the paper rewrite is committed and pushed (`d93ed48`).
 3. `python paper/scripts/make_paper_tables.py` writes `finetune.tex` (reads `results/review3e/m2_train_log.json`; its note says "steps", which are now optimizer steps of effective batch 8: check the wording). Test-render it.
 4. Paper: fill the places marked `% M2` in `main.tex` (Results subsection after the large-model paragraph with `\input{tables/finetune}`; RQ5; practical implications; conclusion; abstract) and the closing sentence of "Possible explanations" ("fine-tuned versions of these models"). Mention the failed first run in one sentence in Methods (III-L, fine-tuning). Trim the abstract from 216 to about 200 words. Revisit the title if fine-tuning helps.
 5. Rebuild (`cd paper; tectonic -X compile main.tex`), `python paper/scripts/check_refs.py`, check overfull boxes and the Bengali table; `python paper/scripts/make_overleaf_zip.py` if the author wants Overleaf.
-6. Record: results.md, a decision entry (D53), review-draft-03 M2 status, timeline, README (last bullet), this file.
+6. Record: results.md, a decision entry (D54), review-draft-03 M2 status, timeline, README (last bullet), this file.
 7. Commit and push (no attribution trailer). Later, with their go-ahead: update the title in `CITATION.cff` and `.zenodo.json`, GitHub release for the DOI (Zenodo is linked), DOI into `rahman2026repo`, CC BY 4.0 data deposit of the OCR text and outputs (the paper already says they are released with it).
 
 ## 5. Questions to ask the author at the start of every session

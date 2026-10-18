@@ -1,6 +1,6 @@
 # Literature leads (Consensus, 2026-10-18)
 
-Found with the Consensus search tool while checking the paper's novelty claims and related work. **Leads only: none is cited yet.** Before a paper goes into `paper/references.bib`, open it and check the venue, the numbers and the claim we would cite (as done for Grad-CAM and HiResCAM in D40).
+Found with the Consensus search tool while checking the paper's novelty claims and related work. **Status 2026-10-18: seven of these are now cited (D53): Boros 2024, Zhang 2024, Maheshwari 2022, Bhandari & Harit 2026 (TALLIP and arXiv 2609.21595, found while verifying), Bourne 2024 (arXiv), Wiher 2022. The rest are leads only.** Before a paper goes into `paper/references.bib`, open it and check the venue, the numbers and the claim we would cite (as done for Grad-CAM and HiResCAM in D40).
 
 A Consensus research-agent thread with the full brief (novelty of the decoding pitfall; Indic post-OCR work; break-even input CER; fine-tuning on synthetic noise) was started but stayed queued with 0 steps for 10 minutes: https://consensus.app/search/i-am-checking-the-novelty-claims-and-related-work-/IeSrQMFYRcO0Pr--QG34Sw/ (check it later for its answer).
 
