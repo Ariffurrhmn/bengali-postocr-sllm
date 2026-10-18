@@ -702,7 +702,7 @@ def main():
                 for m in xm if min(x1[(m, e)]["tokens"] for e in ("tesseract", "ground_truth")) < max(toks))
             + "); plain greedy decoding, the main prompt. "
             "Score: the logit of each generated token. Literal: Grad-CAM, gradients averaged over "
-            "positions; element-wise: gradient $\\times$ hidden state per position (as in HiResCAM). "
+            "positions; element-wise: gradient $\\times$ hidden state per position, summed over the hidden dimensions. "
             "Mid/late: hidden states at 1/2 and 3/4 of the depth. The first token, special tokens and "
             "the predicting position are left out of every map. Copied tokens: output tokens aligned "
             "with an identical OCR token. Peak: the largest map value over the OCR text lies within one "

@@ -1,6 +1,6 @@
 % Literature comparison table (reviewer item #10: "Add tables if possible").
 % Every cell was checked against the paper itself; see reviewer-feedback/paper-reviews.md.
-% Rows Zhang et al. and Bhandari & Harit (added 2026-10-18) were checked against their abstracts (DocEng record, arXiv 2609.21595).
+% Row Zhang et al. (added 2026-10-18) was checked against its abstract (DocEng record). Preprints are not cited (author rule).
 % Keys refer to paper/references.bib.
 \begin{table*}[t]
 \centering
@@ -22,7 +22,6 @@ Beshirov et al.~\cite{beshirov2025bulgarian} & Bulgarian & post-OCR & BERT detec
 Ehrmann et al.~\cite{ehrmann2026hipeocrepair} & English, French, German & post-OCR & 8B--24B & zero-shot; fine-tuned & CER 0.004--0.057 & Fine-tuned: yes; zero-shot: mixed (worse than raw OCR on French) \\
 Viana~\cite{viana2026reframing} & Portuguese & post-OCR & GPT-5.5 (frontier) & zero-shot & CER 0.12 & Yes: CER $-$60\% \\
 Zhang et al.~\cite{zhang2024prosody} & English & post-OCR & GPT-3.5-turbo, GPT-4, GPT-4-turbo & prompted & --- & Yes: CER $-$18.9\% (best, mean); over-corrects good OCR \\
-Bhandari \& Harit~\cite{bhandari2026devanagari} & Hindi, Marathi & post-OCR & 3B--32B & retrieved examples & --- & Larger models: WER $-$55\% / $-$33\% (27B); below 8B: little or worse \\
 Bhattacharyya \& Bhattacharya~\cite{bhattacharyya2025banglagec} & Bengali & grammar correction & 1.1B--8B; GPT-4o & zero-shot; fine-tuned & clean modern text & Fine-tuned 3--7 points above zero-shot \\
 Kumar et al.~\cite{kumar2026postasr} & Hindi & post-ASR & Llama 1B--70B, GPT-4o-mini; mT5, ByT5 (0.3--0.58B) & zero-shot; fine-tuned & WER 0.18--0.29 & Zero-shot: worse; fine-tuned small models: yes \\
 \midrule

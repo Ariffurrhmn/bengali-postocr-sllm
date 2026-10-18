@@ -17,6 +17,10 @@ Handoff updated 2026-10-18 (evening). Read this file first, then the files in se
 5. `paper/WRITING-GUIDE.md`, `paper/README.md`.
 6. `context/literature-leads.md` and `context/consensus-novelty-check-2026-10-18.md`: literature check; seven papers cited (D53), others optional.
 
+## 2b. Final version (D55)
+- **Send to Bijon Sir:** `paper/main.pdf`, or the single LaTeX file `paper/main-single.tex` / `paper/overleaf-final.zip` (Overleaf, compiler XeLaTeX). After ANY edit: rebuild with Tectonic, then rerun `python paper/scripts/make_single_file.py`.
+- **References: published work only, no preprints** (author's rule). Models are cited by model cards. Check every new citation for a published version.
+
 ## 3. What is left (needs the author)
 1. **Title:** the author picks one (D52) with Bijon Sir; then update `main.tex`, README, `CITATION.cff`, `.zenodo.json`.
 2. **Bijon Sir's reading** of the new draft (`paper/main.pdf`): Grad-CAM section, title, anonymous review (the repo is public under the author's name).
