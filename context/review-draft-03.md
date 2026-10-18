@@ -58,12 +58,13 @@ Remaining risks:
   - *Status:* Partly done 2026-10-15: (iii) class names and version cited; (iv) Table VII note and Sec IV-D state the 15-page, August-OCR, CPU bf16 setting. (i) 2x2 and (ii) guarded clean-text control need GPU session B.
   - *Status 2026-10-16:* (i) 2x2 and (ii) guarded clean-text control done on 40 pages for Gemma, Llama, Qwen3, Phi-4 (Tess, Easy for three, clean text). Guarded damages every model; component effects differ by model. Paper Table VII, Fig 4 and Sec IV-D still to update.
   - *Status 2026-10-16 (paper):* Done. Table VII replaced by the 40-page 2x2 (decoding.tex: plain/penalty/n-gram/both on Tesseract, EasyOCR, clean text; 33 Holm tests); 15-page CPU numbers kept only in the table note; Sec IV-D, contribution 1, abstract ("up to 1.4", error-free input), RQ4 and conclusion rewritten.
-- [ ] **C5** (Sec III-C; Sec IV-H; Sec VI-E, construct validity). Region-level evaluation is the cleanest fix for the ground-truth mismatch. The PAGE-XML (version 2, improved coordinates) gives region boxes: crop each region, OCR the crops, and score region by region in the declared order. This removes out-of-region text and reading-order errors at the source and lowers input CER, closer to the 0.15 regime of prior work.
+- [x] **C5** (Sec III-C; Sec IV-H; Sec VI-E, construct validity). Region-level evaluation is the cleanest fix for the ground-truth mismatch. The PAGE-XML (version 2, improved coordinates) gives region boxes: crop each region, OCR the crops, and score region by region in the declared order. This removes out-of-region text and reading-order errors at the source and lowers input CER, closer to the 0.15 regime of prior work.
   - *Status 2026-10-16:* `ocr/run_region_ocr.py` written and tested locally (8 pages, Tesseract 5.5.3: region CER 0.379 vs 0.547 whole-page with the same engine; psm 6, plain crops). Full run on Kaggle CPU with Tesseract 5.3.4 pending (D41, D42). Region level will be a full second setting (D42).
   - *Status 2026-10-17:* Kaggle CPU run done (D43). EasyOCR region CER 0.225 vs 0.297 whole-page (p 0.002). Tesseract build on Kaggle differs from the main run, so its region OCR is being redone on Colab.
   - *Status 2026-10-17 (later):* Colab gives the same text as Kaggle today, neither reproduces the 11 October main run (D44). Region OCR final: `results/region/ocr_region40.jsonl`; Tesseract compared with its same-run whole-page OCR (0.425 → 0.333). Next: all models on region text (GPU).
   - *Status 2026-10-17:* All eight models and SymSpell run on region text (review3c, D46): no method lowers CER; all significantly worse (`results/region_runs40.txt`). Paper text to do.
   - *Status 2026-10-18:* Qwen3 4B on region text added (review3d, D50): CER +0.009 n.s. (Tesseract), +0.014 significant (EasyOCR), WER significantly lower on EasyOCR. Region table regenerated. Paper text to do.
+  - *Status 2026-10-18 (paper):* Done (D52). Sec III-L and IV-K, Table `region.tex`; robustness and construct-validity text updated.
 - [ ] **C6** (Sec III-C; Sec III-H "Confidence-gated correction"; Sec IV-I). OCR output is not stable: Tesseract changed (CER 0.364 to 0.320) and EasyOCR text matched between CPU and GPU runs on only 5 of 15 pages. Release the exact raw OCR text files and state the OCR hardware. The confidence re-run reproduced only 37 of 40 EasyOCR pages: say how the other 3 pages were gated.
   - *Status:* Partly done 2026-10-15: OCR hardware stated; how the 3 non-reproduced EasyOCR pages were gated is stated (unmatched words count as confident and are never changed). Release of the raw OCR text needs the author's decision.
 - [x] **C7** (Table III footnote versus Sec III-G). The note says decoding had no repetition penalty, but the CPU minutes per page come from the earlier guarded runs on the 15-page sample (different Tesseract text, bf16). Re-time under plain decoding or state this; the claim "saves two to fourteen minutes per page" (VI-D) depends on it.
@@ -76,6 +77,7 @@ Remaining risks:
   - *Status:* Done 2026-10-15: about 190 words; history sentence removed; gating defined; checkpoint wording; clean-text control mentioned.
 - [ ] **W2** (Whole paper). About 16 tables and many pages. Check the venue page limit. Move Tables IX, XIII, XIV and parts of XV/XVI to an appendix; keep Tables I-III, V-VIII, XI and XII in the main text.
   - *Status 2026-10-16:* The author was given no page limit. Paper now 23 pages; trimming waits for a venue.
+  - *Status 2026-10-18:* Robustness, edit-operation, page-type and safeguard tables and one figure moved to an appendix (D52); 27 pages with all new results. Still no venue limit.
 - [x] **W3** (Sec III-D "Zero-shot"). "Here, zero-shot evaluation..." is still awkward. Define zero-shot in one plain sentence.
   - *Status:* Done 2026-10-15.
 - [x] **W4** (Sec III-H). More than a page with nine run-in headings. Split into Metrics, Statistics, Analyses, Safeguards and gating. Define each symbol where it is first used.
@@ -92,21 +94,29 @@ Remaining risks:
   - *Status:* Done 2026-10-15: WER and wMER columns in the clean-text table.
 
 ## C. Models and experiments
-- [ ] **M1** (Sec III-E, more models). Add Gemma 3 (1B, 4B), Llama 3.2 3B-Instruct and SmolLM3 3B. Qwen3 gave the only gains, so a Qwen3 size series (0.6B, 1.7B, 4B, 8B) gives a clean scale trend on a T4 (4B in fp16 is about 8 GB). Check Hugging Face for newer releases at submission; the reviewer's knowledge of releases ends mid-2026.
+- [x] **M1** (Sec III-E, more models). Add Gemma 3 (1B, 4B), Llama 3.2 3B-Instruct and SmolLM3 3B. Qwen3 gave the only gains, so a Qwen3 size series (0.6B, 1.7B, 4B, 8B) gives a clean scale trend on a T4 (4B in fp16 is about 8 GB). Check Hugging Face for newer releases at submission; the reviewer's knowledge of releases ends mid-2026.
   - *Status 2026-10-17:* Run (review3b, D46): Qwen3 0.6B/4B/8B, Gemma 3 1B/4B, Llama 3.2 3B on 40 pages x 3 inputs. No CER gain; Qwen3 4B and 8B lower WER significantly. Qwen3-32B (M7) and Qwen3 4B on region text in review3d. Paper text to do.
+  - *Status 2026-10-18 (paper):* Done (D52). Sec IV-M, Table `scale.tex`; RQ1 and discussion (model size).
 - [ ] **M2** (Sec VI-E (ii), fine-tuning). Do the pilot before submission. Fine-tune BanglaT5, ByT5-small or mT5-small on synthetic noised Bengali text, with noise built from the Tesseract/EasyOCR confusions measured on the 10 development pages. Test on the same 40 pages with the same statistics. A small T4 job answers the "fine-tuning untested" caveat.
   - *Status 2026-10-17:* Code ready (D47): ByT5-small fine-tuned on dev-noise-corrupted Wikipedia + dev text; runs in review3d.
   - *Status 2026-10-18:* review3d run is flawed (D50): test chunks contained line breaks never seen in training, so the model skipped and repeated lines (clean text CER 0.32). Fixed; rerun as review3e (`notebooks/kaggle/review3e_finetune_rerun.ipynb`).
-- [ ] **M3** (Sec VI-E (v), noise sweep). Reuse the clean-text control code: corrupt the 40 references at CER 0.02, 0.05, 0.10, 0.20, 0.30, run the four general-purpose models, and plot corrected versus input CER. It directly tests the "input noise" explanation that VI-C says it cannot quantify, and compares with the ~0.15 break-even in [7].
+- [x] **M3** (Sec VI-E (v), noise sweep). Reuse the clean-text control code: corrupt the 40 references at CER 0.02, 0.05, 0.10, 0.20, 0.30, run the four general-purpose models, and plot corrected versus input CER. It directly tests the "input noise" explanation that VI-C says it cannot quantify, and compares with the ~0.15 break-even in [7].
   - *Status 2026-10-17:* Run (review3b, D46): four models x five noise levels (0.02-0.30): every model raises CER at every level; no break-even. Figure `paper/figures/fig_noise.pdf` (F7). Paper text to do.
-- [ ] **M4** (Sec IV-F, classical baseline). The OpenSubtitles lexicon is modern and colloquial, a poor match for 1713-1914 literary text. Report the share of reference words missing from the lexicon (a proxy for historical spelling), try edit distance 1, and add a stronger lexicon (e.g. Bengali Wikipedia text). Optional: n-gram or masked-LM rescoring.
+  - *Status 2026-10-18 (paper):* Done (D52). Sec IV-L, Table `noise.tex`, Fig. 6; VI-C "input noise" answered.
+- [x] **M4** (Sec IV-F, classical baseline). The OpenSubtitles lexicon is modern and colloquial, a poor match for 1713-1914 literary text. Report the share of reference words missing from the lexicon (a proxy for historical spelling), try edit distance 1, and add a stronger lexicon (e.g. Bengali Wikipedia text). Optional: n-gram or masked-LM rescoring.
   - *Status:* Partly done 2026-10-15: share of reference words missing from the lexicon reported (52%). Edit distance 1 and a stronger lexicon not yet run (local, cheap).
+  - *Status 2026-10-18:* Run (D51): edit distance 1 and a Bengali Wikipedia lexicon (100k words; 36.6% of reference tokens missing vs 52.2%). Damage falls by about four-fifths at best (Wikipedia, d<=1: +0.007/+0.008 CER) but every setting stays significantly worse. Table `classical.tex`. Paper text to do.
+  - *Status 2026-10-18 (paper):* Done (D52). Sec III-F, IV-N, Table `classical.tex`; historical-spelling explanation updated.
 - [ ] **M5** (Sec III-C, OCR input). Add region-crop OCR (C5) and one stronger engine or VLM transcription (bbOCR, Surya, Google Cloud Vision; check Bengali support) to test the findings at lower input CER.
-- [ ] **M6** (new, optional). Edit-list or constrained prompting (the model outputs only word replacements), and Tesseract+EasyOCR fusion, as do-no-harm alternatives to free regeneration.
-- [ ] **M7** (Sec VI-E (i), upper bound). Run one large open model (30-70B, 4-bit, on a larger GPU) on a page subset to show how much scale alone changes the outcome.
+  - *Status 2026-10-18:* Region-crop OCR done (C5). A stronger engine or multimodal transcription not run (no GPU budget; region OCR and the noise sweep already test lower input CER); listed under experiments not performed in the paper.
+- [x] **M6** (new, optional). Edit-list or constrained prompting (the model outputs only word replacements), and Tesseract+EasyOCR fusion, as do-no-harm alternatives to free regeneration.
+  - *Status 2026-10-18:* Fusion run locally (D51): EasyOCR base, Tesseract's reading where its confidence ranks higher. CER -0.002/-0.003 against EasyOCR (negligible; significant only in a 2-cell family), WER -0.014 significant; fixes more words than it breaks. Edit-list prompting not run (author's decision, future work). Paper text to do.
+  - *Status 2026-10-18 (paper):* Fusion in Sec III-L and IV-N, Table `classical.tex`; edit-list prompting listed under experiments not performed. Closed by the author's decision.
+- [x] **M7** (Sec VI-E (i), upper bound). Run one large open model (30-70B, 4-bit, on a larger GPU) on a page subset to show how much scale alone changes the outcome.
 
   - *Status 2026-10-17:* Code ready (D47): Qwen3-32B 4-bit on 10 pages; runs in review3d.
   - *Status 2026-10-18:* Run and scored (review3d, D50): Qwen3-32B 4-bit on 10 pages, CER −0.003/−0.006 (intervals include zero), WER about −0.1, most wrong words fixed of any model, more clean-text damage than Qwen3 1.7B-8B. Table `large.tex`. Paper text to do.
+  - *Status 2026-10-18 (paper):* Done (D52). End of Sec IV-M, Table `large.tex` (10 pages; note says no cell can reach significance).
 ## D. Metrics and statistics
 - [x] **E1** (Sec III-H; Tables V, IX). Add a bounded word match error rate (wMER); WER reaches 3.03 in Table V. *(Handwritten tick beside this item on the hardcopy.)*
   - *Status:* Done 2026-10-15: wMER in the baseline table, the main matrix (with exploratory Holm marks) and the clean-text table (`eval/review3_analysis.py`).
@@ -123,6 +133,7 @@ Remaining risks:
   - *Status:* Done 2026-10-15: primary family = 36 CER/WER tests (III-H, Table V note); every other table note says exploratory.
 - [ ] **E7** (Sec IV-I, CPU/GPU). Only five EasyOCR pages and only the general-purpose models are compared, and precision also differs (bf16 versus float32). Extend to the Tesseract pages and add the fp16 check from C1.
   - *Status:* Partly done 2026-10-15: the limits are stated (5 EasyOCR pages, no Tesseract pairs exist, precision differs). Extension needs new runs.
+  - *Status 2026-10-18:* Not extended (needs new CPU runs; recommended to skip, author did not ask for it). The limits stay stated in Sec IV-I; the float32 checks of C1 cover precision.
 - [x] **E8** (Sec III-B, page types). Labels come from one annotator (the author). Add a second annotator for a sample, or state this plainly.
   - *Status:* Done 2026-10-15: stated in III-B and limitations (single annotator). Note: the labels were assigned by the assistant and still need the author's check.
 
@@ -136,12 +147,14 @@ Remaining risks:
   - *Status:* Done 2026-10-15: shading note reworded (best value per column among corrected methods, not compared with raw OCR); zero-difference note added.
 - [x] **F4** (Table III). Too wide. Split into configuration and cost (tokenisation, runtime). Add peak memory if you can record it.
   - *Status:* Done 2026-10-15: split into Table III (configuration) and Table IV (tokenisation and cost). Peak memory still not recorded.
-- [ ] **F5** (Figs 4 and 5). Largely redundant: keep Fig 4 in the main text and move Fig 5 to the appendix, or merge.
+- [x] **F5** (Figs 4 and 5). Largely redundant: keep Fig 4 in the main text and move Fig 5 to the appendix, or merge.
+  - *Status 2026-10-18:* Done. The change-in-CER scatter moved to the appendix; the corrected-vs-baseline figure stays in the main text.
 - [x] **F6** (Table XII). Check that Bengali conjuncts and vowel signs print correctly (embedded Bengali font). Show page type and a longer chunk if space allows.
   - *Status:* Done 2026-10-15 for rendering: conjuncts and vowel signs print correctly under Tectonic; dotted circles come from the text itself (doubled virama), now explained in the note. Page type and a longer chunk not added (space).
-- [ ] **F7** (new, from M3). Noise-sweep line plot (corrected versus input CER): likely the most informative new figure.
+- [x] **F7** (new, from M3). Noise-sweep line plot (corrected versus input CER): likely the most informative new figure.
 
   - *Status 2026-10-17:* Figure drawn: `eval/make_noise_figure.py` → `paper/figures/fig_noise.pdf`. Not yet in the paper.
+  - *Status 2026-10-18 (paper):* Done. Fig. 6 in Sec IV-L.
 ## G. Explainability (verbal request)
 - [x] **X1** (title note "Grad Cam"; Sec VI-E "Scope of the analysis", which says no attribution method was applied). Add an explainability analysis in the spirit of Grad-CAM. Grad-CAM was built for CNN feature maps; here it is adapted to token positions of the correction models (gradient-weighted hidden states), to show which input tokens each output token relies on: the aligned OCR token (copying), the instruction, or the model's own earlier output (regeneration).
   - *Status:* Script ready and piloted 2026-10-15 (`eval/xai_gradcam.py`; Qwen3 0.6B on CPU, 3 chunks, `results/xai_pilot_qwen3-0.6b.jsonl`). The element-wise variant (HiResCAM-style) at mid/late layers peaks on the copied OCR token for 43-87% of copied tokens (chance about 1-2%). Literal Grad-CAM does not localise: about half its mass is on the attention-sink token. Maps exclude the first/special tokens and the predicting position. Full run for all eight models needs GPU (session A).
@@ -150,6 +163,7 @@ Remaining risks:
 
   - *Status 2026-10-17:* All eight models now (Phi-4-mini and TituLLMs 3B Instruct from review3b); full maps of two chunks saved for a figure (`xai_maps_*`), figure not yet drawn.
   - *Status 2026-10-17 (later):* map figure drawn (`paper/figures/fig_attribution.pdf`): Gemma-2B-it's maps follow the copied source token along the diagonal; TituLLMs 1B Instruct's are spread over the prompt. Not yet in the paper.
+  - *Status 2026-10-18 (paper):* Done for all eight models; map figure in the paper (Fig. 7); stale "not analysed" sentence removed.
 ## F. References and reproducibility
 - [x] **R1** ([40], [43]). Model cards: add Hugging Face URLs and revisions.
   - *Status:* Done 2026-10-15: Hugging Face URLs and revisions for Gemma, Llama, Qwen3, Phi-4-mini.

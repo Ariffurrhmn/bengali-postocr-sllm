@@ -1,17 +1,19 @@
 # bengali-postocr-sllm
 
-Code, data splits and paper for **"Does Zero-Shot Small-Model Post-Correction Help Bengali OCR? A Negative Result Across Eight Models and Two OCR Engines"** (Arifur Rahman, CSE403, Bangladesh University of Business and Technology, 2026). The paper is being revised after a third review; the title will change to state the finding.
+Code, data splits and paper for **"Small Language Models Do Not Correct Historical Bengali OCR, and a Decoding Default Makes Them Look Worse"** (working title; Arifur Rahman, CSE403, Bangladesh University of Business and Technology, 2026). The paper is being revised after a third review.
 
 **Paper:** [paper/main.pdf](paper/main.pdf) (source: [paper/main.tex](paper/main.tex)). **Cite:** see [CITATION.cff](CITATION.cff).
 
 ## In short
-40 pages of Bengali books printed 1713–1914, read by Tesseract 5.3.4 and EasyOCR 1.7.2, corrected zero-shot by open language models of 0.25–8 billion parameters and by a SymSpell dictionary baseline.
+40 pages of Bengali books printed 1713–1914, read by Tesseract 5.3.4 and EasyOCR 1.7.2, corrected zero-shot by 14 open language models of 0.25–8 billion parameters (and Qwen3 32B in 4-bit on 10 pages), by SymSpell dictionary baselines and by a word-level fusion of the two engines.
 
-- **No method lowers the character error rate (CER)** on either engine. General-purpose models mostly copy their input; the Bengali-pretrained checkpoints regenerate it (CER above 0.8). Every method damages error-free text.
+- **No language model lowers the character error rate (CER)** on either engine. General-purpose models mostly copy their input; the Bengali-pretrained checkpoints regenerate it (CER above 0.8). Every method damages error-free text.
 - **The failure is not explained by noisy input:** correction also hurts on region-level OCR with lower CER, and on reference text corrupted to any CER from 0.02 to 0.30.
 - **A common decoding default misleads evaluations:** a repetition penalty or n-gram ban also acts on the prompt in Hugging Face `generate` and makes copying models look harmful.
-- **Larger Qwen3 models** (4B, 8B) lower the word error rate significantly without lowering CER, the only trend towards help in the study.
+- **Larger Qwen3 models** (4B, 8B, 32B) fix more wrong words and lower the word error rate, but break correct ones, so CER does not fall.
+- **Without a language model:** a better (Wikipedia) lexicon cuts the dictionary's damage by four-fifths but it stays harmful; fusing the two engines by word confidence fixes more words than it breaks, but lowers CER by under 1%.
 - Token-level Grad-CAM maps show copying from inside the models: copied tokens rely on their own source token.
+- A fine-tuning pilot (ByT5-small on synthetic noise) is being rerun after a test-format error (decision D50).
 
 Current numbers: [context/results.md](context/results.md).
 

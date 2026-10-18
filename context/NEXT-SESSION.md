@@ -1,57 +1,56 @@
 # Next session: start here
 
-Handoff updated 2026-10-17 (evening). Read this file first, then the files in section 2. Everything up to the repository reorganization (D48) is committed and pushed to `master` unless `git status` says otherwise.
+Handoff updated 2026-10-18. Read this file first, then the files in section 2. The author commits and pushes themselves: never run `git commit`/`git push`; give them the exact commands.
 
 ## 1. The project in five lines
-- Paper: "Does Zero-Shot Small-Model Post-Correction Help Bengali OCR? ..." (`paper/main.tex`, author Arifur Rahman, course CSE403, reviewer **Bijon Sir**). The title is to become a statement of the finding once all results are in (WRITING-GUIDE Sec 3; check with Bijon Sir).
-- 40 historical Bengali pages (REID2019), Tesseract 5.3.4 and EasyOCR 1.7.2, zero-shot correction by open models (0.25-8B, and 32B in review3d), a SymSpell baseline, plain greedy decoding.
-- Finding so far: no method lowers CER, on whole-page OCR, on region-level OCR, or on synthetic noise at any level (0.02-0.30); general models copy (shown also by Grad-CAM maps), Bengali-pretrained checkpoints regenerate; every method damages clean text. Qwen3 4B/8B lower WER significantly without lowering CER.
-- Lead contribution: repetition penalty and n-gram ban also act on the prompt in Transformers and make copying models look harmful (40-page 2x2, including clean text).
-- The reviewer's third round: `context/review-draft-03.md` (43 items + X1, with status notes).
+- Paper: working title "Small Language Models Do Not Correct Historical Bengali OCR, and a Decoding Default Makes Them Look Worse" (`paper/main.tex`, author Arifur Rahman, course CSE403, reviewer **Bijon Sir**). Two alternative titles in D52; the author checks with Bijon Sir. `CITATION.cff` and `.zenodo.json` still carry the old title.
+- 40 historical Bengali pages (REID2019), Tesseract 5.3.4 and EasyOCR 1.7.2, zero-shot correction by 14 open models (0.25-8B) plus Qwen3-32B 4-bit on 10 pages, SymSpell baselines, engine fusion, plain greedy decoding.
+- Finding: no language model lowers CER (whole page, region level, synthetic noise down to 0.02); general models copy (Grad-CAM), Bengali-pretrained checkpoints regenerate; larger Qwen3 fix more words (WER down) but not CER; every method damages clean text; fusion and gating avoid damage but gain under 1%.
+- Lead contribution: repetition penalty and n-gram ban also act on the prompt in Transformers and make copying models look harmful.
+- Reviewer's third round: `context/review-draft-03.md` (status notes; open: C6, W2, M2, M5, E7, R2).
 
 ## 2. Read these, in order
 1. `context/review-draft-03.md`: item status.
-2. `context/decisions.md`: D39-D48 (third-review runs, region OCR, Tesseract drift, reorganization with the old→new path map).
-3. `context/results.md`: all numbers, including "Third-review GPU runs 2 and 3".
-4. `context/engineering-notes.md`: gotchas. Most important: about 4 GB free RAM; `HF_HUB_CACHE=G:/hf-cache`; **Bash heredocs mangle backslashes** (use the Edit tool or a script file); `PYTHONIOENCODING=utf-8`; local `TESSDATA_PREFIX` must point at `.tessdata`; **do not let pip upgrade `huggingface-hub` to 2.x** (Transformers 5 refuses it; D47); Tesseract output drifted within 5.3.4 (note 15).
+2. `context/decisions.md`: D50-D52 (review3d, M2 flaw and rerun, local M4/fusion, paper rewrite).
+3. `context/results.md`: all numbers, including "Third-review GPU run 4: review3d" and "Local runs, 2026-10-18".
+4. `context/engineering-notes.md`: gotchas (Bash heredocs mangle backslashes, also inside `python - <<EOF`: write scripts to a file; `PYTHONIOENCODING=utf-8`; `HF_HUB_CACHE=G:/hf-cache`; keep `huggingface-hub<2`).
 5. `paper/WRITING-GUIDE.md` and `paper/README.md` (every command runs from the repository root).
 
 ## 3. Where things stand
 
-### Done
-- Paper updated with the first third-review GPU session (C1, C2, C4, X1; D40). 23 pages.
-- Region-level OCR (Kaggle CPU; D42-D44) and all models on it (review3c); noise sweep and new models (review3b); Grad-CAM for all eight models. Scored (D46): `results/{region_ocr40,region_runs40,m1_runs40,noise_runs40,main_general40}.txt`, summaries in `summaries/`. Noise figure `paper/figures/fig_noise.pdf` (F7), not yet in the paper.
-- Repository reorganized (D48); `CITATION.cff` and `.zenodo.json` added.
+### Done (2026-10-18)
+- review3d scored (D50): M7 Qwen3-32B and Qwen3 4B on region text valid; summaries copied. The M2 run was invalid (test chunks contained line breaks never seen in training) and its scores are kept apart as `results/m2_runs40_review3d.*`.
+- M2 fix pushed (`33091c1`): `correction/finetune_byt5.py` joins chunk lines with spaces and accumulates gradients (effective batch 8); notebook `notebooks/kaggle/review3e_finetune_rerun.ipynb` (one T4, 150 training minutes, about 3 h).
+- Local M4 (Wikipedia lexicon, edit distance 1) and M6 engine fusion (D51); table `classical.tex`. Edit-list prompting dropped (author).
+- Paper rewritten with everything except M2 (D52); builds with Tectonic, no overfull boxes, all references resolve, Bengali example table renders; 27 pages; secondary tables in an appendix.
 
-### Running
-- **review3d** on Kaggle (started 2026-10-17): M2 ByT5-small fine-tuning pilot, M7 Qwen3-32B 4-bit on 10 pages, Qwen3 4B on region text (D47). Output `review3d.zip` → unpack to `results/review3d/`.
+### Waiting
+- **review3e** on Kaggle (the author starts it; output `review3e.zip`, normally in `C:\Users\Windows 11\Downloads\`).
 
-### Not done
-- Score review3d (commands at the end of the "Third-review GPU runs" block in `paper/README.md`; check `results/review3d/m2_train_log.json` for the development CER per checkpoint and `phase2.log` for the 4-bit load).
-- Paper tables and figures are generated but not yet `\input` in `main.tex`: `tables/region.tex` (C5), `scale.tex` (M1), `noise.tex` + `figures/fig_noise.pdf` (M3, F7), `figures/fig_attribution.pdf` (X1 maps; `paper/scripts/make_attribution_figure.py`). `finetune.tex` (M2) and `large.tex` (M7) are written automatically by `make_paper_tables.py` once `results/m2_runs40.json` and `results/m7_runs10.json` exist (score review3d first; the region table then also picks up Qwen3 4B). Then the full paper rewrite, written backwards (WRITING-GUIDE): conclusions, results, methods, discussion, introduction, abstract, title. The text still says Phi-4-mini and TituLLMs 3B Instruct were not analysed (now they are) and lists the noise sweep, fine-tuning, stronger OCR and large model as "not performed".
-- Local and cheap: M4 (SymSpell edit distance 1, stronger lexicon), E7.
-- Author decisions: DOI (Zenodo link + GitHub release after the final pass, D48-D49; licence MIT and data CC BY 4.0 decided), page-type labels (E8), title, F5 (Figs 5/6), W2 (no page limit given; 23 pages).
+### Not committed yet (as of this handoff)
+Everything since `33091c1`: M4/fusion code and records, paper rewrite, tables, references, README, context files. Give the author the commit commands (section 5).
 
 ## 4. Task list for the next session (in order)
-1. Score review3d; record results (results.md, decision entry, review status for M2, M7, C5).
-2. Regenerate all tables (`python paper/scripts/make_paper_tables.py`) after scoring review3d; check `finetune.tex` and `large.tex` render (test-render with a scratch document that inputs `tables/preamble` and the tables, as done on 2026-10-17).
-3. Rewrite the paper with all results (write backwards); rebuild with Tectonic; check the Bengali table; tick items.
-4. Ask the author about the licence and the DOI release; if they agree, create the GitHub release with `gh` (Zenodo must be linked first).
-5. Ask before every commit/push.
+1. Unpack `review3e.zip` to `results/review3e/` (own new folder; check names for `..` first). Check `lane0.log` for errors and out-of-memory lines, `m2_train_log.json` (development CER per checkpoint against raw 0.362; `micro_batch`, `effective_batch`), and `m2_byt5.jsonl` (120 rows, no errors; truncation count). If the development CER is again above raw OCR at every checkpoint, inspect outputs as in D50 (deletions/insertions vs substitutions, missing lines) before believing it.
+2. Score: the first M2 command in `paper/README.md` (`--corrections results/review3e/m2_byt5.jsonl ... --out-prefix results/m2_runs40`); copy `results/m2_runs40.json` and `results/review3e/environment.txt` (as `summaries/review3e_environment.txt`) to `summaries/`; add `m2_runs40.json` to `summaries/README.md`.
+3. `python paper/scripts/make_paper_tables.py` writes `finetune.tex` (reads `results/review3e/m2_train_log.json`; its note says "steps", which are now optimizer steps of effective batch 8: check the wording). Test-render it.
+4. Paper: fill the places marked `% M2` in `main.tex` (Results subsection after the large-model paragraph with `\input{tables/finetune}`; RQ5; practical implications; conclusion; abstract) and the closing sentence of "Possible explanations" ("fine-tuned versions of these models"). Mention the failed first run in one sentence in Methods (III-L, fine-tuning). Trim the abstract from 216 to about 200 words. Revisit the title if fine-tuning helps.
+5. Rebuild (`cd paper; tectonic -X compile main.tex`), `python paper/scripts/check_refs.py`, check overfull boxes and the Bengali table; `python paper/scripts/make_overleaf_zip.py` if the author wants Overleaf.
+6. Record: results.md, a decision entry (D53), review-draft-03 M2 status, timeline, README (last bullet), this file.
+7. Give the author commit/push commands. Later, with their go-ahead: update the title in `CITATION.cff` and `.zenodo.json`, GitHub release for the DOI (Zenodo is linked), DOI into `rahman2026repo`, CC BY 4.0 data deposit of the OCR text and outputs (the paper already says they are released with it).
 
 ## 5. Questions to ask the author at the start of every session
 Ask only those still open, together:
-1. Has review3d finished? Where is `review3d.zip`?
-2. Does the venue review anonymously? (Zenodo is linked: the repository has an active Zenodo webhook on release events since 2026-10-17; a GitHub release, made only with the author's go-ahead after the final pass, will mint the DOI.)
+1. Has review3e finished? Where is `review3e.zip`?
+2. Which title (D52 has three)? Any news from Bijon Sir (title, Grad-CAM section, anonymous review)?
 3. Have you checked the page-type labels in `data/page_types.tsv`? (E8)
-4. Any news from Bijon Sir (Grad-CAM section, title)?
-5. May I commit and push?
+4. Commit commands ready: has the author committed and pushed the 2026-10-18 work?
 
 ## 6. Rules carried over from the author
-- Do not discard uncommitted changes. Commit or push only when the author says so.
+- Do not discard uncommitted changes. The author commits and pushes; Claude gives the commands.
 - Never edit result files; regenerate tables and figures from them. No number in a table is typed by hand.
 - Do not invent numbers. If a check fails or a claim is not supported, say so.
 - Keep decisions in `context/decisions.md` (decision, why, consequence). Tick items in `context/review-draft-03.md` with a *Status* note.
 - Rebuild the paper with Tectonic after edits and check that the Bengali table renders.
-- Heavy model runs happen on Kaggle, run by the author; local runs are CPU only and limited by RAM.
+- Heavy model runs happen on Kaggle, run by the author (about 8 h of weekly GPU quota left after review3e; reset about 2026-10-24); local runs are CPU only (about 4 GB free RAM).
 - The author does not want to babysit runs: give clear, short instructions for each Kaggle step.

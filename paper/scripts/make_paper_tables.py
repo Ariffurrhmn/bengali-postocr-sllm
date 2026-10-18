@@ -137,7 +137,9 @@ def main():
     parser.add_argument("--main-matrix", type=Path, default=RESULTS / "main_general40.json")
     parser.add_argument("--noise-runs", type=Path, default=RESULTS / "noise_runs40.json")
     parser.add_argument("--m2-runs", type=Path, default=RESULTS / "m2_runs40.json")
-    parser.add_argument("--m2-log", type=Path, default=RESULTS / "review3d" / "m2_train_log.json")
+    parser.add_argument("--m2-log", type=Path, default=RESULTS / "review3e" / "m2_train_log.json")
+    parser.add_argument("--m4-runs", type=Path, default=RESULTS / "m4_dict40.json")
+    parser.add_argument("--fusion-runs", type=Path, default=RESULTS / "m6_fusion40.json")
     parser.add_argument("--m7-runs", type=Path, default=RESULTS / "m7_runs10.json")
     parser.add_argument("--review3-runs", type=Path, default=RESULTS / "review3_runs.json",
                         help="third-review GPU runs (review3_runs_analysis.py): C1, C2, C4, X1")
@@ -1028,6 +1030,53 @@ def main():
             "Wikipedia segments and development-page reference lines, corrupted with the development-page "
             "noise model (no evaluation text in training)." + note + " $^{+}$/$^{-}$: Holm-significant "
             "over the %d cells (exploratory).\\end{minipage}\n\\end{table*}\n" % len(m2), encoding="utf-8")
+
+    # ---- dictionary variants (item M4) and engine fusion (item M6) ----
+    m4, fus = matrix(args.m4_runs), matrix(args.fusion_runs)
+    if m4 and fus:
+        names = {"symspell": "SymSpell, subtitles, $d\\le2$ (main)", "symspell-ed1": "SymSpell, subtitles, $d\\le1$",
+                 "symspell-wiki": "SymSpell, Wikipedia, $d\\le2$", "symspell-wiki-ed1": "SymSpell, Wikipedia, $d\\le1$",
+                 "fusion-conf": "Fusion, higher confidence", "fusion-margin": "Fusion, confidence margin"}
+        rows = []
+        for src, keys in ((m4, ["symspell", "symspell-ed1", "symspell-wiki", "symspell-wiki-ed1"]),
+                          (fus, ["fusion-conf", "fusion-margin"])):
+            if src is fus:
+                rows.append("\\midrule")
+            for m in [k for k in keys if ("easyocr", k) in src]:
+                cols = [names[m]]
+                for e, _ in ENGINES:
+                    c = None if src is fus and e == "tesseract" else src.get((e, m))
+                    cols.append("--" if c is None else "%+.3f%s %s" % (c["cer"]["delta"], hmark(c["cer"]),
+                                                                      ci(*c["cer"]["ci"])))
+                g = src.get(("ground_truth", m))
+                cols.append("--" if g is None else "%.3f" % g["cer"]["output"])
+                for e, _ in ENGINES:
+                    c = None if src is fus and e == "tesseract" else src.get((e, m))
+                    cols.append("--" if c is None else "%+.3f%s" % (c["wer"]["delta"], hmark(c["wer"])))
+                for e, _ in ENGINES:
+                    c = None if src is fus and e == "tesseract" else src.get((e, m))
+                    cols.append("--" if c is None else "%s / %s" % (pct(c["broken_share"]), pct(c["fixed_share"])))
+                rows.append(" & ".join(cols) + " \\\\")
+        n_fus = sum(1 for (e, _) in fus if e == "easyocr")
+        (OUT_DIR / "classical.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n"
+            "\\caption{Methods Without a Language Model: Dictionary Variants and Engine Fusion (40 Pages)}\n"
+            "\\label{tab:classical}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lccccccc}\n\\toprule\n"
+            " & \\multicolumn{2}{c}{$\\Delta$CER [95\\% CI]} & Clean text & \\multicolumn{2}{c}{$\\Delta$WER} & "
+            "\\multicolumn{2}{c}{Broken / fixed (\\%)} \\\\\n"
+            "\\cmidrule(lr){2-3}\\cmidrule(lr){4-4}\\cmidrule(lr){5-6}\\cmidrule(lr){7-8}\n"
+            "Method & Tesseract & EasyOCR & CER & Tesseract & EasyOCR & Tesseract & EasyOCR \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize $\\Delta$: output $-$ raw OCR of that engine "
+            "(positive = worse). SymSpell: lexicon of the 50{,}000 most frequent OpenSubtitles words "
+            "(main baseline) or of the most frequent words of Bengali Wikipedia; $d$: maximum edit "
+            "distance. Fusion: EasyOCR text in which short stretches where the engines disagree take "
+            "Tesseract's reading if its confidence ranks higher within the page (margin: by at least "
+            "0.25); it is compared with EasyOCR, its base, only, and needs two OCR readings, so it has "
+            "no clean-text control. $^{+}$/$^{-}$: Holm-significant, Wilcoxon signed-rank, over the "
+            "%d dictionary cells and, separately, the %d fusion cells, per metric (exploratory)."
+            "\\end{minipage}\n\\end{table*}\n" % (len(m4), n_fus), encoding="utf-8")
 
     # ---- large model on 10 pages (item M7) ----
     m7 = matrix(args.m7_runs)

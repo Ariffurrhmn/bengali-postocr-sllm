@@ -1,0 +1,15 @@
+{
+ "reference_bengali_words": 3826,
+ "lexicons": {
+  "bn_50k.txt": {
+   "size": 44335,
+   "missing": 1996,
+   "share_missing": 0.5216936748562467
+  },
+  "bn_wiki100k.txt": {
+   "size": 100000,
+   "missing": 1399,
+   "share_missing": 0.36565603763721904
+  }
+ }
+}

@@ -1,0 +1,24 @@
+\begin{table*}[t]
+\centering
+\caption{Methods Without a Language Model: Dictionary Variants and Engine Fusion (40 Pages)}
+\label{tab:classical}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{lccccccc}
+\toprule
+ & \multicolumn{2}{c}{$\Delta$CER [95\% CI]} & Clean text & \multicolumn{2}{c}{$\Delta$WER} & \multicolumn{2}{c}{Broken / fixed (\%)} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+Method & Tesseract & EasyOCR & CER & Tesseract & EasyOCR & Tesseract & EasyOCR \\
+\midrule
+SymSpell, subtitles, $d\le2$ (main) & +0.037$^{+}$ [+0.031, +0.042] & +0.040$^{+}$ [+0.033, +0.046] & 0.057 & +0.091$^{+}$ & +0.095$^{+}$ & 29 / 3 & 31 / 7 \\
+SymSpell, subtitles, $d\le1$ & +0.016$^{+}$ [+0.013, +0.020] & +0.017$^{+}$ [+0.014, +0.021] & 0.025 & +0.062$^{+}$ & +0.057$^{+}$ & 21 / 2 & 22 / 7 \\
+SymSpell, Wikipedia, $d\le2$ & +0.017$^{+}$ [+0.012, +0.022] & +0.021$^{+}$ [+0.016, +0.026] & 0.039 & +0.031$^{+}$ & +0.030$^{+}$ & 16 / 4 & 19 / 9 \\
+SymSpell, Wikipedia, $d\le1$ & +0.007$^{+}$ [+0.004, +0.010] & +0.008$^{+}$ [+0.006, +0.011] & 0.017 & +0.019$^{+}$ & +0.012 & 11 / 3 & 13 / 8 \\
+\midrule
+Fusion, higher confidence & -- & -0.003 [-0.007, -0.001] & -- & -- & -0.014$^{-}$ & -- & 4 / 5 \\
+Fusion, confidence margin & -- & -0.002$^{-}$ [-0.005, -0.000] & -- & -- & -0.014$^{-}$ & -- & 2 / 3 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize $\Delta$: output $-$ raw OCR of that engine (positive = worse). SymSpell: lexicon of the 50{,}000 most frequent OpenSubtitles words (main baseline) or of the most frequent words of Bengali Wikipedia; $d$: maximum edit distance. Fusion: EasyOCR text in which short stretches where the engines disagree take Tesseract's reading if its confidence ranks higher within the page (margin: by at least 0.25); it is compared with EasyOCR, its base, only, and needs two OCR readings, so it has no clean-text control. $^{+}$/$^{-}$: Holm-significant, Wilcoxon signed-rank, over the 12 dictionary cells and, separately, the 2 fusion cells, per metric (exploratory).\end{minipage}
+\end{table*}

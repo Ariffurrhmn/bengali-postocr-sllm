@@ -37,6 +37,18 @@ python eval/matrix_analysis.py --ocr-path results/ocr_eval40.jsonl --corrections
 python eval/matrix_analysis.py --ocr-path results/ocr_eval40.jsonl --corrections results/review3d/m7_qwen3-32b.jsonl results/gpu_eval40.jsonl "results/review3b/m1_qwen3-*.jsonl" --pages-file data/m7_pages.txt --engines tesseract,easyocr,ground_truth --label "Qwen3 size series on the 10 M7 pages" --out-prefix results/m7_runs10
 ```
 
+**Local runs without a language model** (dictionary variants, M4; engine fusion, M6)
+```
+python data/build_wiki_lexicon.py --out data/lexicon/bn_wiki100k.txt
+python correction/dictionary_baseline.py --ocr-path results/ocr_eval40.jsonl --max-edit-distance 1 --model-key symspell-ed1 --out results/m4_dict_ed1.jsonl
+python correction/dictionary_baseline.py --ocr-path results/ocr_eval40.jsonl --lexicon data/lexicon/bn_wiki100k.txt --model-key symspell-wiki --out results/m4_dict_wiki.jsonl
+python correction/dictionary_baseline.py --ocr-path results/ocr_eval40.jsonl --lexicon data/lexicon/bn_wiki100k.txt --max-edit-distance 1 --model-key symspell-wiki-ed1 --out results/m4_dict_wiki_ed1.jsonl
+python eval/matrix_analysis.py --ocr-path results/ocr_eval40.jsonl --corrections results/dict_eval40.jsonl results/m4_dict_ed1.jsonl results/m4_dict_wiki.jsonl results/m4_dict_wiki_ed1.jsonl --engines tesseract,easyocr,ground_truth --label "dictionary variants (M4)" --out-prefix results/m4_dict40
+python eval/lexicon_coverage.py --ocr-path results/ocr_eval40.jsonl --lexicons data/lexicon/bn_50k.txt data/lexicon/bn_wiki100k.txt --out results/m4_lexicon_coverage.json
+python correction/ocr_fusion.py --ocr-path results/ocr_eval40.jsonl --conf-path results/ocr_conf40.jsonl --out results/m6_fusion40.jsonl
+python eval/matrix_analysis.py --ocr-path results/ocr_eval40.jsonl --corrections results/m6_fusion40.jsonl --engines easyocr --label "engine fusion (M6), against EasyOCR, its base" --out-prefix results/m6_fusion40
+```
+
 **Tables and figures**
 ```
 python paper/scripts/make_paper_tables.py

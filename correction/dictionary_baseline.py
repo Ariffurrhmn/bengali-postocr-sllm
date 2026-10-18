@@ -44,8 +44,8 @@ PREFIX_LENGTH = 7
 WORD = re.compile(r"[ঀ-৥ৰ-৿‌‍]+")
 
 
-def load_symspell(path: Path) -> SymSpell:
-    sym = SymSpell(max_dictionary_edit_distance=MAX_EDIT_DISTANCE, prefix_length=PREFIX_LENGTH)
+def load_symspell(path: Path, max_edit: int = MAX_EDIT_DISTANCE) -> SymSpell:
+    sym = SymSpell(max_dictionary_edit_distance=max_edit, prefix_length=PREFIX_LENGTH)
     for line in path.read_text(encoding="utf-8").splitlines():
         parts = line.rsplit(" ", 1)
         if len(parts) != 2 or not parts[1].isdigit():
@@ -56,7 +56,7 @@ def load_symspell(path: Path) -> SymSpell:
     return sym
 
 
-def correct(text: str, sym: SymSpell) -> tuple[str, int]:
+def correct(text: str, sym: SymSpell, max_edit: int = MAX_EDIT_DISTANCE) -> tuple[str, int]:
     text = unicodedata.normalize("NFC", text)
     changed = 0
 
@@ -65,7 +65,7 @@ def correct(text: str, sym: SymSpell) -> tuple[str, int]:
         w = m.group(0)
         if w in sym.words:
             return w
-        hits = sym.lookup(w, Verbosity.TOP, max_edit_distance=MAX_EDIT_DISTANCE)
+        hits = sym.lookup(w, Verbosity.TOP, max_edit_distance=max_edit)
         if hits and hits[0].term != w:
             changed += 1
             return hits[0].term
@@ -79,20 +79,24 @@ def main():
     parser.add_argument("--ocr-path", type=Path, required=True)
     parser.add_argument("--engines", default="tesseract,easyocr,ground_truth")
     parser.add_argument("--out", type=Path, required=True)
+    # Third review (M4): another lexicon (data/build_wiki_lexicon.py) or edit distance 1.
+    parser.add_argument("--lexicon", type=Path, default=LEXICON)
+    parser.add_argument("--max-edit-distance", type=int, default=MAX_EDIT_DISTANCE)
+    parser.add_argument("--model-key", default="symspell")
     args = parser.parse_args()
 
-    sym = load_symspell(LEXICON)
+    sym = load_symspell(args.lexicon, args.max_edit_distance)
     print(f"Lexicon: {len(sym.words)} Bengali words")
-    pages = [json.loads(l) for l in args.ocr_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    pages = [json.loads(l) for l in args.ocr_path.read_text(encoding="utf-8").split("\n") if l.strip()]
     n_changed = 0
     with args.out.open("w", encoding="utf-8") as f:
         for engine in args.engines.split(","):
             for page in pages:
                 t0 = time.time()
-                out, changed = correct(page[engine], sym)
+                out, changed = correct(page[engine], sym, args.max_edit_distance)
                 n_changed += changed
                 f.write(json.dumps({
-                    "page_id": page["page_id"], "engine": engine, "model_key": "symspell",
+                    "page_id": page["page_id"], "engine": engine, "model_key": args.model_key,
                     "approach": "word", "decoding": "none", "device": "cpu",
                     "raw_output": out, "truncated": False, "skipped": False, "error": None,
                     "words_changed": changed, "elapsed_sec": round(time.time() - t0, 3),
