@@ -1056,9 +1056,11 @@ def main():
             + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
             "\\begin{minipage}{\\linewidth}\\footnotesize The %d pages of the attribution analysis "
             "(raw CER %.3f Tesseract, %.3f EasyOCR). Qwen3 32B in 4-bit (NF4) on two T4 GPUs; the others "
-            "as in Table~\\ref{tab:scale}, restricted to the same pages. $^{+}$/$^{-}$: Holm-significant "
-            "over the %d cells (exploratory; with %d pages only large effects can be detected)."
-            "\\end{minipage}\n\\end{table}\n" % (n, raw["tesseract"], raw["easyocr"], len(m7), n),
+            "as in Table~\\ref{tab:scale}, restricted to the same pages. With %d pages the smallest "
+            "possible two-sided Wilcoxon $p$ is $2/2^{%d}$, so after Holm over the %d cells no change can be "
+            "significant (smallest adjusted $p$ %.3f); the text gives 95\\%% intervals."
+            "\\end{minipage}\n\\end{table}\n"
+            % (n, raw["tesseract"], raw["easyocr"], n, n, len(m7), min(1.0, len(m7) * 2 / 2 ** n)),
             encoding="utf-8")
 
     print(f"Wrote tables to {OUT_DIR}")

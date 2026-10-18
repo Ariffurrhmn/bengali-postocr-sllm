@@ -63,6 +63,7 @@ Remaining risks:
   - *Status 2026-10-17:* Kaggle CPU run done (D43). EasyOCR region CER 0.225 vs 0.297 whole-page (p 0.002). Tesseract build on Kaggle differs from the main run, so its region OCR is being redone on Colab.
   - *Status 2026-10-17 (later):* Colab gives the same text as Kaggle today, neither reproduces the 11 October main run (D44). Region OCR final: `results/region/ocr_region40.jsonl`; Tesseract compared with its same-run whole-page OCR (0.425 → 0.333). Next: all models on region text (GPU).
   - *Status 2026-10-17:* All eight models and SymSpell run on region text (review3c, D46): no method lowers CER; all significantly worse (`results/region_runs40.txt`). Paper text to do.
+  - *Status 2026-10-18:* Qwen3 4B on region text added (review3d, D50): CER +0.009 n.s. (Tesseract), +0.014 significant (EasyOCR), WER significantly lower on EasyOCR. Region table regenerated. Paper text to do.
 - [ ] **C6** (Sec III-C; Sec III-H "Confidence-gated correction"; Sec IV-I). OCR output is not stable: Tesseract changed (CER 0.364 to 0.320) and EasyOCR text matched between CPU and GPU runs on only 5 of 15 pages. Release the exact raw OCR text files and state the OCR hardware. The confidence re-run reproduced only 37 of 40 EasyOCR pages: say how the other 3 pages were gated.
   - *Status:* Partly done 2026-10-15: OCR hardware stated; how the 3 non-reproduced EasyOCR pages were gated is stated (unmatched words count as confident and are never changed). Release of the raw OCR text needs the author's decision.
 - [x] **C7** (Table III footnote versus Sec III-G). The note says decoding had no repetition penalty, but the CPU minutes per page come from the earlier guarded runs on the 15-page sample (different Tesseract text, bf16). Re-time under plain decoding or state this; the claim "saves two to fourteen minutes per page" (VI-D) depends on it.
@@ -95,6 +96,7 @@ Remaining risks:
   - *Status 2026-10-17:* Run (review3b, D46): Qwen3 0.6B/4B/8B, Gemma 3 1B/4B, Llama 3.2 3B on 40 pages x 3 inputs. No CER gain; Qwen3 4B and 8B lower WER significantly. Qwen3-32B (M7) and Qwen3 4B on region text in review3d. Paper text to do.
 - [ ] **M2** (Sec VI-E (ii), fine-tuning). Do the pilot before submission. Fine-tune BanglaT5, ByT5-small or mT5-small on synthetic noised Bengali text, with noise built from the Tesseract/EasyOCR confusions measured on the 10 development pages. Test on the same 40 pages with the same statistics. A small T4 job answers the "fine-tuning untested" caveat.
   - *Status 2026-10-17:* Code ready (D47): ByT5-small fine-tuned on dev-noise-corrupted Wikipedia + dev text; runs in review3d.
+  - *Status 2026-10-18:* review3d run is flawed (D50): test chunks contained line breaks never seen in training, so the model skipped and repeated lines (clean text CER 0.32). Fixed; rerun as review3e (`notebooks/kaggle/review3e_finetune_rerun.ipynb`).
 - [ ] **M3** (Sec VI-E (v), noise sweep). Reuse the clean-text control code: corrupt the 40 references at CER 0.02, 0.05, 0.10, 0.20, 0.30, run the four general-purpose models, and plot corrected versus input CER. It directly tests the "input noise" explanation that VI-C says it cannot quantify, and compares with the ~0.15 break-even in [7].
   - *Status 2026-10-17:* Run (review3b, D46): four models x five noise levels (0.02-0.30): every model raises CER at every level; no break-even. Figure `paper/figures/fig_noise.pdf` (F7). Paper text to do.
 - [ ] **M4** (Sec IV-F, classical baseline). The OpenSubtitles lexicon is modern and colloquial, a poor match for 1713-1914 literary text. Report the share of reference words missing from the lexicon (a proxy for historical spelling), try edit distance 1, and add a stronger lexicon (e.g. Bengali Wikipedia text). Optional: n-gram or masked-LM rescoring.
@@ -104,6 +106,7 @@ Remaining risks:
 - [ ] **M7** (Sec VI-E (i), upper bound). Run one large open model (30-70B, 4-bit, on a larger GPU) on a page subset to show how much scale alone changes the outcome.
 
   - *Status 2026-10-17:* Code ready (D47): Qwen3-32B 4-bit on 10 pages; runs in review3d.
+  - *Status 2026-10-18:* Run and scored (review3d, D50): Qwen3-32B 4-bit on 10 pages, CER −0.003/−0.006 (intervals include zero), WER about −0.1, most wrong words fixed of any model, more clean-text damage than Qwen3 1.7B-8B. Table `large.tex`. Paper text to do.
 ## D. Metrics and statistics
 - [x] **E1** (Sec III-H; Tables V, IX). Add a bounded word match error rate (wMER); WER reaches 3.03 in Table V. *(Handwritten tick beside this item on the hardcopy.)*
   - *Status:* Done 2026-10-15: wMER in the baseline table, the main matrix (with exploratory Holm marks) and the clean-text table (`eval/review3_analysis.py`).

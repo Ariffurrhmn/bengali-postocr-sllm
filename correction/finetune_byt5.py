@@ -16,7 +16,8 @@ to correct synthetic OCR noise, then tested on the 40 evaluation pages.
          CER is kept. Development pages are never scored in the paper.
   test   The kept checkpoint corrects the 40 evaluation pages (Tesseract,
          EasyOCR and the clean text) in chunks of at most 300 characters of
-         whole lines (chunking.chunk_text_chars), greedy decoding. Output
+         whole lines (chunking.chunk_text_chars), the lines of a chunk joined
+         by spaces as in training, greedy decoding. Output
          records follow run_sweep.py (model_key "byt5-small-ft"), so
          eval/matrix_analysis.py scores them like any other method.
 
@@ -125,6 +126,10 @@ def correct(model, tok, text, device, max_bytes):
 
     outs, truncated = [], False
     for chunk in chunk_text_chars(text):
+        # Lines joined by spaces, as in training (segments_from removes newlines);
+        # review3d fed "\n" the model had never seen and it skipped and repeated
+        # lines (D50). CER ignores whitespace, so scoring is unaffected.
+        chunk = " ".join(chunk.split())
         enc = tok(chunk, return_tensors="pt", truncation=True, max_length=max_bytes).to(device)
         n_in = enc["input_ids"].shape[1]
         cap = min(max_bytes, int(n_in * 1.3) + 16)
@@ -148,7 +153,7 @@ def main():
     ap.add_argument("--batch", type=int, default=8)
     ap.add_argument("--lr", type=float, default=3e-4)
     ap.add_argument("--max-bytes", type=int, default=1024)
-    ap.add_argument("--eval-every", type=int, default=500)
+    ap.add_argument("--eval-every", type=int, default=200, help="optimizer steps between development evaluations")
     ap.add_argument("--test-pages", type=int, default=0, help="limit the test pages (smoke test)")
     ap.add_argument("--tiny", action="store_true", help="tiny random model (local smoke test)")
     args = ap.parse_args()
@@ -192,11 +197,16 @@ def main():
     print(f"raw OCR CER on the development pages: {raw_dev:.3f}", flush=True)
     best, best_path = float("inf"), out / "byt5_best"
     t0, step, i = time.time(), 0, 0
+    # args.batch is the effective batch; on out-of-memory the micro-batch is
+    # halved and gradients are accumulated, so each update still sees args.batch
+    # pairs (review3d had no accumulation and trained at batch 2; D50).
+    micro, acc = args.batch, 0
+    log["effective_batch"] = args.batch
     model.train()
     while True:
-        batch = pairs[i:i + args.batch]
-        i += args.batch
-        if len(batch) < args.batch:
+        batch = pairs[i:i + micro]
+        i += micro
+        if len(batch) < micro:
             rng.shuffle(pairs)
             i = 0
             continue
@@ -210,18 +220,23 @@ def main():
             g["lr"] = lr
         try:
             loss = model(**enc, labels=lab).loss
-            loss.backward()
+            (loss * micro / args.batch).backward()
         except torch.cuda.OutOfMemoryError:
-            # Untested batch size on a T4: halve it and go on rather than lose the run.
+            # Untested batch size on a T4: halve the micro-batch and go on rather than lose the run.
             opt.zero_grad()
             del enc, lab
             torch.cuda.empty_cache()
-            if args.batch == 1:
+            if micro == 1:
                 raise
-            args.batch //= 2
-            log["batch_reduced_to"] = args.batch
-            print(f"out of memory: batch size reduced to {args.batch}", flush=True)
+            micro //= 2
+            acc = 0
+            log["micro_batch"] = micro
+            print(f"out of memory: micro-batch {micro}, {args.batch // micro} accumulation steps", flush=True)
             continue
+        acc += micro
+        if acc < args.batch:
+            continue
+        acc = 0
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         opt.step()
         opt.zero_grad()
@@ -253,7 +268,7 @@ def main():
                 t1 = time.time()
                 hyp, trunc = correct(model, tok, p[e], device, args.max_bytes)
                 f.write(json.dumps({"page_id": p["page_id"], "engine": e, "model_key": MODEL_KEY,
-                                    "approach": "chunked_chars", "decoding": "plain", "prompt": "none",
+                                    "approach": "chunked_chars_flat", "decoding": "plain", "prompt": "none",
                                     "device": device, "dtype": str(model.dtype), "raw_output": hyp,
                                     "truncated": trunc, "skipped": False, "error": None,
                                     "elapsed_sec": round(time.time() - t1, 1)}, ensure_ascii=False) + "\n")

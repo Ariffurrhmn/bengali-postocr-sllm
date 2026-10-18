@@ -14,15 +14,16 @@ Raw region OCR & 0.333 &  &  &  & 0.225 &  &  &  \\
 \midrule
 SymSpell (dictionary) & 0.369$^{+}$ & +0.036 [+0.031, +0.041] & +0.108$^{+}$ & 28 / 2 & 0.269$^{+}$ & +0.044 [+0.037, +0.050] & +0.104$^{+}$ & 31 / 6 \\
 Gemma-2B-it & 0.349$^{+}$ & +0.016 [+0.006, +0.031] & +0.021$^{+}$ & 6 / 0 & 0.240$^{+}$ & +0.016 [+0.005, +0.034] & +0.008 & 3 / 0 \\
-Qwen3 1.7B & 0.347$^{+}$ & +0.015 [+0.005, +0.026] & -0.002 & 6 / 2 & 0.234$^{+}$ & +0.009 [+0.002, +0.019] & -0.012 & 4 / 5 \\
-Phi-4-mini & 0.346$^{+}$ & +0.013 [+0.005, +0.023] & +0.007 & 6 / 1 & 0.291$^{+}$ & +0.066 [+0.009, +0.150] & +0.014 & 10 / 1 \\
+Qwen3 1.7B & 0.347 & +0.015 [+0.005, +0.026] & -0.002 & 6 / 2 & 0.234$^{+}$ & +0.009 [+0.002, +0.019] & -0.012 & 4 / 5 \\
+Phi-4-mini & 0.346$^{+}$ & +0.013 [+0.005, +0.023] & +0.007 & 6 / 1 & 0.291$^{+}$ & +0.066 [+0.009, +0.149] & +0.014 & 10 / 1 \\
 Llama 3.2 1B & 0.413$^{+}$ & +0.080 [+0.058, +0.104] & +0.027 & 15 / 1 & 0.271$^{+}$ & +0.046 [+0.029, +0.065] & +0.014 & 8 / 2 \\
-BanglaT5 & 0.883$^{+}$ & +0.551 [+0.466, +0.619] & +0.349$^{+}$ & 98 / 1 & 0.846$^{+}$ & +0.622 [+0.580, +0.666] & +0.490$^{+}$ & 98 / 4 \\
-TituLLMs 1B & 0.905$^{+}$ & +0.573 [+0.513, +0.631] & +0.532$^{+}$ & 76 / 4 & 0.985$^{+}$ & +0.761 [+0.713, +0.806] & +0.685$^{+}$ & 76 / 4 \\
-TituLLMs 1B Instruct & 1.629$^{+}$ & +1.296 [+1.059, +1.592] & +1.637$^{+}$ & 73 / 2 & 1.596$^{+}$ & +1.371 [+1.224, +1.516] & +1.622$^{+}$ & 81 / 2 \\
-TituLLMs 3B Instruct & 0.901$^{+}$ & +0.568 [+0.466, +0.675] & +0.372$^{+}$ & 97 / 0 & 0.824$^{+}$ & +0.599 [+0.522, +0.666] & +0.308$^{+}$ & 94 / 0 \\
+BanglaT5 & 0.883$^{+}$ & +0.551 [+0.466, +0.619] & +0.349$^{+}$ & 98 / 1 & 0.846$^{+}$ & +0.622 [+0.581, +0.665] & +0.490$^{+}$ & 98 / 4 \\
+TituLLMs 1B & 0.905$^{+}$ & +0.573 [+0.512, +0.630] & +0.532$^{+}$ & 76 / 4 & 0.985$^{+}$ & +0.761 [+0.713, +0.803] & +0.685$^{+}$ & 76 / 4 \\
+TituLLMs 1B Instruct & 1.629$^{+}$ & +1.296 [+1.060, +1.593] & +1.637$^{+}$ & 73 / 2 & 1.596$^{+}$ & +1.371 [+1.228, +1.516] & +1.622$^{+}$ & 81 / 2 \\
+TituLLMs 3B Instruct & 0.901$^{+}$ & +0.568 [+0.466, +0.675] & +0.372$^{+}$ & 97 / 0 & 0.824$^{+}$ & +0.599 [+0.520, +0.667] & +0.308$^{+}$ & 94 / 0 \\
+Qwen3 4B & 0.342 & +0.009 [-0.001, +0.021] & -0.015 & 7 / 7 & 0.239$^{+}$ & +0.014 [+0.005, +0.023] & -0.030$^{-}$ & 6 / 9 \\
 \bottomrule
 \end{tabular}
 \par\smallskip
-\begin{minipage}{\linewidth}\footnotesize Each PAGE-XML text region read separately (576 regions with text) and scored against the regions in reading order. Whole-page OCR from the same run: Tesseract 0.425, EasyOCR 0.297; region OCR changes them by -0.092 [-0.152, -0.029] and -0.072 [-0.120, -0.033] (paired bootstrap). The Tesseract build of this run does not reproduce the main run's text (CER 0.22 between them), so Tesseract region results are compared only within this run; EasyOCR reproduces the main run (CER 0.002 between them). $\Delta$: corrected $-$ raw region OCR (positive = worse). $^{+}$/$^{-}$: significantly higher/lower, Wilcoxon signed-rank, Holm-corrected over the 18 cells of the table for each metric (exploratory). Broken: share of words the raw OCR had right that the output gets wrong; fixed: share of wrong words it gets right.\end{minipage}
+\begin{minipage}{\linewidth}\footnotesize Each PAGE-XML text region read separately (576 regions with text) and scored against the regions in reading order. Whole-page OCR from the same run: Tesseract 0.425, EasyOCR 0.297; region OCR changes them by -0.092 [-0.152, -0.029] and -0.072 [-0.120, -0.033] (paired bootstrap). The Tesseract build of this run does not reproduce the main run's text (CER 0.22 between them), so Tesseract region results are compared only within this run; EasyOCR reproduces the main run (CER 0.002 between them). $\Delta$: corrected $-$ raw region OCR (positive = worse). $^{+}$/$^{-}$: significantly higher/lower, Wilcoxon signed-rank, Holm-corrected over the 20 cells of the table for each metric (exploratory). Broken: share of words the raw OCR had right that the output gets wrong; fixed: share of wrong words it gets right.\end{minipage}
 \end{table*}

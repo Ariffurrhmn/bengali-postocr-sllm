@@ -1,0 +1,22 @@
+\begin{table}[t]
+\centering
+\caption{Qwen3 from 0.6B to 32B Parameters on 10 Pages (Change Against the Input)}
+\label{tab:large}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\begin{tabular}{lccccc}
+\toprule
+ & \multicolumn{3}{c}{$\Delta$CER} & \multicolumn{2}{c}{$\Delta$WER} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-6}
+Model & Tess. & Easy. & Clean & Tess. & Easy. \\
+\midrule
+Qwen3 0.6B & +0.008 & +0.095 & +0.194 & -0.063 & +0.109 \\
+Qwen3 1.7B & +0.004 & +0.031 & +0.011 & -0.042 & +0.070 \\
+Qwen3 4B & +0.007 & +0.001 & +0.021 & -0.016 & -0.021 \\
+Qwen3 8B & +0.004 & -0.001 & +0.028 & -0.035 & -0.061 \\
+Qwen3 32B (4-bit) & -0.003 & -0.006 & +0.073 & -0.092 & -0.110 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize The 10 pages of the attribution analysis (raw CER 0.377 Tesseract, 0.272 EasyOCR). Qwen3 32B in 4-bit (NF4) on two T4 GPUs; the others as in Table~\ref{tab:scale}, restricted to the same pages. With 10 pages the smallest possible two-sided Wilcoxon $p$ is $2/2^{10}$, so after Holm over the 36 cells no change can be significant (smallest adjusted $p$ 0.070); the text gives 95\% intervals.\end{minipage}
+\end{table}
