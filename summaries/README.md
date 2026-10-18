@@ -13,5 +13,6 @@ Copies of the numeric analysis outputs in `results/` from which the paper's tabl
 | `m1_runs40.json`, `noise_runs40.json`, `main_general40.json` | `matrix_analysis.py` | new models, noise sweep, main run in the same format |
 | `m4_dict40.json`, `m4_lexicon_coverage.json` | `matrix_analysis.py`, `lexicon_coverage.py` | dictionary variants (edit distance, Wikipedia lexicon) and lexicon coverage |
 | `m6_fusion40.json` | `matrix_analysis.py` | Tesseract and EasyOCR fused by word confidence |
+| `m2_runs40.json` | `matrix_analysis.py` | fine-tuned ByT5-small (review3e) on both engines and clean text |
 | `m7_runs10.json` | `matrix_analysis.py` | Qwen3 size series up to 32B (4-bit) and the main models on 10 pages |
 | `*_environment.txt` | the Kaggle notebooks | package versions of each GPU session |

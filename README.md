@@ -11,9 +11,9 @@ Code, data splits and paper for **"Small Language Models Do Not Correct Historic
 - **The failure is not explained by noisy input:** correction also hurts on region-level OCR with lower CER, and on reference text corrupted to any CER from 0.02 to 0.30.
 - **A common decoding default misleads evaluations:** a repetition penalty or n-gram ban also acts on the prompt in Hugging Face `generate` and makes copying models look harmful.
 - **Larger Qwen3 models** (4B, 8B, 32B) fix more wrong words and lower the word error rate, but break correct ones, so CER does not fall.
-- **Without a language model:** a better (Wikipedia) lexicon cuts the dictionary's damage by four-fifths but it stays harmful; fusing the two engines by word confidence fixes more words than it breaks, but lowers CER by under 1%.
+- **Without a language model:** a better (Wikipedia) lexicon cuts the dictionary's damage by four-fifths but it stays harmful; fusing the two engines by word confidence breaks few correct words and fixes more than it breaks, but lowers CER by under 1%.
 - Token-level Grad-CAM maps show copying from inside the models: copied tokens rely on their own source token.
-- A fine-tuning pilot (ByT5-small on synthetic noise) is being rerun after a test-format error (decision D50).
+- **Fine-tuning** a small byte-level model (ByT5-small) on synthetic noise gives the least damage to error-free text and lowers WER, but not CER.
 
 Current numbers: [context/results.md](context/results.md).
 

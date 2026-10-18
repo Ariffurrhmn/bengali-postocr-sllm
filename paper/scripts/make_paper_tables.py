@@ -1015,9 +1015,12 @@ def main():
                                     str(c["truncated"])]) + " \\\\")
         note = ""
         if log:
-            note = (" Training: %d synthetic pairs, %d steps (%.0f min); development-page CER %.3f after "
-                    "correction against %.3f raw (checkpoint chosen on it)." %
-                    (log["pairs"], log["steps"], log["train_minutes"], log["best_dev_cer"], log["raw_dev_cer"]))
+            note = (" Training: %s training pairs, %s updates of %d pairs (%.0f min on one T4 GPU, including "
+                    "the development evaluations); development-page CER %.3f after correction against %.3f raw "
+                    "(checkpoint chosen on it)." %
+                    (format(log["pairs"], ",").replace(",", "{,}"), format(log["steps"], ",").replace(",", "{,}"),
+                     log.get("effective_batch", 8), log["train_minutes"],
+                     log["best_dev_cer"], log["raw_dev_cer"]))
         (OUT_DIR / "finetune.tex").write_text(
             "\\begin{table*}[t]\n\\centering\n"
             "\\caption{Fine-Tuning Pilot: ByT5-Small Trained on Synthetic OCR Noise (40 Pages)}\n"
