@@ -37,8 +37,8 @@
 
 \begin{document}
 
-% Working title (D56); alternatives in context/decisions.md D56, to be checked with Bijon Sir.
-\title{Small Language Models for Historical Bengali OCR Correction: Word-Level Gains, Character-Level Damage, and a Decoding Pitfall}
+% Title of the draft Bijon Sir reviewed; kept by the author's decision (D59).
+\title{Does Zero-Shot Small-Model Post-Correction Help Bengali OCR? A Negative Result Across Eight Models and Two OCR Engines}
 
 \author{\IEEEauthorblockN{Arifur Rahman}
 \IEEEauthorblockA{ID: 20234103222\\
@@ -51,7 +51,7 @@ arifur.rahman.cs04@gmail.com}}
 
 % =====================================================================
 \begin{abstract}
-We evaluate whether small language models can correct optical character recognition (OCR) output from historical Bengali books without changing correctly recognised text. On 40 pages printed between 1713 and 1914 and read by Tesseract and EasyOCR, eight open models of 0.25 to 3.8 billion parameters and a spell-checker corrected every page without task examples; extensions added six models of up to 8 billion parameters, a 32-billion-parameter model on 10 pages, and a small model fine-tuned on synthetic noise. None of the ungated models significantly reduced the mean code-point character error rate (CER) in the tested comparisons, on whole pages, on separately read regions, or on synthetic noise down to an input CER of 0.02. Larger Qwen3 models and the fine-tuned model repaired more words than they broke and lowered the word error rate, but not CER, and every method changed error-free text. Repetition constraints that also count the prompt's source text made copying models much worse, raising CER by up to 1.4 CER units over plain decoding (Phi-4-mini with the repetition penalty alone). Restricting edits to words the engine was unsure of, or combining the two engines, reduced the damage and gained about 1\% of CER at best. For comparable material, keep the raw OCR until a correction step has been validated against reference transcriptions.
+Small language models are a low-cost way to correct optical character recognition (OCR) of historical Bengali books, but only if they repair errors without changing correct text, and we found no study that measures this. On 40 pages printed 1713 to 1914 and read by Tesseract and EasyOCR, eight open models of 0.25 to 3.8 billion parameters and a spell-checker corrected every page without task examples; extensions added six models up to 8 billion parameters, a 32-billion-parameter model on 10 pages, and a small model fine-tuned on synthetic noise. None of the ungated models significantly reduced the mean code-point character error rate (CER) in the tested comparisons, on whole pages, on separately read regions, or on synthetic noise down to an input CER of 0.02. Larger Qwen3 models and the fine-tuned model repaired more words than they broke and lowered the word error rate, but not CER, and every method changed error-free text. Repetition constraints that also count the prompt's source text made copying models much worse, raising CER by up to 1.4 CER units over plain decoding (Phi-4-mini with the repetition penalty alone). Restricting edits to words the engine was unsure of, or combining the two engines, reduced the damage and gained about 1\% of CER at best. For comparable material, keep the raw OCR until a correction step has been validated against reference transcriptions.
 \end{abstract}
 
 \begin{IEEEkeywords}

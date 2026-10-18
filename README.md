@@ -1,6 +1,6 @@
 # bengali-postocr-sllm
 
-Code, data splits and paper for **"Small Language Models Do Not Correct Historical Bengali OCR, and a Decoding Default Makes Them Look Worse"** (working title; Arifur Rahman, CSE403, Bangladesh University of Business and Technology, 2026). The paper is being revised after a third review.
+Code, data splits and paper for **"Does Zero-Shot Small-Model Post-Correction Help Bengali OCR? A Negative Result Across Eight Models and Two OCR Engines"** (Arifur Rahman, CSE403, Bangladesh University of Business and Technology, 2026). The paper is being revised after a third review.
 
 **Paper:** [paper/main.pdf](paper/main.pdf) (source: [paper/main.tex](paper/main.tex)). **Cite:** see [CITATION.cff](CITATION.cff).
 

@@ -392,3 +392,7 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 5. "Decoding is greedy, so output is deterministic" -> "We use greedy decoding, without token sampling"; the reproducibility caveat stays in Statistics.
 6. Related work on language-model correction split into three paragraphs (training, input quality, language/register); future work reduced to three extensions (validate gating/fusion; task-specific training; measure downstream value) plus one clause.
 7. Abstract: "up to 1.4 CER units over plain decoding (Phi-4-mini with the repetition penalty alone)" (+1.396 on Tesseract text, Table X). Abstract 216 words.
+
+### D59. Draft title restored; abstract in the writing guide's order (2026-10-18)
+**Decision (author):** use the title of the draft Bijon Sir reviewed, "Does Zero-Shot Small-Model Post-Correction Help Bengali OCR? A Negative Result Across Eight Models and Two OCR Engines" (still accurate: the main evaluation is eight models on two engines). This departs from WRITING-GUIDE Sec 3 (statement titles); the author's choice.
+**Abstract:** content unchanged, reordered to the guide's narrative order (background, problem, what we did, what we found, what to do); 223 words, acronyms only CER and OCR; "we found no study that measures this" instead of an absolute novelty claim.
