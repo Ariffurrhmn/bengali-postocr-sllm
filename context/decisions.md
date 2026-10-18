@@ -407,3 +407,6 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 ### D61. Sir: LaTeX corrections only, no new runs before the external review (2026-10-18)
 **Source:** Bijon Sir on WhatsApp: the remaining corrections are minor and mostly LaTeX; no code for now; no extra GPU needed; once the paper is ready he will have it reviewed externally and arrange GPU runs then if needed.
 **Consequence:** C4 (longer ByT5 training) and S1-S3 deferred to after the external review; C5 closed by the statement added in D60 (no rerun); S4 and the journal choice wait. The code added in D60 (constraint test, page deltas, OCR environment record) stays: it backs numbers in the paper and changes no result. The author's 8 h of Kaggle GPU are kept in reserve.
+
+### D62. Plain, short abstract (2026-10-18)
+**Decision (author):** the abstract says only what was done and, in one or two lines, the answer; no numbers beyond the corpus and the 1% gain. Now 113 words (was 208). Dropped from the abstract (still in the body): code-point wording, model sizes, the decoding-constraint finding, the gating/fusion detail. Departs from the WRITING-GUIDE's ~200 words and from the D58 "code-point CER" wording, by the author's choice.
