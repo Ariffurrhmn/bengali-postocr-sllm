@@ -140,6 +140,8 @@ def main():
     parser.add_argument("--m2-log", type=Path, default=RESULTS / "review3e" / "m2_train_log.json")
     parser.add_argument("--m4-runs", type=Path, default=RESULTS / "m4_dict40.json")
     parser.add_argument("--fusion-runs", type=Path, default=RESULTS / "m6_fusion40.json")
+    parser.add_argument("--fusion-family4", type=Path, default=RESULTS / "m6_fusion40_family4.json",
+                        help="first scoring of fusion against both engines (4-cell Holm family, D51/D60)")
     parser.add_argument("--m7-runs", type=Path, default=RESULTS / "m7_runs10.json")
     parser.add_argument("--review3-runs", type=Path, default=RESULTS / "review3_runs.json",
                         help="third-review GPU runs (review3_runs_analysis.py): C1, C2, C4, X1")
@@ -634,6 +636,9 @@ def main():
                      if m == "titullm-3b-instruct" and e != "ground_truth"])
         assert all(c["p"] < 0.001 and c["delta"] > 0 for c in vs_raw)
         best, worst = min(c["delta"] for c in vs_raw), max(c["delta"] for c in vs_raw)
+        # Completion-prompt changes: the text reports them as unadjusted p < 0.001.
+        compl = [c["vs_main"] for c in runs3["C2"] if c["model"] == "titullm-1b"]
+        assert len(compl) == 3 and all(c["p"] < 0.001 for c in compl)
         (OUT_DIR / "checks.tex").write_text(
             "\\begin{table*}[t]\n\\centering\n"
             "\\caption{Precision and Prompt-Format Checks (Mean CER, 40 Pages)}\n"
@@ -650,7 +655,7 @@ def main():
             "for the two models above 3B parameters; each model's shipped chat template; BanglaT5 on "
             "unnormalised text). Check: the same model rerun with one change. $\\Delta$: check $-$ "
             "main; CI: paired bootstrap, 10{,}000 resamples; $^{*}$: Wilcoxon signed-rank $p<0.05$, "
-            "unadjusted (exploratory). --: not run (Phi-4-mini in float32 on EasyOCR text) or "
+            "unadjusted (exploratory); the three completion-prompt changes have $p<0.001$. --: not run (Phi-4-mini in float32 on EasyOCR text) or "
             "incomplete (on clean text, 1 of 40 pages within the session's time limit). First-token "
             "check of TituLLMs 3B Instruct on all " + str(ag["chunks"]) + " chunks: the same first "
             "token in both precisions on " + str(ag["same_first_token"]) + ", end-of-sequence first on "
@@ -1065,8 +1070,9 @@ def main():
                 cols = [names[m]]
                 for e, _ in ENGINES:
                     c = None if src is fus and e == "tesseract" else src.get((e, m))
-                    cols.append("--" if c is None else "%+.3f%s %s" % (c["cer"]["delta"], hmark(c["cer"]),
-                                                                      ci(*c["cer"]["ci"])))
+                    # Fusion CER changes are descriptive: their family was chosen after a first scoring.
+                    cols.append("--" if c is None else "%+.3f%s %s" % (
+                        c["cer"]["delta"], "" if src is fus else hmark(c["cer"]), ci(*c["cer"]["ci"])))
                 g = src.get(("ground_truth", m))
                 cols.append("--" if g is None else "%.3f" % g["cer"]["output"])
                 for e, _ in ENGINES:
@@ -1077,6 +1083,14 @@ def main():
                     cols.append("--" if c is None else bf(c))
                 rows.append(" & ".join(cols) + " \\\\")
         n_fus = sum(1 for (e, _) in fus if e == "easyocr")
+        fus4 = matrix(args.fusion_family4)
+        p_fus = "; ".join("%s rule %.3f / %.3f" % (
+            lbl, fus[("easyocr", k)]["cer"]["p_holm"], fus4[("easyocr", k)]["cer"]["p_holm"])
+            for k, lbl in (("fusion-conf", "higher-confidence"), ("fusion-margin", "margin"))) if fus4 else ""
+        fus_note = ("Fusion CER changes are descriptive, not significant. Holm-adjusted Wilcoxon $p$ over the "
+                    "%d fusion cells / over the %d cells of the first scoring, which added the comparisons "
+                    "with Tesseract output (the smaller family was chosen after it): " % (n_fus, len(fus4))
+                    + p_fus + ". ") if fus4 else ""
         (OUT_DIR / "classical.tex").write_text(
             "\\begin{table*}[t]\n\\centering\n"
             "\\caption{Methods Without a Language Model: Dictionary Variants and Engine Fusion (40 Pages)}\n"
@@ -1095,7 +1109,7 @@ def main():
             "0.25); it is compared with EasyOCR, its base, only, and needs two OCR readings, so it has "
             "no clean-text control. $^{+}$/$^{-}$: Holm-significant, Wilcoxon signed-rank, over the "
             "%d dictionary cells and, separately, the %d fusion cells, per metric (exploratory). "
-            % (len(m4), n_fus) + BF_NOTE % nref(m4) + "\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
+            % (len(m4), n_fus) + fus_note + BF_NOTE % nref(m4) + "\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
 
     # ---- large model on 10 pages (item M7) ----
     m7 = matrix(args.m7_runs)

@@ -396,3 +396,10 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 ### D59. Draft title restored; abstract in the writing guide's order (2026-10-18)
 **Decision (author):** use the title of the draft Bijon Sir reviewed, "Does Zero-Shot Small-Model Post-Correction Help Bengali OCR? A Negative Result Across Eight Models and Two OCR Engines" (still accurate: the main evaluation is eight models on two engines). This departs from WRITING-GUIDE Sec 3 (statement titles); the author's choice.
 **Abstract:** content unchanged, reordered to the guide's narrative order (background, problem, what we did, what we found, what to do); 223 words, acronyms only CER and OCR; "we found no study that measures this" instead of an absolute novelty claim.
+
+### D60. Bijon Sir's draft-04 corrections: text and number fixes (2026-10-18)
+**Source:** `Bengali_PostOCR_draft04_corrections.pdf` (12 corrections, 4 suggestions, journal list); item status in `context/review-draft-04.md`.
+**Done:** C1, C2, C3, C6-C12 (details in review-draft-04.md). C2 is now tested on the version the runs used (5.19.0, Qwen3 0.6B, one generation step, CPU), not only read in 5.14.1 source. C3: fusion's CER gain is called descriptive, not significant, everywhere; its table mark is removed and both Holm p-values come from result files (the 4-cell family rerun with `eval/matrix_analysis.py` on the fusion outputs duplicated as engine "tesseract" reproduces the D51 values 0.090 and 0.205). C5: stated, not redone.
+**New result files (new outputs, none edited):** `results/prompt_constraints_5.19.0.json`, `results/m6_fusion40_family4.{json,txt}`, `results/region_phi4-mini_easyocr_pages.json`.
+**Not done (need the author):** C4 longer ByT5 training (Kaggle GPU); C5 redoing the crop choice on development pages (Tesseract run); S1-S4 and the journal choice.
+**Build:** 29 pages (was 28), no overfull boxes, references resolve, Bengali table renders.

@@ -26,6 +26,28 @@ TESSERACT_CMD = os.environ.get(
     "TESSERACT_CMD", r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 )
 
+def tesseract_environment() -> dict:
+    """What can change Tesseract's output within one version (draft-04 C12): the
+    full `tesseract --version` text (Leptonica and image libraries, SIMD found),
+    the CPU, its flags where the OS lists them, and the Bengali model's hash."""
+    import hashlib
+    import platform
+    import subprocess
+
+    tv = subprocess.run([TESSERACT_CMD, "--version"], capture_output=True, text=True)
+    env = {"tesseract_version": (tv.stdout or tv.stderr).strip().splitlines(),
+           "platform": platform.platform(), "processor": platform.processor(), "machine": platform.machine()}
+    cpuinfo = Path("/proc/cpuinfo")
+    if cpuinfo.exists():
+        lines = cpuinfo.read_text(errors="replace").splitlines()
+        env["cpu_model"] = next((l.split(":", 1)[1].strip() for l in lines if l.startswith("model name")), "")
+        env["cpu_flags"] = next((l.split(":", 1)[1].split() for l in lines if l.startswith("flags")), [])
+    model = Path(os.environ["TESSDATA_PREFIX"]) / "ben.traineddata"
+    if model.exists():
+        env["ben_traineddata_sha256"] = hashlib.sha256(model.read_bytes()).hexdigest()
+    return env
+
+
 REGION_RE = re.compile(r"<TextRegion\b.*?</TextRegion>", re.DOTALL)
 UNICODE_RE = re.compile(r"<Unicode>([^<]*)</Unicode>")
 
@@ -155,6 +177,9 @@ def main():
 
     import easyocr
 
+    env = tesseract_environment()
+    env["easyocr"] = easyocr.__version__
+    out_path.with_suffix(".environment.json").write_text(json.dumps(env, indent=1) + "\n", encoding="utf-8")
     reader = easyocr.Reader(["bn"], gpu=False)
 
     with out_path.open("a", encoding="utf-8") as f:

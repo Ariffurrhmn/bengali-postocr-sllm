@@ -39,7 +39,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from run_ocr import REPO_ROOT, TESSERACT_CMD, resolve_file, run_easyocr, run_tesseract
+from run_ocr import REPO_ROOT, TESSERACT_CMD, resolve_file, run_easyocr, run_tesseract, tesseract_environment
 
 REGION_RE = re.compile(r"<TextRegion\b([^>]*)>(.*?)</TextRegion>", re.DOTALL)
 UNICODE_RE = re.compile(r"<Unicode>([^<]*)</Unicode>")
@@ -110,7 +110,8 @@ def versions() -> dict:
     import easyocr  # noqa: F401  (version only)
 
     tv = subprocess.run([TESSERACT_CMD, "--version"], capture_output=True, text=True)
-    return {"tesseract": (tv.stdout or tv.stderr).splitlines()[0], "easyocr": easyocr.__version__}
+    return {"tesseract": (tv.stdout or tv.stderr).splitlines()[0], "easyocr": easyocr.__version__,
+            "environment": tesseract_environment()}
 
 
 def verify(dataset_dir: Path, stored: dict, reader, out: Path, min_verified: int) -> None:
