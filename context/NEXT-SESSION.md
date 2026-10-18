@@ -15,6 +15,7 @@ Handoff updated 2026-10-18. Read this file first, then the files in section 2. C
 3. `context/results.md`: all numbers, including "Third-review GPU run 4: review3d" and "Local runs, 2026-10-18".
 4. `context/engineering-notes.md`: gotchas (Bash heredocs mangle backslashes, also inside `python - <<EOF`: write scripts to a file; `PYTHONIOENCODING=utf-8`; `HF_HUB_CACHE=G:/hf-cache`; keep `huggingface-hub<2`).
 5. `paper/WRITING-GUIDE.md` and `paper/README.md` (every command runs from the repository root).
+6. `context/literature-leads.md`: papers found with Consensus (2026-10-18), to verify and cite; Boros et al. 2024 is a must-cite.
 
 ## 3. Where things stand
 
