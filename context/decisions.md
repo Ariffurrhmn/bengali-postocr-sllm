@@ -403,3 +403,7 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 **New result files (new outputs, none edited):** `results/prompt_constraints_5.19.0.json`, `results/m6_fusion40_family4.{json,txt}`, `results/region_phi4-mini_easyocr_pages.json`.
 **Not done (need the author):** C4 longer ByT5 training (Kaggle GPU); C5 redoing the crop choice on development pages (Tesseract run); S1-S4 and the journal choice.
 **Build:** 29 pages (was 28), no overfull boxes, references resolve, Bengali table renders.
+
+### D61. Sir: LaTeX corrections only, no new runs before the external review (2026-10-18)
+**Source:** Bijon Sir on WhatsApp: the remaining corrections are minor and mostly LaTeX; no code for now; no extra GPU needed; once the paper is ready he will have it reviewed externally and arrange GPU runs then if needed.
+**Consequence:** C4 (longer ByT5 training) and S1-S3 deferred to after the external review; C5 closed by the statement added in D60 (no rerun); S4 and the journal choice wait. The code added in D60 (constraint test, page deltas, OCR environment record) stays: it backs numbers in the paper and changes no result. The author's 8 h of Kaggle GPU are kept in reserve.

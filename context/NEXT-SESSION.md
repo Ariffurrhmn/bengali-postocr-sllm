@@ -10,7 +10,7 @@ Handoff updated 2026-10-18 (night, after Bijon Sir's draft-04 corrections, D60).
 - **All third-review experiments are done and in the paper** (D50-D54). Builds clean with Tectonic; all references resolve.
 
 ## 2. Read these, in order
-1. `context/review-draft-04.md`: **Bijon Sir's draft-04 corrections** and their status (open: C4, C5, S1-S4, journal).
+1. `context/review-draft-04.md`: **Bijon Sir's draft-04 corrections** and their status (all A items closed; S1-S4 and journal deferred, D61).
 1b. `context/review-draft-03.md`: older item status (still open: C6, W2, M5, E7, R2).
 2. `context/decisions.md`: D50-D60 (D60: draft-04 corrections) (D56-D58: revisions after the external editorial review and the reviewer's second reading; D59: draft title kept, abstract in the guide's order).
 3. `context/results.md`: all numbers (review3d, local runs, review3e, and the fusion-claim correction).
@@ -24,13 +24,13 @@ Handoff updated 2026-10-18 (night, after Bijon Sir's draft-04 corrections, D60).
 
 ## 3. What is left (needs the author)
 1. **Bengali examples (Table XXI):** say which changed forms are OCR errors and which are valid historical spellings (editorial review); the student-ID line in the author block.
-2. **Bijon Sir's draft-04 corrections** (`context/review-draft-04.md`): C1-C3 and C6-C12 done (D60). Open: C4 longer ByT5 training (Kaggle GPU, author), C5 redo the crop choice on development pages or keep the added statement, S1 vision-language baseline, S2 second collection, S3 word-search test, S4 trim (now 29 pages), target journal (LRE first if the university counts Scimago).
+2. **Bijon Sir's draft-04 corrections** (`context/review-draft-04.md`): C1-C3 and C6-C12 done (D60). Sir (WhatsApp, D61): only minor LaTeX corrections, no code or extra GPU for now; when the paper is ready he sends it for an external review and arranges GPU runs then if needed. So C4 and S1-S3 wait for that review; C5 is closed by the added statement; S4 trim and the journal wait for the journal choice. Author has about 8 h of Kaggle GPU left, not needed now.
 3. **Page-type labels** (`data/page_types.tsv`, E8): the author has not checked them.
 4. **Release (C6, R2), only with the author's go-ahead after the final pass:** GitHub release → Zenodo DOI → put the DOI into reference `rahman2026repo`; separate Zenodo dataset deposit of the per-page OCR text and model outputs under CC BY 4.0 (the paper already says they are released with it). `results/` is local only (gitignored); copies on Google Drive.
 5. Optional: check the TALLIP paper's PDF if the author has ACM access (D53 caveat); arXiv preprint (WRITING-GUIDE Sec 6).
 
 ## 4. Questions to ask the author at the start of every session
-1. Decisions on draft-04 items C4, C5, S1-S4 and the target journal?
+1. Any news from Bijon Sir or the external review?
 2. Have you checked `data/page_types.tsv` (E8)?
 3. Go-ahead for the GitHub release / DOI and the data deposit?
 
