@@ -1,6 +1,6 @@
 # Next session: start here
 
-Handoff updated 2026-10-18. Read this file first, then the files in section 2. The author commits and pushes themselves: never run `git commit`/`git push`; give them the exact commands.
+Handoff updated 2026-10-18. Read this file first, then the files in section 2. Claude commits and pushes itself (author, 2026-10-18), with plain messages: no Co-Authored-By line and no Claude email.
 
 ## 1. The project in five lines
 - Paper: working title "Small Language Models Do Not Correct Historical Bengali OCR, and a Decoding Default Makes Them Look Worse" (`paper/main.tex`, author Arifur Rahman, course CSE403, reviewer **Bijon Sir**). Two alternative titles in D52; the author checks with Bijon Sir. `CITATION.cff` and `.zenodo.json` still carry the old title.
@@ -27,8 +27,8 @@ Handoff updated 2026-10-18. Read this file first, then the files in section 2. T
 ### Waiting
 - **review3e** on Kaggle (the author starts it; output `review3e.zip`, normally in `C:\Users\Windows 11\Downloads\`).
 
-### Not committed yet (as of this handoff)
-Everything since `33091c1`: M4/fusion code and records, paper rewrite, tables, references, README, context files. Give the author the commit commands (section 5).
+### Committed
+Everything up to the paper rewrite is committed and pushed (`d93ed48`).
 
 ## 4. Task list for the next session (in order)
 1. Unpack `review3e.zip` to `results/review3e/` (own new folder; check names for `..` first). Check `lane0.log` for errors and out-of-memory lines, `m2_train_log.json` (development CER per checkpoint against raw 0.362; `micro_batch`, `effective_batch`), and `m2_byt5.jsonl` (120 rows, no errors; truncation count). If the development CER is again above raw OCR at every checkpoint, inspect outputs as in D50 (deletions/insertions vs substitutions, missing lines) before believing it.
@@ -37,17 +37,16 @@ Everything since `33091c1`: M4/fusion code and records, paper rewrite, tables, r
 4. Paper: fill the places marked `% M2` in `main.tex` (Results subsection after the large-model paragraph with `\input{tables/finetune}`; RQ5; practical implications; conclusion; abstract) and the closing sentence of "Possible explanations" ("fine-tuned versions of these models"). Mention the failed first run in one sentence in Methods (III-L, fine-tuning). Trim the abstract from 216 to about 200 words. Revisit the title if fine-tuning helps.
 5. Rebuild (`cd paper; tectonic -X compile main.tex`), `python paper/scripts/check_refs.py`, check overfull boxes and the Bengali table; `python paper/scripts/make_overleaf_zip.py` if the author wants Overleaf.
 6. Record: results.md, a decision entry (D53), review-draft-03 M2 status, timeline, README (last bullet), this file.
-7. Give the author commit/push commands. Later, with their go-ahead: update the title in `CITATION.cff` and `.zenodo.json`, GitHub release for the DOI (Zenodo is linked), DOI into `rahman2026repo`, CC BY 4.0 data deposit of the OCR text and outputs (the paper already says they are released with it).
+7. Commit and push (no attribution trailer). Later, with their go-ahead: update the title in `CITATION.cff` and `.zenodo.json`, GitHub release for the DOI (Zenodo is linked), DOI into `rahman2026repo`, CC BY 4.0 data deposit of the OCR text and outputs (the paper already says they are released with it).
 
 ## 5. Questions to ask the author at the start of every session
 Ask only those still open, together:
 1. Has review3e finished? Where is `review3e.zip`?
 2. Which title (D52 has three)? Any news from Bijon Sir (title, Grad-CAM section, anonymous review)?
 3. Have you checked the page-type labels in `data/page_types.tsv`? (E8)
-4. Commit commands ready: has the author committed and pushed the 2026-10-18 work?
 
 ## 6. Rules carried over from the author
-- Do not discard uncommitted changes. The author commits and pushes; Claude gives the commands.
+- Do not discard uncommitted changes. Claude commits and pushes after each coherent piece of work, plain messages without Co-Authored-By or Claude email; never force-push.
 - Never edit result files; regenerate tables and figures from them. No number in a table is typed by hand.
 - Do not invent numbers. If a check fails or a claim is not supported, say so.
 - Keep decisions in `context/decisions.md` (decision, why, consequence). Tick items in `context/review-draft-03.md` with a *Status* note.
