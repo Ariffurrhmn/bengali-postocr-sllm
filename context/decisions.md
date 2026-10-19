@@ -447,3 +447,6 @@ The author's own compile (32 pages) renders correctly. Fixed: Fig. 5(a) no longe
 
 ### D69. Appendix float layout (2026-10-19)
 An external check (of the build before D68) flagged Fig. 5's label (already fixed in D68) and appendix pages with one float each. Fixed: the edit-operations table is now a wide table with the engines side by side (same values, generated); in the appendix up to three wide floats may share a page (`\dbltopfraction` 0.95, `dbltopnumber` 3, `\dblfloatpagefraction` 0.6, set after `\appendices` only); Fig. 8 at 0.78 text width. Appendix floats now fill two pages instead of four; 31 pages (was 32). No overfull boxes; references resolve; Bengali font embedded.
+
+### D70. Reference-list layout (2026-10-19)
+The D69 float settings (`\dbltopfraction` etc. after `\appendices`) pushed reference [1] to the bottom of the left column on the first reference page (reproduced locally; variants showed the settings were the cause). Removed them: the wide edit-operations table and the smaller Fig. 8 alone keep the appendix floats on two pages. Added `\raggedbottom` before the bibliography so entries are not stretched apart. 30 pages. The Fig. 5 label in the author's Overleaf build is still the old one because `figures/fig_decoding.pdf` there was not replaced (the label is drawn inside the figure); the new file was sent again.
