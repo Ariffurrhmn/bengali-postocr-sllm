@@ -15,8 +15,9 @@ Analysis & Correction methods & Pages & Inputs & Tests & Section \\
 \midrule
 Main evaluation & 8 core models (Gemma-2B-it, Qwen3 1.7B, Phi-4-mini, Llama 3.2 1B, BanglaT5, TituLLMs 1B, 1B Instruct, 3B Instruct) and SymSpell & 40 & Tesseract, EasyOCR, clean text & \textbf{Primary}: 36 (CER, WER), Holm. Exploratory: 18 per secondary measure, Holm; equivalence, unadjusted & \ref{sec:main}, \ref{sec:clean} \\
 Decoding ablation & 4 general-purpose core models & 40 & Tesseract, EasyOCR (not Phi-4-mini), clean text & Exploratory: 33, Holm & \ref{sec:decoding} \\
+Constraints on generated tokens & 4 general-purpose core models & 40 & Tesseract, clean text & Exploratory: 24 per comparison (vs plain, vs whole sequence), Holm & \ref{sec:decoding} \\
 Prompt and chunking variants & 4 general-purpose core models & 40 & Tesseract, EasyOCR & Exploratory: 32, Holm & \ref{sec:variants} \\
-Precision and prompt format & TituLLMs 3B Instruct and Phi-4-mini in float32; TituLLMs 1B with a completion prompt; BanglaT5 with its normaliser & 40 & as in the main runs (Phi-4-mini: Tesseract only) & Exploratory, unadjusted & \ref{sec:precision} \\
+Precision and prompt format & TituLLMs 3B Instruct and Phi-4-mini in float32; TituLLMs 1B with a completion prompt (1B and 3B Instruct: Tesseract text); BanglaT5 with its normaliser & 40 & as in the main runs (Phi-4-mini: Tesseract only) & Exploratory, unadjusted (Instruct: Holm over 2) & \ref{sec:precision} \\
 Confidence gating & outputs of the main evaluation & 40 & Tesseract, EasyOCR & Exploratory: 54, Holm & \ref{sec:gating} \\
 Page-level safeguards & outputs of the main evaluation & 40 & Tesseract, EasyOCR & Exploratory: 18 and 72, Holm & \ref{sec:safeguards} \\
 Region-level OCR & 8 core models, SymSpell, Qwen3 4B & 40 & Tesseract and EasyOCR region text & Exploratory: 20 per metric, Holm & \ref{sec:region} \\

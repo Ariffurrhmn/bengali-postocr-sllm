@@ -29,6 +29,8 @@ $PY eval/matrix_analysis.py --ocr-path $R/ocr_eval40.jsonl --corrections $R/revi
 $PY eval/matrix_analysis.py --ocr-path $R/ocr_eval40.jsonl --corrections $R/dict_eval40.jsonl $R/m4_dict_ed1.jsonl $R/m4_dict_wiki.jsonl $R/m4_dict_wiki_ed1.jsonl --engines tesseract,easyocr,ground_truth --label "dictionary variants (M4)" --out-prefix $R/m4_dict40
 $PY eval/matrix_analysis.py --ocr-path $R/ocr_eval40.jsonl --corrections $R/m6_fusion40.jsonl --engines easyocr --label "engine fusion (M6), against EasyOCR, its base" --out-prefix $R/m6_fusion40
 
+$PY eval/review4_runs_analysis.py --runs $R/review4 --review3 $R/review3 --ocr-path $R/ocr_eval40.jsonl --main $R/gpu_eval40.jsonl --out-prefix $R/review4_runs
+
 # External-review analyses (descriptive)
 $PY eval/edit_analysis.py --ocr-path $R/ocr_eval40.jsonl --out-json $R/edit_analysis40.json \
   $(for e in tesseract easyocr; do for c in gpu_eval40.jsonl:gemma-2b gpu_eval40.jsonl:qwen3-1.7b review3b/m1_qwen3-4b.jsonl:qwen3-4b \

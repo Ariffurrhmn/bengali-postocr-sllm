@@ -141,6 +141,7 @@ def main():
     parser.add_argument("--m4-runs", type=Path, default=RESULTS / "m4_dict40.json")
     parser.add_argument("--fusion-runs", type=Path, default=RESULTS / "m6_fusion40.json")
     parser.add_argument("--edit-analysis", type=Path, default=RESULTS / "edit_analysis40.json")
+    parser.add_argument("--review4-runs", type=Path, default=RESULTS / "review4_runs.json")
     parser.add_argument("--output-filter", type=Path, default=RESULTS / "output_filter40.json")
     parser.add_argument("--fusion-family4", type=Path, default=RESULTS / "m6_fusion40_family4.json",
                         help="first scoring of fusion against both engines (4-cell Holm family, D51/D60)")
@@ -1131,6 +1132,50 @@ def main():
             "no clean-text control. $^{+}$/$^{-}$: Holm-significant, Wilcoxon signed-rank, over the "
             "%d dictionary cells and, separately, the %d fusion cells, per metric (exploratory). "
             % (len(m4), n_fus) + fus_note + BF_NOTE % nref(m4) + "\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
+
+    # ---- constraints on generated tokens only (external review item 4) ----
+    if args.review4_runs.exists():
+        r4 = json.loads(args.review4_runs.read_text(encoding="utf-8"))
+        g = {(r["model"], r["engine"], r["preset"]): r for r in r4["G"]}
+        rows = []
+        for i, (e, ename) in enumerate([("tesseract", "Tesseract"), ("ground_truth", "Clean text")]):
+            ms = [m for m in MODEL_ORDER if (m, e, "guarded_gen") in g]
+            rows.append("%s\\multicolumn{9}{l}{\\textit{%s}} \\\\" % ("\\midrule\n" if i else "", ename))
+            for m in ms:
+                cells = [MODEL_NAMES[m], "%.3f" % g[(m, e, "guarded_gen")]["vs_plain"]["mean_b"]]
+                for pr in ("penalty_gen", "ngram_gen", "guarded_gen"):
+                    r = g[(m, e, pr)]
+                    marks = (("+" if r["vs_plain"]["p_holm"] < 0.05 and r["vs_plain"]["delta"] > 0 else "")
+                             + ("\\circ" if r["vs_whole"]["p_holm"] >= 0.05 else ""))
+                    cells += ["%.3f" % r["vs_whole"]["mean_b"],
+                              "%.3f%s" % (r["vs_whole"]["mean_a"], "$^{%s}$" % marks if marks else "")]
+                r = g[(m, e, "guarded_gen")]
+                plain, whole_, gen_ = r["vs_plain"]["mean_b"], r["vs_whole"]["mean_b"], r["vs_whole"]["mean_a"]
+                cells.append("%.0f\\%%" % (100 * (whole_ - gen_) / (whole_ - plain)))
+                rows.append(" & ".join(cells) + " \\\\")
+        n_up = sum(r["vs_plain"]["p_holm"] < 0.05 and r["vs_plain"]["delta"] > 0 for r in r4["G"])
+        n_down = sum(r["vs_whole"]["p_holm"] < 0.05 and r["vs_whole"]["delta"] < 0 for r in r4["G"])
+        (OUT_DIR / "decoding_gen.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n"
+            "\\caption{Repetition Constraints on the Whole Sequence and on Generated Tokens Only "
+            "(Mean CER, 40 Pages)}\n\\label{tab:decodinggen}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lcccccccc}\n\\toprule\n"
+            " & & \\multicolumn{2}{c}{Penalty} & \\multicolumn{2}{c}{$n$-gram ban} & "
+            "\\multicolumn{2}{c}{Both (guarded)} & \\\\\n"
+            "\\cmidrule(lr){3-4}\\cmidrule(lr){5-6}\\cmidrule(lr){7-8}\n"
+            "Model & Plain & Whole & Generated & Whole & Generated & Whole & Generated & "
+            "\\shortstack{Excess removed\\\\(both)} \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize Whole: the constraint acts on the whole token "
+            "sequence, prompt included, as \\texttt{generate} applies it (Table~\\ref{tab:decoding}); "
+            "Generated: the same constraint restricted to the generated tokens (penalty 1.3 with "
+            "\\texttt{prompt\\_ignore\\_length}, four-gram ban on the output only). $^{+}$: significantly "
+            "higher than plain decoding (%d of %d); $^{\\circ}$: not significantly lower than the whole-"
+            "sequence constraint (%d of %d are lower). Wilcoxon signed-rank, Holm-corrected within each "
+            "comparison type over the %d settings (exploratory). Excess removed: the share of guarded "
+            "decoding's increase over plain decoding that disappears when the constraints act on generated "
+            "tokens only.\\end{minipage}\n\\end{table*}\n"
+            % (n_up, len(r4["G"]), n_down, len(r4["G"]), len(r4["G"])), encoding="utf-8")
 
     # ---- output filter for commentary (external review item 5) ----
     if args.output_filter.exists():
