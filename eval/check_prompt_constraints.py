@@ -58,8 +58,28 @@ def main():
     ban = {"banned_id": line[3], "raw_score": float(raw2[line[3]]), "processed_score": float(proc2[line[3]]),
            "ids_banned": int(torch.isinf(proc2).sum())}
 
+    # 3. The generated-token-only versions used in the follow-up run (correction/models.py).
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "correction"))
+    from models import generated_only_processors
+
+    procs = generated_only_processors("guarded_gen", ids2.shape[1])
+    gen_raw = raw2.clone()
+    gen_proc = procs(ids2, gen_raw.clone()[None])[0]
+    # Generated tokens: the line's first three tokens, then the line's 4th-6th: a
+    # 4-gram that repeats within the generated part must be banned.
+    gen = line[:3] + line[3:6] + line[:3]
+    ids3 = torch.cat([ids2, torch.tensor([gen])], dim=1)
+    raw3, _ = first_step(model, ids3)
+    proc3 = procs(ids3, raw3.clone()[None])[0]
+    gen_ids = torch.tensor(sorted(set(gen)))
+    gen_only = {"prompt_only_scores_unchanged": bool(torch.equal(gen_proc, gen_raw)),
+                "generated_ids_penalised": int((proc3[gen_ids] != raw3[gen_ids]).sum()),
+                "distinct_generated_ids": int(len(gen_ids)),
+                "repeat_within_generated_banned": float(proc3[line[3]]) == float("-inf")}
+
     result = {"transformers": transformers.__version__, "torch": torch.__version__, "model": args.model,
-              "repetition_penalty": rep, "no_repeat_ngram": ban,
+              "repetition_penalty": rep, "no_repeat_ngram": ban, "generated_only": gen_only,
               "penalty_acts_on_prompt": rep["prompt_ids_penalised"] == rep["distinct_prompt_ids"]
                                         and rep["other_ids_unchanged"] == rep["other_ids"],
               "ngram_ban_acts_on_prompt": ban["processed_score"] == float("-inf")

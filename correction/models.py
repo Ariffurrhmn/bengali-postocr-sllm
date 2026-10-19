@@ -255,7 +255,33 @@ DECODING_PRESETS = {
     # Third review C4: the two halves of "guarded" separately (2x2 ablation).
     "penalty_only": dict(repetition_penalty=1.3),
     "ngram_only": dict(no_repeat_ngram_size=4),
+    # External review item 4: the same constraints restricted to generated
+    # tokens (built as logits processors in correct_text, not generate kwargs).
+    "penalty_gen": dict(),
+    "ngram_gen": dict(),
+    "guarded_gen": dict(),
 }
+# (repetition penalty, n-gram size) of the generated-token-only presets.
+GENERATED_ONLY = {"penalty_gen": (1.3, None), "ngram_gen": (None, 4), "guarded_gen": (1.3, 4)}
+
+
+def generated_only_processors(decoding: str, prompt_len: int):
+    """Repetition penalty and n-gram ban that ignore the first prompt_len tokens
+    (the prompt), so copying the OCR text is not penalised. Transformers 5.19
+    supports this for the penalty (prompt_ignore_length) but not for the ban."""
+    from transformers import LogitsProcessorList, NoRepeatNGramLogitsProcessor, RepetitionPenaltyLogitsProcessor
+
+    class GeneratedNoRepeatNGram(NoRepeatNGramLogitsProcessor):
+        def __call__(self, input_ids, scores):
+            return super().__call__(input_ids[:, prompt_len:], scores)
+
+    penalty, ngram = GENERATED_ONLY[decoding]
+    procs = LogitsProcessorList()
+    if penalty is not None:
+        procs.append(RepetitionPenaltyLogitsProcessor(penalty, prompt_ignore_length=prompt_len))
+    if ngram is not None:
+        procs.append(GeneratedNoRepeatNGram(ngram))
+    return procs
 
 
 def correct_text(
@@ -320,6 +346,8 @@ def correct_text(
             # degenerate repetition loops (seen in practice on this task, e.g.
             # a phrase repeated until max_new_tokens is hit)
             **DECODING_PRESETS[decoding],
+            **({"logits_processor": generated_only_processors(decoding, input_len)}
+               if decoding in GENERATED_ONLY and model_key not in SEQ2SEQ_MODELS else {}),
             pad_token_id=tokenizer.pad_token_id or tokenizer.eos_token_id,
             stopping_criteria=StoppingCriteriaList([_make_progress_heartbeat(every_n=10)]),
         )
