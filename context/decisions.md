@@ -438,3 +438,6 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 3. **Computing setting:** "all reported scores come from GPU runs" now limited to language-model scores; dictionary, fusion and the 15-page decoding comparison ran on a CPU.
 4. **Release:** the paper no longer says the outputs "are released"; the code is public and the per-page OCR text and model outputs will be deposited under CC BY 4.0 on publication (the deposit still waits for the author, C6/R2).
 Also: abstract says the larger Qwen3 models significantly lowered WER (181 words). 32 pages, no overfull boxes, references resolve.
+
+### D67. Last wording fixes from the second check (2026-10-19)
+Computing setting: the GPU statement now covers the language-model scores of the main evaluation and its extensions, with the CPU timings and the 15-page decoding comparison named as CPU runs. Reproducibility: later GPU runs dated 16-19 October, including the generated-token-only run (its environment record: torch 2.11.0+cu128, Transformers 5.19.0). Outstanding: the CC BY 4.0 deposit of the outputs (author's go-ahead, C6/R2).
