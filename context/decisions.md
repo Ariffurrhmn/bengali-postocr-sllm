@@ -441,3 +441,6 @@ Also: abstract says the larger Qwen3 models significantly lowered WER (181 words
 
 ### D67. Last wording fixes from the second check (2026-10-19)
 Computing setting: the GPU statement now covers the language-model scores of the main evaluation and its extensions, with the CPU timings and the 15-page decoding comparison named as CPU runs. Reproducibility: later GPU runs dated 16-19 October, including the generated-token-only run (its environment record: torch 2.11.0+cu128, Transformers 5.19.0). Outstanding: the CC BY 4.0 deposit of the outputs (author's go-ahead, C6/R2).
+
+### D68. Fixes after reading the author's Overleaf build (2026-10-19)
+The author's own compile (32 pages) renders correctly. Fixed: Fig. 5(a) no longer labels the generated output "Scope a correction task needs" (contradicted by D64); it now reads "Output only: less damage, not none" and the caption cites Table decodinggen. The whole-sequence decoding table now precedes the generated-only table (XX, XXI). Student ID removed from the author block, as in the author's build (author's decision).

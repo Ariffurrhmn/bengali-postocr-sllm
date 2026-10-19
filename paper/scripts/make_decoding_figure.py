@@ -58,7 +58,8 @@ def schematic(ax):
     bracket(0.1, 9.9, 2.5, "Scope of repetition penalty and n-gram ban in generate(): whole sequence",
             GUARDED, True)
     bracket(0.1, 6.8, 1.05, "Prompt", MUTED, False)
-    bracket(6.95, 9.9, 1.05, "Scope a correction task needs", PLAIN, False)
+    # The follow-up run (review item 4) restricted the constraints to this part: less damage, not none.
+    bracket(6.95, 9.9, 1.05, "Output only: less damage, not none", PLAIN, False)
     ax.text(-0.05, 3.2, "(a)", fontweight="bold", va="top", ha="right")
 
 

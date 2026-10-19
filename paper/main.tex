@@ -10,8 +10,7 @@
 \title{Does Zero-Shot Small-Model Post-Correction Help Historical Bengali OCR? A Negative Result Across Eight Models and Two OCR Engines}
 
 \author{\IEEEauthorblockN{Arifur Rahman}
-\IEEEauthorblockA{ID: 20234103222\\
-Department of Computer Science and Engineering\\
+\IEEEauthorblockA{Department of Computer Science and Engineering\\
 Bangladesh University of Business and Technology\\
 Dhaka, Bangladesh\\
 arifur.rahman.cs04@gmail.com}}
@@ -312,18 +311,18 @@ Table~\ref{tab:editops} counts substitutions, deletions and insertions per page 
 \label{sec:decoding}
 Table~\ref{tab:decoding} and Fig.~\ref{fig:decoding} compare plain greedy decoding with the repetition penalty alone, the four-gram ban alone and both together (guarded decoding), for the four general-purpose models on the 40 pages, with the OCR text of both engines and with the clean text as input. Every constraint, alone or combined, raised CER in all 33 completed comparisons with plain decoding (Phi-4-mini was not run on EasyOCR text), and all 33 increases are significant after Holm correction. Guarded decoding raised Gemma-2B-it's CER from 0.353 to 0.545 on Tesseract text, Qwen3 1.7B's from 0.337 to 0.925 and Phi-4-mini's from 0.354 to 1.740, so the three models that leave the OCR almost unchanged under plain decoding become clearly harmful. The clean-text control shows the same effect without any recognition error to repair: guarded decoding raised the CER of error-free input from 0.032 to 0.360 for Gemma-2B-it, from 0.035 to 0.940 for Qwen3 1.7B and from 0.060 to 1.406 for Phi-4-mini. The constrained outputs really are worse; what would mislead is to attribute that loss to the checkpoints' ability to correct, since the same checkpoints barely change their input under plain decoding. This comparison alone does not show why the constraints do this: besides acting on the prompt, a four-gram ban can block repetitions that the reference text itself contains, and a penalty can suppress valid repeated tokens. We therefore reran the four models on Tesseract and clean text with each constraint restricted to the generated tokens (Table~\ref{tab:decodinggen}). Restricting them removes much of the damage: the generated-only constraints are significantly less harmful than the whole-sequence ones in 21 of 24 settings, and with both constraints between 20\% and 91\% of the extra error disappears; Phi-4-mini's CER on Tesseract text falls from 1.740 to 0.688. Acting on the prompt is therefore a large part of the problem, but not all of it: the generated-only constraints are still significantly worse than plain decoding in 23 of 24 settings. The four-gram ban on the output alone adds 0.017 to 0.099 CER on Tesseract text, whereas the penalty on the output alone still adds 0.275 to 0.404 for Qwen3 1.7B, Phi-4-mini and Llama 3.2 1B (Gemma-2B-it: $+0.002$), so it also suppresses repetitions that the Bengali text genuinely contains. For copy-heavy correction, plain decoding is the safe choice.
 
-\input{tables/decoding_gen}
-
 Which constraint does the damage depends on the model. For Gemma-2B-it almost all of it comes from the $n$-gram ban ($+0.176$ on Tesseract text, against $+0.004$ for the penalty). For Phi-4-mini the penalty alone is catastrophic ($+1.396$, with 28 of 40 pages reaching the token limit) and the $n$-gram ban moderate ($+0.155$). For Qwen3 1.7B and Llama 3.2 1B each constraint alone raises CER by 0.35 to 0.49 on OCR text and by 0.59 to 0.69 on clean text. An evaluation that uses either constraint would thus misjudge a copying model, and testing only one of them would not show the size of the problem for every model. An earlier guarded-versus-plain comparison on the 15-page CPU sample (table note) also included two Bengali-pretrained checkpoints: guarded decoding raised the CER of the decoder-only TituLLMs 1B by more than 1, but not that of BanglaT5, an encoder-decoder model whose decoder does not see the input tokens as its own history.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.85\textwidth]{figures/fig_decoding.pdf}
-\caption{The decoding pitfall. (a) In the Transformers \texttt{generate} function, the repetition penalty and the $n$-gram ban act on the whole token sequence, which for a decoder-only model includes the OCR text in the prompt. (b) Mean CER of the four general-purpose models on the 40 pages under plain greedy decoding, the repetition penalty alone (1.3), the four-gram ban alone, and both (guarded), on Tesseract, EasyOCR and clean-text input; the dashed line is the raw OCR. Markers are offset vertically so that coinciding values stay visible.}
+\caption{The decoding pitfall. (a) In the Transformers \texttt{generate} function, the repetition penalty and the $n$-gram ban act on the whole token sequence, which for a decoder-only model includes the OCR text in the prompt; restricting them to the output reduces the damage but does not remove it (Table~\ref{tab:decodinggen}). (b) Mean CER of the four general-purpose models on the 40 pages under plain greedy decoding, the repetition penalty alone (1.3), the four-gram ban alone, and both (guarded), on Tesseract, EasyOCR and clean-text input; the dashed line is the raw OCR. Markers are offset vertically so that coinciding values stay visible.}
 \label{fig:decoding}
 \end{figure*}
 
 \input{tables/decoding}
+
+\input{tables/decoding_gen}
 
 \subsubsection{Prompt and chunking variants}
 \label{sec:variants}
