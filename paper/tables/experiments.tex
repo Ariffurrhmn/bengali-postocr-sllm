@@ -1,32 +1,36 @@
-% Experiment map (editorial review 2026-10-18, sec. 3 and 5). Hand-written design table:
-% it lists which models, pages and inputs each analysis covers, no results.
-% Checked against context/decisions.md (D36-D55) and the run files in results/.
+% Experiment map (editorial review 2026-10-18, sec. 3 and 5; test families added
+% after the external review of 2026-10-19, items 6 and 10). Hand-written design
+% table: it lists which models, pages and inputs each analysis covers and how it
+% is tested, no results. Family sizes checked against the generated table notes.
 \begin{table*}[t]
 \centering
-\caption{Experiment Map: Models, Pages and Inputs Covered by Each Analysis}
+\caption{Experiment Map: Models, Pages, Inputs and Test Families of Each Analysis}
 \label{tab:experiments}
-\setlength{\tabcolsep}{3.5pt}
+\setlength{\tabcolsep}{3pt}
 \footnotesize
 \renewcommand{\arraystretch}{1.12}
-\begin{tabular}{>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}p{5.6cm}>{\raggedright\arraybackslash}p{1.5cm}>{\raggedright\arraybackslash}p{4.1cm}>{\raggedright\arraybackslash}p{1.6cm}}
+\begin{tabular}{>{\raggedright\arraybackslash}p{2.8cm}>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{0.9cm}>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash}p{3.9cm}>{\raggedright\arraybackslash}p{1.2cm}}
 \toprule
-Analysis & Correction methods & Pages & Inputs & Section \\
+Analysis & Correction methods & Pages & Inputs & Tests & Section \\
 \midrule
-Main evaluation & 8 core models (Gemma-2B-it, Qwen3 1.7B, Phi-4-mini, Llama 3.2 1B, BanglaT5, TituLLMs 1B, 1B Instruct, 3B Instruct) and SymSpell & 40 & Tesseract, EasyOCR, clean text & \ref{sec:main}, \ref{sec:clean} \\
-Decoding ablation & 4 general-purpose core models & 40 & Tesseract, EasyOCR (not Phi-4-mini), clean text & \ref{sec:decoding} \\
-Prompt and chunking variants & 4 general-purpose core models & 40 & Tesseract, EasyOCR & \ref{sec:variants} \\
-Precision and prompt format & TituLLMs 3B Instruct and Phi-4-mini in float32; TituLLMs 1B with a completion prompt; BanglaT5 with its normaliser & 40 & as in the main runs (Phi-4-mini: Tesseract only) & \ref{sec:precision} \\
-Safeguards and gating & outputs of the main evaluation & 40 & Tesseract, EasyOCR & \ref{sec:safeguards} \\
-Gradient-based attribution & 8 core models & 10 chunks & Tesseract, clean text & \ref{sec:attribution} \\
-Region-level OCR & 8 core models, SymSpell, Qwen3 4B & 40 & Tesseract and EasyOCR region text & \ref{sec:region} \\
-Synthetic noise & 4 general-purpose core models & 40 & references at 5 noise levels & \ref{sec:noise} \\
-Model size & Qwen3 0.6B, 4B, 8B; Gemma~3 1B, 4B; Llama 3.2 3B & 40 & Tesseract, EasyOCR, clean text & \ref{sec:scale} \\
-Large model & Qwen3 32B (4-bit) & 10 & Tesseract, EasyOCR, clean text & \ref{sec:scale} \\
-Fine-tuning pilot & ByT5-small fine-tuned on synthetic noise & 40 & Tesseract, EasyOCR, clean text & \ref{sec:finetune} \\
-No language model & SymSpell variants (2 lexicons, edit distance 1 or 2); engine fusion (2 rules) & 40 & Tesseract, EasyOCR, clean text (fusion: EasyOCR base) & \ref{sec:classical} \\
-CPU timing & 5 core models (Gemma-2B-it, Qwen3 1.7B, Llama 3.2 1B, BanglaT5, TituLLMs 1B) & 15 & Tesseract and EasyOCR text of an earlier OCR run & \ref{sec:computing} \\
+Main evaluation & 8 core models (Gemma-2B-it, Qwen3 1.7B, Phi-4-mini, Llama 3.2 1B, BanglaT5, TituLLMs 1B, 1B Instruct, 3B Instruct) and SymSpell & 40 & Tesseract, EasyOCR, clean text & \textbf{Primary}: 36 (CER, WER), Holm. Exploratory: 18 per secondary measure, Holm; equivalence, unadjusted & \ref{sec:main}, \ref{sec:clean} \\
+Decoding ablation & 4 general-purpose core models & 40 & Tesseract, EasyOCR (not Phi-4-mini), clean text & Exploratory: 33, Holm & \ref{sec:decoding} \\
+Prompt and chunking variants & 4 general-purpose core models & 40 & Tesseract, EasyOCR & Exploratory: 32, Holm & \ref{sec:variants} \\
+Precision and prompt format & TituLLMs 3B Instruct and Phi-4-mini in float32; TituLLMs 1B with a completion prompt; BanglaT5 with its normaliser & 40 & as in the main runs (Phi-4-mini: Tesseract only) & Exploratory, unadjusted & \ref{sec:precision} \\
+Confidence gating & outputs of the main evaluation & 40 & Tesseract, EasyOCR & Exploratory: 54, Holm & \ref{sec:gating} \\
+Page-level safeguards & outputs of the main evaluation & 40 & Tesseract, EasyOCR & Exploratory: 18 and 72, Holm & \ref{sec:safeguards} \\
+Region-level OCR & 8 core models, SymSpell, Qwen3 4B & 40 & Tesseract and EasyOCR region text & Exploratory: 20 per metric, Holm & \ref{sec:region} \\
+Synthetic noise & 4 general-purpose core models & 40 & references at 5 noise levels & Exploratory: 20 per metric, Holm & \ref{sec:noise} \\
+Model size & Qwen3 0.6B, 4B, 8B; Gemma~3 1B, 4B; Llama 3.2 3B & 40 & Tesseract, EasyOCR, clean text & Exploratory: 18 per metric, Holm & \ref{sec:scale} \\
+Large model & Qwen3 32B (4-bit) & 10 & Tesseract, EasyOCR, clean text & Exploratory: 36 per metric, Holm & \ref{sec:scale} \\
+Fine-tuning pilot & ByT5-small fine-tuned on synthetic noise & 40 & Tesseract, EasyOCR, clean text & Exploratory: 3 per metric, Holm & \ref{sec:finetune} \\
+No language model & SymSpell variants (2 lexicons, edit distance 1 or 2); engine fusion (2 rules) & 40 & Tesseract, EasyOCR, clean text (fusion: EasyOCR base) & Dictionary: exploratory, 12, Holm. Fusion: descriptive & \ref{sec:classical} \\
+Edit-level analysis & Qwen3 1.7B, 4B, 8B; Llama 3.2 3B; fine-tuning pilot; fusion & 40 & Tesseract, EasyOCR & Descriptive & \ref{sec:editlevel} \\
+Commentary filter & 8 core models & 40 & Tesseract, EasyOCR & Descriptive & \ref{sec:precision} \\
+Gradient-based attribution & 8 core models & 10 chunks & Tesseract, clean text & Descriptive & \ref{sec:attribution} \\
+CPU timing & 5 core models (Gemma-2B-it, Qwen3 1.7B, Llama 3.2 1B, BanglaT5, TituLLMs 1B) & 15 & Tesseract and EasyOCR text of an earlier OCR run & None & \ref{sec:computing} \\
 \bottomrule
 \end{tabular}
 \par\smallskip
-\begin{minipage}{\linewidth}\footnotesize All analyses use plain greedy decoding and the main prompt unless the analysis varies them. Core: the eight models of the main runs. The extensions were added after the main evaluation to test explanations of its result.\end{minipage}
+\begin{minipage}{\linewidth}\footnotesize All analyses use plain greedy decoding and the main prompt unless the analysis varies them. Core: the eight models of the main runs. Tests: two-sided Wilcoxon signed-rank tests with paired-bootstrap intervals; the number is the size of the Holm family, which controls the error only within that family. Only the main evaluation's 36 CER and WER tests are confirmatory; the extensions were added after the main evaluation to test explanations of its result.\end{minipage}
 \end{table*}

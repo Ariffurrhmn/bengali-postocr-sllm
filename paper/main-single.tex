@@ -37,8 +37,8 @@
 
 \begin{document}
 
-% Title of the draft Bijon Sir reviewed; kept by the author's decision (D59).
-\title{Does Zero-Shot Small-Model Post-Correction Help Bengali OCR? A Negative Result Across Eight Models and Two OCR Engines}
+% Title of the draft Bijon Sir reviewed (D59), with "Historical" added for scope (external review, D63).
+\title{Does Zero-Shot Small-Model Post-Correction Help Historical Bengali OCR? A Negative Result Across Eight Models and Two OCR Engines}
 
 \author{\IEEEauthorblockN{Arifur Rahman}
 \IEEEauthorblockA{ID: 20234103222\\
@@ -51,7 +51,7 @@ arifur.rahman.cs04@gmail.com}}
 
 % =====================================================================
 \begin{abstract}
-Small open language models are a cheap way to correct optical character recognition (OCR) of historical Bengali books, but we found no study that checks whether they help. We gave the output of two OCR engines for 40 pages, printed between 1713 and 1914, to eight such models and a spell-checker, without examples, and compared the corrected text with human transcriptions. We also tried larger models, a model trained on synthetic errors, and ways to limit the edits. No model meaningfully lowered the character error rate (CER): some fixed words, but all also changed text that was already correct, and the best gain was about 1\%. Until a correction step has been tested against reference transcriptions, the raw OCR should be kept.
+Small open language models are a cheap way to correct optical character recognition (OCR) of historical Bengali books, but we found no study that checks whether they help. We gave the output of two OCR engines for 40 pages from one collection of books printed between 1713 and 1914 to four general-purpose models, four Bengali-pretrained checkpoints and a spell-checker, without examples, and compared the corrected text with human transcriptions. We also tried larger models, a model trained on synthetic errors, and ways to limit the edits. No model on its own significantly lowered the character error rate (CER), and every method changed text that was already correct. Larger Qwen3 models fixed more words than they broke, but their edits to other words added at least as many character errors as the fixes removed. Repetition settings often used against looping made the outputs much worse. Limiting edits to words the engine was unsure of gained about 1\% at best. Until a correction step has been tested against reference transcriptions, the raw OCR should be kept.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -75,9 +75,9 @@ We evaluate one correction step applied to the output of two OCR engines on 40 h
 \end{itemize}
 Region-level OCR, synthetic noise, larger and fine-tuned models, and two methods without a language model are extensions that help interpret the answers; Table~\ref{tab:experiments} lists which models and pages each one covers. Our contributions are:
 \begin{enumerate}
-\item A controlled evaluation of zero-shot post-correction of historical Bengali OCR: eight open models and a dictionary baseline on 40 pages from two engines, with a split frozen before any model was run and character- and word-level outcomes reported separately, extended to region-level OCR, synthetic noise, larger models and a fine-tuned model.
-\item A preservation analysis: a clean-text control, counts of correct words broken and wrong words fixed, inspected Bengali examples, and gradient-based attribution on sampled chunks.
-\item A decoding ablation showing that repetition constraints which include the source prompt substantially worsen copying models, on OCR text and on error-free input, together with tests of prompt variants, safeguards, confidence gating and engine fusion.
+\item A controlled evaluation of zero-shot post-correction of historical Bengali OCR: eight open models and a dictionary baseline on 40 pages of one collection, read by two engines, with a split frozen before any model was run and character- and word-level outcomes reported separately, extended to region-level OCR, synthetic noise, larger models and a fine-tuned model.
+\item A preservation analysis: a clean-text control, counts of correct words broken and wrong words fixed, and an edit-level account of why the word-level repairs of some models do not lower CER.
+\item A decoding ablation showing that repetition constraints substantially worsen copying models, on OCR text and on error-free input, together with a check that in the Transformers library these constraints also act on the prompt, and tests of prompt variants, confidence gating and engine fusion.
 \end{enumerate}
 The code, page lists, prompts, per-page OCR text and model outputs are released (Section~\ref{sec:repro}).
 
@@ -91,11 +91,11 @@ Bengali OCR research has mostly addressed recognition itself, and document type 
 Nguyen et al.'s survey describes post-OCR methods developed before large language models and notes the poorer recognition quality of historical material~\cite{nguyen2021survey}. Shared benchmarks came from the ICDAR competitions: about 12 million characters of English and French monographs and periodicals spanning four centuries in 2017~\cite{chiron2017icdar}, then about 22 million characters in ten European languages in 2019, where the best system improved the text by 44\%~\cite{rigaud2019icdar}. Copying is useful in low-resource correction. A model that can copy characters from first-pass OCR reduced error rates by an average of 34\% across three endangered languages~\cite{rijhwani2020ocr}. Bengali approaches have relied on lexical resources. Pal et al.\ parse words into roots and suffixes for lexicon lookup~\cite{pal2000ocr}; Ahmed et al.\ use edit distance and character n-grams with about 541{,}000 dictionary words, lowering error rates by about 3\% on 50 documents~\cite{ahmed2016improving}. Such methods require aligned OCR/reference pairs or language-specific lexicons. We know of no comparable resource for historical Bengali print, hence our interest in models that require no task-specific training.
 
 \subsection{Post-OCR correction with language models}
-Table~\ref{tab:literature} summarises the studies closest to ours. Three factors separate success from failure. \emph{Task-specific training} helps most: fine-tuned Llama 2 and BART lowered CER on 19th-century English newspapers~\cite{thomas2024leveraging}, the best HIPE-OCRepair systems combined continued pre-training with fine-tuning and outperformed the zero-shot ones~\cite{ehrmann2026hipeocrepair}, and fine-tuning on synthetic character-level corruption outperformed training on real OCR pairs~\cite{bourne2025scrambled}. Without such training the results are mixed even for large models: fourteen foundation models were ``anything but efficient'' at correcting historical transcripts~\cite{boros2024postcorrection}, instruction-tuned models gave no average CER reduction on German periodicals~\cite{danilova2025german}, and one of four quantised 7 to 13 billion parameter models helped an English newspaper corpus~\cite{vershinin2025lightweight}.
+Table~\ref{tab:literature} summarises the studies closest to ours. It is a selected comparison from targeted searches up to October 2026, including a semantic search of published papers, not a systematic review. Three factors separate success from failure. \emph{Task-specific training} helps most: fine-tuned Llama 2 and BART lowered CER on 19th-century English newspapers~\cite{thomas2024leveraging}, the best HIPE-OCRepair systems combined continued pre-training with fine-tuning and outperformed the zero-shot ones~\cite{ehrmann2026hipeocrepair}, and fine-tuning on synthetic character-level corruption outperformed training on real OCR pairs~\cite{bourne2025scrambled}. Without such training the results are mixed even for large models: fourteen foundation models were ``anything but efficient'' at correcting historical transcripts~\cite{boros2024postcorrection}, instruction-tuned models gave no average CER reduction on German periodicals~\cite{danilova2025german}, and one of four quantised 7 to 13 billion parameter models helped an English newspaper corpus~\cite{vershinin2025lightweight}.
 
 \emph{Input quality} matters too: zero-shot GPT-4o-mini and Llama 3.3 70B lowered newspaper CER at an input CER of 0.07 but raised it at 0.15~\cite{koynov2025opportunities}, a frontier model helped Portuguese survey pages at 0.12~\cite{viana2026reframing}, and over-correction of text that was already accurate recurs, in HIPE-OCRepair and for GPT models on historical English~\cite{zhang2024prosody}.
 
-\emph{Language and register} matter as well: open models improved English but not Finnish~\cite{kanerva2025nofreelunches}, a supervised system improved historical Bulgarian but was specific to its language and engine~\cite{beshirov2025bulgarian}, modern spelling correction suits historical text poorly~\cite{do2025reference}, and multimodal transcription of 18th-century Russian introduced characters from the wrong period~\cite{levchenko2025historical}. Across these studies, zero-shot correction helped mainly with large or frontier models and input CER below about 0.15.
+\emph{Language and register} matter as well: open models improved English but not Finnish~\cite{kanerva2025nofreelunches}, a supervised system improved historical Bulgarian but was specific to its language and engine~\cite{beshirov2025bulgarian}, modern spelling correction suits historical text poorly~\cite{do2025reference}, and multimodal transcription of 18th-century Russian introduced characters from the wrong period~\cite{levchenko2025historical}. Among the studies surveyed here, zero-shot correction helped mainly with large or frontier models and input CER below about 0.15.
 
 \subsection{Bengali language models and tokenisation}
 Bengali models differ in whether they can generate text at all. BanglaBERT is an encoder for understanding tasks and cannot rewrite OCR output~\cite{bhattacharjee2022banglabert}; BanglaT5 is a sequence-to-sequence generation model~\cite{bhattacharjee2023banglat5}. The TituLLMs family uses Bengali-pretrained Llama 3.2 models at 1B and 3B, trained on about 37 billion tokens with an extended tokenizer~\cite{nahin2025titullms}. BanglaLlama continues pretraining other Llama models. Its authors report that Bengali and Hindi together account for less than 0.21 percent of Llama 2's pretraining tokens, compared with 89.7 percent for English~\cite{zehady2026banglallama}. Limited exposure is only part of the concern. Mahfuz et al.\ find that inefficient Bengali tokenisation increases computation and reduces generation quality when assessing the need for dedicated Bengali models~\cite{mahfuz2025toolate}. Across languages, Petrov et al.\ show that English-centric tokenizers require several times more tokens for equivalent content; Bengali needs roughly five to ten times the English count, compared with about 1.4 to 1.6 times for multilingual XLM-R and M2M100 tokenizers~\cite{petrov2023tokenizer}. Ahia et al.\ also associate over-segmentation with higher cost and poorer model performance~\cite{ahia2023cost}. General multilingual models therefore face both limited Bengali exposure and inefficient tokenisation. To our knowledge, Bengali-pretrained models have not been evaluated on OCR correction.
@@ -134,7 +134,7 @@ Zhang et al.~\cite{zhang2024prosody} & English & post-OCR & GPT-3.5-turbo, GPT-4
 Bhattacharyya \& Bhattacharya~\cite{bhattacharyya2025banglagec} & Bengali & grammar correction & 1.1B--8B; GPT-4o & zero-shot; fine-tuned & clean modern text & Fine-tuned 3--7 points above zero-shot \\
 Kumar et al.~\cite{kumar2026postasr} & Hindi & post-ASR & Llama 1B--70B, GPT-4o-mini; mT5, ByT5 (0.3--0.58B) & zero-shot; fine-tuned & WER 0.18--0.29 & Zero-shot: worse; fine-tuned small models: yes \\
 \midrule
-\textbf{This study} & \textbf{Bengali} & \textbf{post-OCR} & \textbf{0.25B--8B; 32B on 10 pages; SymSpell; engine fusion} & \textbf{zero-shot; one fine-tuned pilot} & \textbf{CER 0.23--0.34} & \textbf{No significant CER reduction by any model; at most $-$0.004 (gating) and $-$0.002 (fusion)} \\
+\textbf{This study} & \textbf{Bengali} & \textbf{post-OCR} & \textbf{0.25B--8B; 32B on 10 pages; SymSpell; engine fusion} & \textbf{zero-shot; one fine-tuned pilot} & \textbf{CER 0.23--0.34} & \textbf{No significant CER reduction by any ungated model; gating $-$0.004 (exploratory), fusion $-$0.003 (descriptive)} \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -147,37 +147,41 @@ Kumar et al.~\cite{kumar2026postasr} & Hindi & post-ASR & Llama 1B--70B, GPT-4o-
 Each page passes through two OCR engines, then through a correction model in chunks (Fig.~\ref{fig:method}). We score both versions of the text against its manual transcription. Keeping recognition and correction separate lets the same correction step accept output from any engine. All models are used as released, without training or fine-tuning, except in one fine-tuning experiment. The main evaluation covers eight core models and a dictionary baseline. Diagnostic analyses and extensions cover the subsets listed in Table~\ref{tab:experiments}; the extensions are described in Section~\ref{sec:further}.
 
 % ---- begin tables/experiments ----
-% Experiment map (editorial review 2026-10-18, sec. 3 and 5). Hand-written design table:
-% it lists which models, pages and inputs each analysis covers, no results.
-% Checked against context/decisions.md (D36-D55) and the run files in results/.
+% Experiment map (editorial review 2026-10-18, sec. 3 and 5; test families added
+% after the external review of 2026-10-19, items 6 and 10). Hand-written design
+% table: it lists which models, pages and inputs each analysis covers and how it
+% is tested, no results. Family sizes checked against the generated table notes.
 \begin{table*}[t]
 \centering
-\caption{Experiment Map: Models, Pages and Inputs Covered by Each Analysis}
+\caption{Experiment Map: Models, Pages, Inputs and Test Families of Each Analysis}
 \label{tab:experiments}
-\setlength{\tabcolsep}{3.5pt}
+\setlength{\tabcolsep}{3pt}
 \footnotesize
 \renewcommand{\arraystretch}{1.12}
-\begin{tabular}{>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}p{5.6cm}>{\raggedright\arraybackslash}p{1.5cm}>{\raggedright\arraybackslash}p{4.1cm}>{\raggedright\arraybackslash}p{1.6cm}}
+\begin{tabular}{>{\raggedright\arraybackslash}p{2.8cm}>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{0.9cm}>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash}p{3.9cm}>{\raggedright\arraybackslash}p{1.2cm}}
 \toprule
-Analysis & Correction methods & Pages & Inputs & Section \\
+Analysis & Correction methods & Pages & Inputs & Tests & Section \\
 \midrule
-Main evaluation & 8 core models (Gemma-2B-it, Qwen3 1.7B, Phi-4-mini, Llama 3.2 1B, BanglaT5, TituLLMs 1B, 1B Instruct, 3B Instruct) and SymSpell & 40 & Tesseract, EasyOCR, clean text & \ref{sec:main}, \ref{sec:clean} \\
-Decoding ablation & 4 general-purpose core models & 40 & Tesseract, EasyOCR (not Phi-4-mini), clean text & \ref{sec:decoding} \\
-Prompt and chunking variants & 4 general-purpose core models & 40 & Tesseract, EasyOCR & \ref{sec:variants} \\
-Precision and prompt format & TituLLMs 3B Instruct and Phi-4-mini in float32; TituLLMs 1B with a completion prompt; BanglaT5 with its normaliser & 40 & as in the main runs (Phi-4-mini: Tesseract only) & \ref{sec:precision} \\
-Safeguards and gating & outputs of the main evaluation & 40 & Tesseract, EasyOCR & \ref{sec:safeguards} \\
-Gradient-based attribution & 8 core models & 10 chunks & Tesseract, clean text & \ref{sec:attribution} \\
-Region-level OCR & 8 core models, SymSpell, Qwen3 4B & 40 & Tesseract and EasyOCR region text & \ref{sec:region} \\
-Synthetic noise & 4 general-purpose core models & 40 & references at 5 noise levels & \ref{sec:noise} \\
-Model size & Qwen3 0.6B, 4B, 8B; Gemma~3 1B, 4B; Llama 3.2 3B & 40 & Tesseract, EasyOCR, clean text & \ref{sec:scale} \\
-Large model & Qwen3 32B (4-bit) & 10 & Tesseract, EasyOCR, clean text & \ref{sec:scale} \\
-Fine-tuning pilot & ByT5-small fine-tuned on synthetic noise & 40 & Tesseract, EasyOCR, clean text & \ref{sec:finetune} \\
-No language model & SymSpell variants (2 lexicons, edit distance 1 or 2); engine fusion (2 rules) & 40 & Tesseract, EasyOCR, clean text (fusion: EasyOCR base) & \ref{sec:classical} \\
-CPU timing & 5 core models (Gemma-2B-it, Qwen3 1.7B, Llama 3.2 1B, BanglaT5, TituLLMs 1B) & 15 & Tesseract and EasyOCR text of an earlier OCR run & \ref{sec:computing} \\
+Main evaluation & 8 core models (Gemma-2B-it, Qwen3 1.7B, Phi-4-mini, Llama 3.2 1B, BanglaT5, TituLLMs 1B, 1B Instruct, 3B Instruct) and SymSpell & 40 & Tesseract, EasyOCR, clean text & \textbf{Primary}: 36 (CER, WER), Holm. Exploratory: 18 per secondary measure, Holm; equivalence, unadjusted & \ref{sec:main}, \ref{sec:clean} \\
+Decoding ablation & 4 general-purpose core models & 40 & Tesseract, EasyOCR (not Phi-4-mini), clean text & Exploratory: 33, Holm & \ref{sec:decoding} \\
+Prompt and chunking variants & 4 general-purpose core models & 40 & Tesseract, EasyOCR & Exploratory: 32, Holm & \ref{sec:variants} \\
+Precision and prompt format & TituLLMs 3B Instruct and Phi-4-mini in float32; TituLLMs 1B with a completion prompt; BanglaT5 with its normaliser & 40 & as in the main runs (Phi-4-mini: Tesseract only) & Exploratory, unadjusted & \ref{sec:precision} \\
+Confidence gating & outputs of the main evaluation & 40 & Tesseract, EasyOCR & Exploratory: 54, Holm & \ref{sec:gating} \\
+Page-level safeguards & outputs of the main evaluation & 40 & Tesseract, EasyOCR & Exploratory: 18 and 72, Holm & \ref{sec:safeguards} \\
+Region-level OCR & 8 core models, SymSpell, Qwen3 4B & 40 & Tesseract and EasyOCR region text & Exploratory: 20 per metric, Holm & \ref{sec:region} \\
+Synthetic noise & 4 general-purpose core models & 40 & references at 5 noise levels & Exploratory: 20 per metric, Holm & \ref{sec:noise} \\
+Model size & Qwen3 0.6B, 4B, 8B; Gemma~3 1B, 4B; Llama 3.2 3B & 40 & Tesseract, EasyOCR, clean text & Exploratory: 18 per metric, Holm & \ref{sec:scale} \\
+Large model & Qwen3 32B (4-bit) & 10 & Tesseract, EasyOCR, clean text & Exploratory: 36 per metric, Holm & \ref{sec:scale} \\
+Fine-tuning pilot & ByT5-small fine-tuned on synthetic noise & 40 & Tesseract, EasyOCR, clean text & Exploratory: 3 per metric, Holm & \ref{sec:finetune} \\
+No language model & SymSpell variants (2 lexicons, edit distance 1 or 2); engine fusion (2 rules) & 40 & Tesseract, EasyOCR, clean text (fusion: EasyOCR base) & Dictionary: exploratory, 12, Holm. Fusion: descriptive & \ref{sec:classical} \\
+Edit-level analysis & Qwen3 1.7B, 4B, 8B; Llama 3.2 3B; fine-tuning pilot; fusion & 40 & Tesseract, EasyOCR & Descriptive & \ref{sec:editlevel} \\
+Commentary filter & 8 core models & 40 & Tesseract, EasyOCR & Descriptive & \ref{sec:precision} \\
+Gradient-based attribution & 8 core models & 10 chunks & Tesseract, clean text & Descriptive & \ref{sec:attribution} \\
+CPU timing & 5 core models (Gemma-2B-it, Qwen3 1.7B, Llama 3.2 1B, BanglaT5, TituLLMs 1B) & 15 & Tesseract and EasyOCR text of an earlier OCR run & None & \ref{sec:computing} \\
 \bottomrule
 \end{tabular}
 \par\smallskip
-\begin{minipage}{\linewidth}\footnotesize All analyses use plain greedy decoding and the main prompt unless the analysis varies them. Core: the eight models of the main runs. The extensions were added after the main evaluation to test explanations of its result.\end{minipage}
+\begin{minipage}{\linewidth}\footnotesize All analyses use plain greedy decoding and the main prompt unless the analysis varies them. Core: the eight models of the main runs. Tests: two-sided Wilcoxon signed-rank tests with paired-bootstrap intervals; the number is the size of the Holm family, which controls the error only within that family. Only the main evaluation's 36 CER and WER tests are confirmatory; the extensions were added after the main evaluation to test explanations of its result.\end{minipage}
 \end{table*}
 % ---- end tables/experiments ----
 
@@ -226,9 +230,9 @@ Raw EasyOCR length / reference & mean 1.02, median 0.99 \\
 
 \subsection{Baseline OCR}
 \label{sec:ocr}
-Two open-source engines produce the noisy text. Tesseract~5.3.4~\cite{smith2007tesseract,tesseract5} runs with its LSTM recogniser and the Bengali \texttt{tessdata\_best} model, and EasyOCR~1.7.2~\cite{jaidedai2024easyocr} with Bengali enabled. Both use their default settings, which for Tesseract means automatic page segmentation (mode~3), and receive the page image as released (colour scans at 400 dpi, about 1{,}800 by 3{,}000 pixels), without preprocessing. Both ran on a free Google Colab CPU runtime in October 2026. Each engine produces one hypothesis per page. Two engines with different error profiles let us test whether correction behaves differently depending on which engine produced its input.
+Two open-source engines produce the noisy text. Tesseract~5.3.4~\cite{smith2007tesseract,tesseract5} runs with its LSTM recogniser and the Bengali \texttt{tessdata\_best} model, and EasyOCR~1.7.2~\cite{jaidedai2024easyocr} with Bengali enabled. Both use their default settings, which for Tesseract means automatic page segmentation (mode~3), and receive the page image as released (colour scans at 400 dpi, about 1{,}800 by 3{,}000 pixels), without preprocessing. Both ran on a free Google Colab CPU runtime on 11 October 2026. Each engine produces one hypothesis per page. Two engines with different error profiles let us test whether correction behaves differently depending on which engine produced its input.
 
-The engines read the whole page, while the ground truth covers only the annotated text regions. Text outside those regions, such as stamps, shelf marks or handwriting (Fig.~\ref{fig:dataset}b), therefore counts as inserted characters. The reference joins the region transcriptions in the order in which they appear in the PAGE-XML file; 30 of the 40 files also declare a reading order, and on 17 pages it differs from the file order. The OCR text keeps each engine's own reading order and is not matched to the reference, so a different order also counts as errors. The mismatch need not cancel in the paired differences, since a model may treat out-of-region text differently from the rest. We therefore repeat the main comparison against a reference in the declared reading order, and with a word-recall measure that ignores word order and extra text (Section~\ref{sec:robustness}), and we repeat the whole evaluation with each region read separately (Section~\ref{sec:further}). OCR output is not stable across installations: an earlier run of Tesseract on the 15-page sample, with an unrecorded Colab build from August 2026, gave different text on all 15 pages (mean CER 0.364 against 0.320), while EasyOCR changed little. Tesseract also drifted within one version: on 17 October 2026, version 5.3.4 with the same model, both on Colab and on Kaggle, no longer reproduced the text of the main run (CER 0.22 between them), which Colab had still reproduced on 12 October. The Leptonica version and the CPU instruction sets of these runs were not recorded, so the cause of the drift cannot be identified; the OCR scripts now record both, with the full version report of Tesseract and a hash of the Bengali model. All reported whole-page results therefore use one stored OCR run, which we release (Section~\ref{sec:repro}); only the CPU timings and the earlier decoding comparison on the 15-page sample use the August text.
+The engines read the whole page, while the ground truth covers only the annotated text regions. Text outside those regions, such as stamps, shelf marks or handwriting (Fig.~\ref{fig:dataset}b), therefore counts as inserted characters. The reference joins the region transcriptions in the order in which they appear in the PAGE-XML file; 30 of the 40 files also declare a reading order, and on 17 pages it differs from the file order. The OCR text keeps each engine's own reading order and is not matched to the reference, so a different order also counts as errors. The mismatch need not cancel in the paired differences, since a model may treat out-of-region text differently from the rest. We therefore repeat the main comparison against a reference in the declared reading order, and with a word-recall measure that ignores word order and extra text (Section~\ref{sec:robustness}), and we repeat the whole evaluation with each region read separately (Section~\ref{sec:further}). OCR output is not stable across installations: an earlier run of Tesseract on the 15-page sample, with an unrecorded Colab build from August 2026, gave different text on all 15 pages (mean CER 0.364 against 0.320), while EasyOCR changed little. Tesseract also drifted within one version. On 12 October, a rerun on Colab with the same version and model file reproduced the main run's text on all 40 pages (this rerun supplied the confidence scores, Section~\ref{sec:gatemethod}). On 17 October, the same setting on Colab and a conda-forge build on Kaggle gave text identical to each other but different from the main run (CER 0.22 between them). The Bengali model file, image decoding and resolution were ruled out; the Leptonica version, image libraries and CPU instruction sets of these runs were not recorded, so the cause cannot be identified. The OCR scripts now record them, with the full version report of Tesseract and a hash of the model file. All reported whole-page results therefore use one stored OCR run, which we release (Section~\ref{sec:repro}); only the CPU timings and the earlier decoding comparison on the 15-page sample use the August text.
 
 \subsection{Correction layer}
 \label{sec:correction}
@@ -248,12 +252,12 @@ The OCR text follows the instruction. BanglaT5 is not instruction-tuned and has 
 \textbf{Decoding.} We use greedy decoding, without token sampling. The maximum number of new tokens is $\min(512,\max(64,1.5n))$, where $n$ is the token length of the input chunk, and an output that reaches this limit is counted as truncated. No other constraint is applied in the main condition. A repetition penalty and a ban on repeated $n$-grams are the library's remedies when greedy decoding loops. Both are off unless set (the library's neutral values are a penalty of 1.0 and no ban); a user who meets looping output, as we did on some development pages, may add them. We evaluate them, alone and together, as a decoding ablation (penalty 1.3; repeated four-grams banned; both together are \emph{guarded} decoding; Section~\ref{sec:decoding}). In the Transformers library~\cite{wolf2020transformers}, \texttt{generate} applies \texttt{RepetitionPenaltyLogitsProcessor} and \texttt{NoRepeatNGramLogitsProcessor} to the whole token sequence, which for a decoder-only model includes the prompt and so the OCR text being corrected~\cite{hf2026logits}. In version~5.19.0, which the runs used, the penalty can exclude the prompt only if its processor is constructed by hand, and the $n$-gram ban has no such option. A one-step test with Qwen3 0.6B on that version confirms both: the penalty changed the scores of all 42 distinct token ids of a correction prompt and of no other id, and the ban blocked the token that would repeat a four-token run of the prompt. The constraints then penalise every token the model copies and forbid it to reproduce any four-token run of its input. Since correction is mostly copying, plain greedy decoding is the main condition; decoding settings that suit one generation task need not suit another~\cite{wiher2022decoding}.
 
 \subsection{Choice of models}
-We evaluate eight core models of 0.25 to 3.84 billion parameters (Table~\ref{tab:models}). Parameter counts are computed from each checkpoint's configuration, with tied input and output embeddings counted once.
+We evaluate eight core models of 0.25 to 3.84 billion parameters (Table~\ref{tab:models}). We call a model \emph{small} if it has at most about four billion parameters, so that it can run on a CPU; the larger models of Section~\ref{sec:further} are scale extensions. Parameter counts are computed from each checkpoint's configuration, with tied input and output embeddings counted once.
 \begin{itemize}
 \item \emph{General-purpose models.} Gemma-2B-it~\cite{gemma2024card} (Gemma~1, 2.51B parameters), Qwen3 1.7B~\cite{qwen2025card}, Phi-4-mini~\cite{phi4mini2025card} and Llama 3.2 1B~\cite{meta2024llama32} are open instruction-tuned multilingual models; Qwen3 and Phi-4-mini were released in 2025. Bengali is a very small share of the pretraining data of general models~\cite{zehady2026banglallama}. Qwen3 can produce a reasoning trace before its answer; we disable this through its chat template, so it answers directly.
 \item \emph{Bengali-pretrained checkpoints.} TituLLMs 1B~\cite{nahin2025titullms} (checkpoint v1.1) is Llama 3.2 1B continually pretrained on Bengali text. It is a base model without instruction tuning and keeps the Llama vocabulary; the template shipped with its tokenizer only concatenates the messages, so it received our instruction and the OCR text as plain text to continue, with no cue for where a corrected version should begin. As a check, we also gave it a completion prompt without template, which states that the corrected text follows the OCR text and ends with ``Corrected text:'' (Section~\ref{sec:precision}). We also evaluate the instruction-tuned TituLLMs checkpoints at 1B and 3B parameters (v2.0 Instruct), which use an extended vocabulary of 170{,}497 tokens; their model cards give no prompt format, and their shipped template wraps the prompt in an Alpaca-style instruction and response frame, which we used. BanglaT5~\cite{bhattacharjee2023banglat5} (about 248M parameters) is a sequence-to-sequence model pretrained only to restore corrupted text spans and released without task fine-tuning. Without a task prefix it acts as a denoiser rather than a corrector, so we report it as a control. Its model card also asks for inputs passed through the authors' text normaliser, which the main runs did not apply; a rerun with it is reported in Section~\ref{sec:precision}.
 \end{itemize}
-These results therefore describe these checkpoints with these prompts, not Bengali pretraining in general. BanglaBERT~\cite{bhattacharjee2022banglabert} was not considered because it is an encoder and cannot generate corrected text. All models are loaded with the Transformers library~\cite{wolf2020transformers}. Section~\ref{sec:further} adds newer and larger general-purpose models, up to 32 billion parameters, and one fine-tuned model.
+These results therefore describe checkpoint-and-prompt configurations, not a ranking of model families, and say nothing about Bengali pretraining in general; we treat the Bengali-pretrained checkpoints as diagnostic cases. BanglaBERT~\cite{bhattacharjee2022banglabert} was not considered because it is an encoder and cannot generate corrected text. All models are loaded with the Transformers library~\cite{wolf2020transformers}. Section~\ref{sec:further} adds newer and larger general-purpose models, up to 32 billion parameters, and one fine-tuned model.
 
 % ---- begin tables/models ----
 \begin{table}[t]
@@ -266,10 +270,12 @@ These results therefore describe these checkpoints with these prompts, not Benga
 \toprule
 Model & Checkpoint@revision & \shortstack{Params\\(B)} & \shortstack{GPU\\prec.} & Input & \shortstack{Chars/\\chunk} \\
 \midrule
+\multicolumn{6}{l}{\textit{General-purpose, instruction-tuned}} \\
 Gemma-2B-it & \texttt{google/\allowbreak gemma-\allowbreak 2b-\allowbreak it@\allowbreak 9698841} & 2.51 & fp32 & template & 312 \\
 Qwen3 1.7B & \texttt{Qwen/\allowbreak Qwen3-\allowbreak 1.7B@\allowbreak 70d244c} & 1.72 & fp32 & template & 190 \\
 Phi-4-mini & \texttt{microsoft/\allowbreak Phi-\allowbreak 4-\allowbreak mini-\allowbreak instruct@\allowbreak cfbefac} & 3.84 & fp16 & template & 389 \\
 Llama 3.2 1B & \texttt{meta-\allowbreak llama/\allowbreak Llama-\allowbreak 3.2-\allowbreak 1B-\allowbreak Instruct@\allowbreak 9213176} & 1.24 & fp32 & template & 168 \\
+\multicolumn{6}{l}{\textit{Bengali-pretrained (diagnostic)}} \\
 BanglaT5 & \texttt{csebuetnlp/\allowbreak banglat5@\allowbreak 76b135c} & 0.25 & fp32 & text & 483 \\
 TituLLMs 1B & \texttt{hishab/\allowbreak titulm-\allowbreak llama-\allowbreak 3.2-\allowbreak 1b-\allowbreak v1.1@\allowbreak 521da71} & 1.24 & fp32 & template & 168 \\
 TituLLMs 1B Instruct & \texttt{hishab/\allowbreak titulm-\allowbreak llama-\allowbreak 3.2-\allowbreak 1b-\allowbreak v2.0-\allowbreak Instruct-\allowbreak v1.0@\allowbreak 039dbd2} & 1.32 & fp32 & template & 422 \\
@@ -312,13 +318,13 @@ To test whether the outcome is specific to language models, we also correct the 
 
 \subsection{Computing setting}
 \label{sec:computing}
-The motivating setting is CPU-only use by institutions that process Bengali documents without GPU infrastructure, so the eight core models were chosen small enough to run on a CPU; the larger models of the extensions need a GPU. Table~\ref{tab:cost} reports the CPU time per page for the five that were run on a free Google Colab CPU runtime in bfloat16, with plain decoding, on the 15-page sample and its August OCR text, so these times describe a different input from the main runs. The reported runs use free NVIDIA T4 GPUs on Kaggle, in float32, or in float16 for the two core models above 3B parameters, which do not fit the GPU's 15~GB in float32; float32 reruns (Section~\ref{sec:precision}) and a CPU-against-GPU comparison (appendix) gave practically the same scores. No paid service is used at any stage.
+The motivating setting is CPU-only use by institutions that process Bengali documents without GPU infrastructure, so the eight core models were chosen small enough to run on a CPU; the larger models of the extensions need a GPU. All reported scores, however, come from GPU runs. Table~\ref{tab:cost} reports the CPU time per page for the five core models that were run on a free Google Colab CPU runtime in bfloat16, with plain decoding, on the 15-page sample and its August OCR text, so these times describe a different input from the main runs. The reported runs use free NVIDIA T4 GPUs on Kaggle, in float32, or in float16 for the two core models above 3B parameters, which do not fit the GPU's 15~GB in float32; float32 reruns of these two on two Kaggle T4 GPUs (Section~\ref{sec:precision}) and a CPU-against-GPU comparison (appendix) gave practically the same scores. No paid service is used at any stage.
 
 \subsection{Metrics}
-Before scoring, reference and hypothesis are normalised to Unicode NFC and runs of whitespace are collapsed, because Bengali conjuncts and vowel signs can be encoded as different code-point sequences that look identical. Zero-width joiners and non-joiners are kept, and the danda counts as an ordinary character. The character error rate is $\mathrm{CER}=(S+D+I)/N$, where $S$, $D$ and $I$ are the numbers of substituted, deleted and inserted characters in the alignment of the hypothesis with the reference and $N$ is the number of reference characters; the word error rate (WER) is the same quantity over words. Both are computed with jiwer~\cite{vaessen2022jiwer} for each page and averaged over pages, so every page counts equally regardless of its length; the pooled CER divides the total number of character errors by the total reference length. CER counts code points, so an error in one sign of a conjunct counts once although the reader sees the whole cluster as wrong; the grapheme-cluster CER is computed over extended grapheme clusters, which keep a conjunct and its vowel signs together. CER and WER are unbounded, since an output with many insertions can score above 1. We therefore also report the character and word match error rates, $\mathrm{cMER}=(S+D+I)/(H+S+D+I)$ and its word-level counterpart wMER, where $H$ is the number of matched units; both are bounded in $[0,1]$~\cite{ehrmann2026hipeocrepair}. Three further normalisations test the scoring choices: mapping ASCII digits to Bengali digits, removing zero-width joiners and non-joiners, and writing khanda-ta as the single code point U+09CE.
+Before scoring, reference and hypothesis are normalised to Unicode NFC and runs of whitespace are collapsed, because Bengali conjuncts and vowel signs can be encoded as different code-point sequences that look identical. Zero-width joiners and non-joiners are kept, and the danda counts as an ordinary character. The character error rate is $\mathrm{CER}=(S+D+I)/N$, where $S$, $D$ and $I$ are the numbers of substituted, deleted and inserted characters in the alignment of the hypothesis with the reference and $N$ is the number of reference characters; the word error rate (WER) is the same quantity over words. Both are computed with jiwer~\cite{vaessen2022jiwer} for each page and averaged over pages, so every page counts equally regardless of its length; the pooled CER divides the total number of character errors by the total reference length. CER counts code points, so an error in one sign of a conjunct counts once although the reader sees the whole cluster as wrong; the grapheme-cluster CER is computed over extended grapheme clusters, which keep a conjunct and its vowel signs together. CER and WER are unbounded, since an output with many insertions can score above 1. We therefore also report the character and word match error rates, $\mathrm{cMER}=(S+D+I)/(H+S+D+I)$ and its word-level counterpart wMER, where $H$ is the number of matched units; both are bounded in $[0,1]$~\cite{ehrmann2026hipeocrepair}. Three further normalisations test the scoring choices: mapping ASCII digits to Bengali digits, removing zero-width joiners and non-joiners, and writing khanda-ta as the single code point U+09CE. CER and WER are the primary measures; CER always means the code-point CER unless named otherwise. The grapheme-cluster CER, cMER, wMER, pooled CER, a CER with all spaces removed and the reference-word recall of Section~\ref{sec:analyses} are secondary checks. They are not interchangeable: recall ignores word order and extra text, so it cannot penalise insertions or a wrong order, and it does not reward a repair that leaves a word wrong.
 
 \subsection{Statistics}
-For each engine and correction method, the unit of analysis is the per-page difference between the corrected and the uncorrected error rate. We report the mean difference with a 95\% percentile interval from a paired bootstrap of the 40 pages (10{,}000 resamples, seed 403), and the number of pages whose error rate fell or rose. We also run a two-sided Wilcoxon signed-rank test~\cite{wilcoxon1945} on the same differences. Pages whose difference is exactly zero, which are common when a method leaves the OCR unchanged, are dropped before ranking, the default of the test, so we report how many pages remain. The primary family is the 36 CER and WER tests (nine methods, two engines, two metrics), adjusted with the Holm procedure~\cite{holm1979}, which follows the reporting of Viana~\cite{viana2026reframing}. Every other test in this paper is exploratory: each table that reports one names its own Holm family, and Holm controls the error only within a family. Because pages from the same book are not independent, we repeat the bootstrap resampling whole books instead of pages. For the four general-purpose models, whose claim is that they leave the error rate unchanged, we also test equivalence with two one-sided paired $t$-tests (TOST) against margins of $\pm0.01$ and $\pm0.02$ CER, about 3\% and 6\% of the raw CER and small next to the changes of the other methods; failing to show an improvement does not by itself show equivalence.
+For each engine and correction method, the unit of analysis is the per-page difference between the corrected and the uncorrected error rate. We report the mean difference with a 95\% percentile interval from a paired bootstrap of the 40 pages (10{,}000 resamples, seed 403), and the number of pages whose error rate fell or rose. We also run a two-sided Wilcoxon signed-rank test~\cite{wilcoxon1945} on the same differences. Pages whose difference is exactly zero, which are common when a method leaves the OCR unchanged, are dropped before ranking, the default of the test, so we report how many pages remain. The primary family is the 36 CER and WER tests (nine methods, two engines, two metrics), adjusted with the Holm procedure~\cite{holm1979}, which follows the reporting of Viana~\cite{viana2026reframing}. Every other test in this paper is exploratory: each table that reports one names its own Holm family, and Holm controls the error only within a family. Because pages from the same book are not independent, we repeat the bootstrap resampling whole books instead of pages. The four general-purpose models stay close to the raw OCR, but no detectable change is not the same as no change. We therefore test equivalence with two one-sided paired $t$-tests (TOST) against margins of $\pm0.01$ and $\pm0.02$ CER. The margins are about 3\% and 6\% of the raw CER, a change a user comparing transcriptions would hardly notice, and small next to the changes of the other methods. Because per-page differences can be heavy-tailed, we also check whether the 90\% paired-bootstrap interval lies within the margin; it gives the same decisions. Table~\ref{tab:experiments} lists every test family with its size and role: the primary family above, exploratory families with Holm correction within each, and descriptive analyses without tests.
 
 The evaluation split was frozen before any model ran, and development pages never contribute to a reported evaluation-set estimate. We used this one fixed evaluation set and did not perform cross-validation. Greedy decoding removes sampling randomness, so the zero-shot runs were not repeated with different seeds; it does not guarantee identical outputs across devices or software builds (appendix). The fine-tuning pilot was trained once, with one seed (403).
 
@@ -326,19 +332,21 @@ The evaluation split was frozen before any model ran, and development pages neve
 \label{sec:analyses}
 \textbf{Sensitivity to the reference.} Two checks address the mismatch between whole-page OCR and region-level ground truth. First, we rebuild each reference with its regions in the reading order declared in the PAGE-XML file, where there is one (regions it does not list follow in file order), and repeat the paired comparison of CER. Second, we compute reference-word recall: the share of reference word tokens that also occur in the output, counted as a multiset. It ignores word order and does not penalise extra words, so neither a different reading order nor OCR text from outside the annotated regions lowers it; it does not reward repairs that leave a word wrong.
 
-\textbf{Clean-text control.} To separate over-correction from the difficulty of noisy input, each model also receives the reference text itself in place of the OCR, with the same prompt and decoding. Any change it makes can then only be damage.
+\textbf{Clean-text control.} To separate over-correction from the difficulty of noisy input, each model also receives the reference text itself in place of the OCR, with the same prompt and decoding. Any change it makes can then only be damage. The control is a diagnostic stress test of preservation under the tested prompt configuration; it does not estimate the quality of corrected OCR, and it does not rank the models in general.
 
-\textbf{Word-level and edit analysis.} We align the ground-truth words with the raw OCR and with the corrected output. A ground-truth word that the raw OCR matched exactly and the output does not is a \emph{broken} word; a word the raw OCR missed and the output matches is a \emph{fixed} word~\cite{kumar2026postasr}. The \emph{change ratio} is the CER of the output measured against the raw OCR, divided by the CER of the raw OCR against the ground truth~\cite{koynov2025opportunities}; a ratio above 1 means the model changed more than there was to repair. \emph{Invented runs} are runs of at least six characters that the output contains and the raw OCR does not~\cite{koynov2025opportunities}. Output length, script shares, word retention, edit operations, character classes, page types and truncation are reported in Section~\ref{sec:failure}.
+\textbf{Word-level and edit analysis.} We align the ground-truth words with the raw OCR and with the corrected output. A ground-truth word that the raw OCR matched exactly and the output does not is a \emph{broken} word; a word the raw OCR missed and the output matches is a \emph{fixed} word~\cite{kumar2026postasr}. The \emph{change ratio} is the CER of the output measured against the raw OCR, divided by the CER of the raw OCR against the ground truth~\cite{koynov2025opportunities}; a ratio above 1 means the model changed more than there was to repair. \emph{Invented runs} are runs of at least six characters that the output contains and the raw OCR does not~\cite{koynov2025opportunities}. To see why repaired words need not lower CER, we assign every character error of the alignment with the reference to a reference word (an insertion to the word it follows) and split the change in character errors between fixed, broken and still-wrong words and the spaces between words. Each error is also labelled by the Bengali character class involved (consonant, vowel sign, virama, other sign, digit, punctuation or space). Output length, script shares, word retention, edit operations, character classes, page types and truncation are reported in the appendix.
+
+\textbf{Commentary filter.} As a check on prompt fit, a generous filter drops every output line of which fewer than 30\% of the character trigrams occur in the page's OCR input. It removes preambles and descriptions of the text, but also invented lines, so its scores bound what any such filter could achieve; it is not one of the evaluated methods.
 
 \textbf{Attribution.} To see which part of its input each output token is sensitive to, we adapt Grad-CAM~\cite{selvaraju2017gradcam} to token positions: the score is the logit of each generated token, and the map runs over the token positions of a layer's hidden states. We compute the literal version, which averages the gradient over positions, and an element-wise version, which multiplies gradient and hidden state at each position before summing over the hidden dimensions, at one-half and three-quarter depth, leaving out the first token, special tokens and the predicting position. For each generated token we record the share of the map on the OCR text, the rest of the prompt and the model's own earlier output, and, for a copied token, whether the map peaks within one position of its source. We scored up to 24 generated tokens in one chunk from each of 10 pages (seed 403), on Tesseract and clean text, for the eight core models.
 
-\textbf{Output filter not applied.} Kanerva et al.\ strip leading and trailing text that does not align with the input, such as explanatory preambles~\cite{kanerva2025nofreelunches}. We did not apply this step, so all scores use unfiltered model output and any preamble or commentary counts as error; Section~\ref{sec:discussion} discusses what this means.
+\textbf{Output filter not applied.} Kanerva et al.\ strip leading and trailing text that does not align with the input, such as explanatory preambles~\cite{kanerva2025nofreelunches}. We did not apply this step, so all main scores use unfiltered model output and any preamble or commentary counts as error; the commentary filter above shows how much this matters.
 
 \subsection{Safeguards and confidence gating}
 \label{sec:gatemethod}
 \textbf{Page-level safeguards.} As post-hoc checks, we replace a model's output by the raw OCR whenever its length falls outside 0.35 to 2.8 times the input length; these thresholds are taken from a zero-shot system in the HIPE-OCRepair task~\cite{ehrmann2026hipeocrepair} and are not tuned on our pages. A second rule, an edit-distance cap, keeps the output only if its CER measured against the raw OCR is at most $\tau$, for $\tau \in \{0.05, 0.1, 0.2, 0.3\}$, a grid fixed in advance. Each safeguarded result is compared with the raw OCR by the same paired bootstrap and Wilcoxon test, with Holm correction over the 18 length-rule tests and, separately, the 72 edit-cap tests.
 
-\textbf{Confidence gating.} Both engines report how confident they are: Tesseract per word (0 to 100) and EasyOCR per detected text box (0 to 1), which every word in the box inherits. We re-ran both engines with the same versions to obtain these values; the re-run reproduced the stored OCR text on all 40 Tesseract pages and 37 EasyOCR pages, and confidences are mapped onto the stored words by word alignment. On the three EasyOCR pages that were not reproduced, as elsewhere, a stored word without a counterpart in the re-run counts as confident, so the gate never lets a model change it. The existing model outputs are then gated: after aligning the OCR words with the output words, an edit that replaces or deletes OCR words is kept only if every OCR word it touches has a confidence below a threshold, and an inserted word only if a neighbouring OCR word does; all other words stay as the OCR read them. The model therefore still corrects whole chunks with their context, but may change only what the engine was unsure of. The thresholds are fixed in advance: 50, 70 and 90 for Tesseract and 0.5, 0.7 and 0.9 for EasyOCR.
+\textbf{Confidence gating.} Both engines report how confident they are: Tesseract per word (0 to 100) and EasyOCR per detected text box (0 to 1), which every word in the box inherits. We re-ran both engines with the same versions on Colab on 12 October 2026, one day after the main run and before the drift (Section~\ref{sec:ocr}), to obtain these values; the re-run reproduced the stored OCR text on all 40 Tesseract pages and 37 EasyOCR pages, and confidences are mapped onto the stored words by word alignment. On the three EasyOCR pages that were not reproduced, as elsewhere, a stored word without a counterpart in the re-run counts as confident, so the gate never lets a model change it. The existing model outputs are then gated: after aligning the OCR words with the output words, an edit that replaces or deletes OCR words is kept only if every OCR word it touches has a confidence below a threshold, and an inserted word only if a neighbouring OCR word does; all other words stay as the OCR read them. The model therefore still corrects whole chunks with their context, but may change only what the engine was unsure of. The thresholds are fixed in advance: 50, 70 and 90 for Tesseract and 0.5, 0.7 and 0.9 for EasyOCR.
 
 \subsection{Further experiments}
 \label{sec:further}
@@ -350,13 +358,13 @@ Five further experiments test explanations of the main result: noisy or mismatch
 
 \textbf{Newer and larger models.} Qwen3 0.6B, 4B and 8B~\cite{qwen2025card}, Gemma~3 1B and 4B~\cite{gemma3card2025} (instruction-tuned; the 4B model receives text only) and Llama 3.2 3B Instruct~\cite{meta2024llama32} correct all 40 pages of both engines and the clean text, in float16 above 3 billion parameters and otherwise in float32, except Gemma~3 4B, which overflows in float16 and runs in float32 on two GPUs. Qwen3 32B runs with 4-bit NF4 weights~\cite{dettmers2023qlora} and float16 computation on two T4 GPUs. Because of its cost it corrects only the 10 pages of the attribution analysis, and every other model is rescored on the same 10 pages for comparison.
 
-\textbf{Fine-tuning.} ByT5-small~\cite{xue2022byt5}, a sequence-to-sequence model of about 300 million parameters whose tokens are bytes, so that Bengali needs no special tokenizer, is fine-tuned to turn corrupted text into clean text. ByT5 was the strongest corrector of Sanskrit OCR~\cite{maheshwari2022sanskrit}, and synthetic corruption has replaced aligned OCR data in English~\cite{bourne2025scrambled}, which historical Bengali lacks. The training text is about 40{,}000 Bengali Wikipedia segments of 60 to 300 characters plus the reference lines of the 10 development pages, repeated 20 times to add historical spelling, with any segment sharing 25 characters with an evaluation reference removed. One pair in ten is left clean, so the model also learns to copy; the others are corrupted with the development-page noise model at a CER drawn uniformly from 0.02 to 0.40. Training uses AdamW (learning rate $3\times10^{-4}$, effective batch 8) on one T4 GPU within a budget of 150 minutes that includes the development evaluations (the last one ended at 155 minutes), and keeps the checkpoint with the lowest CER on the real OCR of the development pages. At test time, chunks of at most 300 characters of whole lines are corrected with their lines joined by spaces, as in training, and greedy decoding. A first run passed the line breaks on to the model, which had never seen one in training; it skipped and repeated whole lines, so we fixed the input format and report the second run.
+\textbf{Fine-tuning.} ByT5-small~\cite{xue2022byt5}, a sequence-to-sequence model of about 300 million parameters whose tokens are bytes, so that Bengali needs no special tokenizer, is fine-tuned to turn corrupted text into clean text. ByT5 was the strongest corrector of Sanskrit OCR~\cite{maheshwari2022sanskrit}, and synthetic corruption has replaced aligned OCR data in English~\cite{bourne2025scrambled}, which historical Bengali lacks. The training text is about 40{,}000 Bengali Wikipedia segments of 60 to 300 characters plus the reference lines of the 10 development pages, repeated 20 times to add historical spelling, with any segment sharing 25 characters with an evaluation reference removed. One pair in ten is left clean, so the model also learns to copy; the others are corrupted with the development-page noise model at a CER drawn uniformly from 0.02 to 0.40. Training uses AdamW (learning rate $3\times10^{-4}$, effective batch 8) on one T4 GPU for 150 minutes, a budget that counts the development evaluations; the last evaluation, started within the budget, ended at 155 minutes. Training keeps the checkpoint with the lowest CER on the real OCR of the development pages. At test time, chunks of at most 300 characters of whole lines are corrected with their lines joined by spaces, as in training, and greedy decoding. A first run passed the line breaks on to the model, which had never seen one in training; it skipped and repeated whole lines, so we fixed the input format and report the second run.
 
 \textbf{Engine fusion.} A method without a language model combines the two engines word by word. EasyOCR, the engine with the lower CER, is the base text, aligned word by word with Tesseract's. Where the two disagree over at most three words on each side, Tesseract's reading replaces EasyOCR's if its confidence ranks higher within the page; the ranks put the two engines' confidence scales on one footing. A second rule requires a rank at least 0.25 higher. Longer disagreements, and words only one engine read, keep EasyOCR. The confidences are those of the confidence gating (Section~\ref{sec:gatemethod}). Fusion is compared with EasyOCR only, its base; it needs two OCR readings, so it has no clean-text control.
 
 \subsection{Reproducibility}
 \label{sec:repro}
-The page lists, page-type labels, prompts, few-shot selection rule, and the OCR, correction, baseline, scoring and statistics code are public~\cite{rahman2026repo}, with the frozen split committed before any model was run. Table~\ref{tab:models} names each checkpoint and the revision used; each model's own chat template was used as shipped with that revision, with Qwen3's reasoning trace disabled, and the generation settings are those given under \emph{Decoding} in Section~\ref{sec:correction}. The GPU runs (10--12 October 2026) used Transformers 5.19.0, the OCR used EasyOCR 1.7.2 and Tesseract 5.3.4, and scoring used jiwer 4.0.0 under Python 3.11. The PyTorch and CUDA versions of the Kaggle and Colab images used for the main runs were not recorded; all later GPU runs (16 to 18 October 2026, two T4 GPUs) used PyTorch 2.11.0 with CUDA 12.8 and Transformers 5.19.0, and the dictionary variants and engine fusion ran on a local CPU. An environment record in the repository lists the known versions, the local analysis environment, and the summary statistics behind every table. Because Tesseract's output could not be regenerated a week later (Section~\ref{sec:ocr}), the stored per-page OCR text and all model outputs are released under the CC BY 4.0 licence together with this paper. Apart from the small fine-tuning experiment, nothing is trained, and no paid service is used. Every score and table can be recomputed exactly from the released outputs; regenerating the outputs themselves is possible on free computing resources, but may not reproduce them exactly, since the OCR has drifted and model outputs can differ across devices and software builds (Section~\ref{sec:ocr} and the appendix).
+The page lists, page-type labels, prompts, few-shot selection rule, and the OCR, correction, baseline, scoring and statistics code are public~\cite{rahman2026repo}, with the frozen split committed before any model was run. Table~\ref{tab:models} names each checkpoint and the revision used; each model's own chat template was used as shipped with that revision, with Qwen3's reasoning trace disabled, and the generation settings are those given under \emph{Decoding} in Section~\ref{sec:correction}. The GPU runs (10--12 October 2026) used Transformers 5.19.0, the OCR used EasyOCR 1.7.2 and Tesseract 5.3.4, and scoring used jiwer 4.0.0 under Python 3.11. The PyTorch and CUDA versions of the Kaggle and Colab images used for the main runs were not recorded; all later GPU runs (16 to 18 October 2026, two T4 GPUs) used PyTorch 2.11.0 with CUDA 12.8 and Transformers 5.19.0, and the dictionary variants and engine fusion ran on a local CPU. An environment record in the repository lists the known versions, the local analysis environment, and the summary statistics behind every table. Because Tesseract's output could not be regenerated a week later (Section~\ref{sec:ocr}), the stored per-page OCR text and all model outputs are released under the CC BY 4.0 licence together with this paper. Apart from the small fine-tuning experiment, nothing is trained, and no paid service is used. Every score and table can be recomputed from the released outputs with one script (\texttt{paper/scripts/reproduce\_tables.sh}); run on 19 October 2026, it reproduced every summary file and every generated table byte for byte, except two analyses that need the page images, whose summaries are released. Regenerating the outputs themselves is possible on free computing resources, but may not reproduce them exactly, since the OCR has drifted and model outputs can differ across devices and software builds (Section~\ref{sec:ocr} and the appendix).
 
 % =====================================================================
 \section{Results}
@@ -365,7 +373,7 @@ The page lists, page-type labels, prompts, few-shot selection rule, and the OCR,
 Each comparison pairs a corrected page with its raw OCR; a change $\Delta$ is corrected minus raw, so positive values mean the correction made the text worse. Mean CER averages page CERs; pooled CER divides all character errors by all reference characters. The bootstrap intervals are unadjusted, whereas the significance marks come from Holm-adjusted Wilcoxon tests, so an interval can exclude zero for a change that is not significant after adjustment.
 
 \subsection{Baseline OCR performance}
-EasyOCR has lower error rates than Tesseract on all three baseline metrics (Table~\ref{tab:baseline}); CER is 0.297 rather than 0.341. Tesseract's high error rate is consistent with earlier Bengali evaluations~\cite{rabby2024enhancement}, although we found no published comparison of these engines on historical Bengali print. Neither gives clean input for correction: even EasyOCR has WER 0.757.
+EasyOCR has lower error rates than Tesseract on all four baseline metrics (Table~\ref{tab:baseline}); CER is 0.297 rather than 0.341. Tesseract's high error rate is consistent with earlier Bengali evaluations~\cite{rabby2024enhancement}, although we found no published comparison of these engines on historical Bengali print. Neither gives clean input for correction: even EasyOCR has WER 0.757.
 
 % ---- begin tables/baseline ----
 \begin{table}[t]
@@ -385,11 +393,16 @@ EasyOCR & 0.297 & 0.757 & 0.260 & 0.629 \\
 \end{table}
 % ---- end tables/baseline ----
 
-\subsection{Effect of correction}
+\subsection{RQ1: Effect of correction on error rates}
+\label{sec:rq1}
+
+\subsubsection{Main evaluation}
 \label{sec:main}
-The main, ungated methods do not significantly reduce CER for either engine (Table~\ref{tab:matrix} and Fig.~\ref{fig:delta}). Confidence gating gives one small exception, discussed in Section~\ref{sec:safeguards}. After Holm correction, 23 of the 36 CER/WER comparisons are significant; 22 indicate increased error.
+These whole-page scores also count text outside the annotated regions and differences in reading order as errors (Section~\ref{sec:ocr}). Both affect raw and corrected text, but a model may treat them differently, so the region-level evaluation (Section~\ref{sec:region}), which removes both at the source, isolates the correction step most cleanly; its raw and corrected text come from one OCR run per engine. We report both, and they agree. The main, ungated methods do not significantly reduce CER for either engine (Table~\ref{tab:matrix} and Fig.~\ref{fig:delta}). Confidence gating gives one small exception, discussed in Section~\ref{sec:gating}. After Holm correction, 23 of the 36 CER/WER comparisons are significant; 22 indicate increased error.
 
 The methods fall into two groups. Gemma-2B-it, Qwen3 1.7B and Phi-4-mini stay close to the raw OCR: their CER changes lie between $-0.004$ and $+0.017$, none significant. Not significant is not the same as unchanged (Table~\ref{tab:equivalence}): equivalence within $\pm0.02$ CER holds only for Qwen3 1.7B on Tesseract and Gemma-2B-it on EasyOCR output, and within $\pm0.01$ for none; Phi-4-mini raises the bounded wMER significantly on both engines; and each model makes some pages better and others worse (Gemma-2B-it 16 and 16 of the 40 Tesseract pages, Qwen3 1.7B 22 and 13). Llama 3.2 1B raises CER slightly but significantly on both engines, by 0.039 and 0.033, the dictionary by 0.037 and 0.040, and the four Bengali-pretrained checkpoints by 0.52 to 1.34, on 38 to 40 pages. The instruction-tuned TituLLMs 1B is worse than its base checkpoint, although the two received differently formatted prompts (Section~\ref{sec:correction}). Switching engines changes the size of these effects little: the CER changes of each method differ by at most 0.035 between engines, and the methods keep their order.
+
+Per page, the general-purpose models and the dictionary track the raw OCR closely, so a page's own difficulty sets its score, whereas the Bengali-pretrained checkpoints produce text of similar error whatever the input quality (appendix, Fig.~\ref{fig:corrected}).
 
 The one significant improvement among the 36 primary tests is Qwen3 1.7B on Tesseract output, whose WER falls from 0.827 to 0.799 ($-0.028$, 95\% CI $[-0.047,-0.013]$, $p=0.002$). Its grapheme-cluster CER also falls, from 0.431 to 0.417 ($p=0.021$ after Holm correction over 18 tests), but its code-point CER does not change significantly ($-0.004$), and on EasyOCR text it improves no metric.
 
@@ -470,177 +483,13 @@ Llama 3.2 1B & +0.033 & [+0.015, +0.053] & 0.971 & 0.860 & 8/29/3 \\
 \label{fig:delta}
 \end{figure*}
 
-\subsection{Clean-text control}
-\label{sec:clean}
-Giving the models reference text removes any recognition error they could repair. Nevertheless, every method changes it (Table~\ref{tab:clean}). Among the core methods, Gemma-2B-it and Qwen3 1.7B do the least damage, with CER 0.032 and 0.035, leaving 6 and 2 of the 40 pages exactly unchanged. The corresponding CERs are 0.060 for Phi-4-mini, 0.057 for the dictionary baseline and 0.119 for Llama 3.2 1B. The dictionary replaces about 31 correct words per page, giving WER 0.268. The Bengali-pretrained checkpoints reach CERs of 0.83 to 1.57 despite the error-free input. These changes are over-correction by construction; their magnitude gives nearly the same ordering of methods as the main evaluation. Phi-4-mini's pooled CER (0.097) is far above its mean (0.060) because of one long page: partway through a chunk its output switches to English prose about physical properties of an object and runs to the token limit, at 1.94 times the reference length, which gives 70\% of its character errors on the 40 pages.
-
-% ---- begin tables/clean ----
-\begin{table}[t]
-\centering
-\caption{Clean-Text Control: Ground Truth Given as Input}
-\label{tab:clean}
-\setlength{\tabcolsep}{3pt}
-\footnotesize
-\begin{tabular}{lccccc}
-\toprule
-Model & \shortstack{Mean\\CER} & \shortstack{Pooled\\CER} & WER & wMER & \shortstack{Pages\\unchanged} \\
-\midrule
-SymSpell (dictionary) & 0.057 & 0.057 & 0.268 & 0.268 & 0/40 \\
-Gemma-2B-it & 0.032 & 0.028 & 0.097 & 0.096 & 6/40 \\
-Qwen3 1.7B & 0.035 & 0.031 & 0.156 & 0.154 & 2/40 \\
-Phi-4-mini & 0.060 & 0.097 & 0.148 & 0.132 & 4/40 \\
-Llama 3.2 1B & 0.119 & 0.118 & 0.163 & 0.157 & 3/40 \\
-BanglaT5 & 0.833 & 0.837 & 1.059 & 0.937 & 0/40 \\
-TituLLMs 1B & 0.988 & 0.976 & 1.341 & 0.810 & 0/40 \\
-TituLLMs 1B Instruct & 1.565 & 1.554 & 2.129 & 0.891 & 0/40 \\
-TituLLMs 3B Instruct & 0.967 & 0.954 & 1.173 & 0.927 & 0/40 \\
-\bottomrule
-\end{tabular}
-\par\smallskip
-\begin{minipage}{\linewidth}\footnotesize Each model receives the reference text itself, with the same prompt and plain decoding. Error rates are measured against that reference, so any value above 0 is damage to correct text; WER and wMER are per-page means. Pages unchanged: CER exactly 0 after normalisation.\end{minipage}
-\end{table}
-% ---- end tables/clean ----
-
-\subsection{Effect of the decoding setting}
-\label{sec:decoding}
-Table~\ref{tab:decoding} and Fig.~\ref{fig:decoding} compare plain greedy decoding with the repetition penalty alone, the four-gram ban alone and both together (guarded decoding), for the four general-purpose models on the 40 pages, with the OCR text of both engines and with the clean text as input. Every constraint, alone or combined, raised CER in all 33 completed comparisons with plain decoding (Phi-4-mini was not run on EasyOCR text), and all 33 increases are significant after Holm correction. Guarded decoding raised Gemma-2B-it's CER from 0.353 to 0.545 on Tesseract text, Qwen3 1.7B's from 0.337 to 0.925 and Phi-4-mini's from 0.354 to 1.740, so the three models that leave the OCR almost unchanged under plain decoding become clearly harmful. The clean-text control shows the same effect without any recognition error to repair: guarded decoding raised the CER of error-free input from 0.032 to 0.360 for Gemma-2B-it, from 0.035 to 0.940 for Qwen3 1.7B and from 0.060 to 1.406 for Phi-4-mini. The constrained outputs really are worse; what would mislead is to attribute that loss to the checkpoints' ability to correct, since the same checkpoints barely change their input under plain decoding.
-
-Which constraint does the damage depends on the model. For Gemma-2B-it almost all of it comes from the $n$-gram ban ($+0.176$ on Tesseract text, against $+0.004$ for the penalty). For Phi-4-mini the penalty alone is catastrophic ($+1.396$, with 28 of 40 pages reaching the token limit) and the $n$-gram ban moderate ($+0.155$). For Qwen3 1.7B and Llama 3.2 1B each constraint alone raises CER by 0.35 to 0.49 on OCR text and by 0.59 to 0.69 on clean text. An evaluation that uses either constraint would thus misjudge a copying model, and testing only one of them would not show the size of the problem for every model. An earlier guarded-versus-plain comparison on the 15-page CPU sample (table note) also included two Bengali-pretrained checkpoints: guarded decoding raised the CER of the decoder-only TituLLMs 1B by more than 1, but not that of BanglaT5, an encoder-decoder model whose decoder does not see the input tokens as its own history.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.85\textwidth]{figures/fig_decoding.pdf}
-\caption{The decoding pitfall. (a) In the Transformers \texttt{generate} function, the repetition penalty and the $n$-gram ban act on the whole token sequence, which for a decoder-only model includes the OCR text in the prompt, although a correction task needs them, if at all, only on the generated output. (b) Mean CER of the four general-purpose models on the 40 pages under plain greedy decoding, the repetition penalty alone (1.3), the four-gram ban alone, and both (guarded), on Tesseract, EasyOCR and clean-text input; the dashed line is the raw OCR. Markers are offset vertically so that coinciding values stay visible.}
-\label{fig:decoding}
-\end{figure*}
-
-% ---- begin tables/decoding ----
-\begin{table*}[t]
-\centering
-\caption{Decoding Ablation on the 40 Pages: Repetition Penalty and $n$-Gram Ban, Alone and Together (Mean CER)}
-\label{tab:decoding}
-\setlength{\tabcolsep}{4pt}
-\footnotesize
-\begin{tabular}{llcccccll}
-\toprule
-Input & Model & Raw OCR & Plain & Penalty only & $n$-gram ban only & Both (guarded) & Guarded $-$ plain [95\% CI] & Truncated \\
-\midrule
-Tesseract & Gemma-2B-it & 0.341 & 0.353 & 0.357$^{+}$ & 0.529$^{+}$ & 0.545$^{+}$ & +0.192 [+0.156, +0.230] & 0/0/0 \\
-Tesseract & Qwen3 1.7B & 0.341 & 0.337 & 0.692$^{+}$ & 0.750$^{+}$ & 0.925$^{+}$ & +0.587 [+0.532, +0.639] & 8/3/11 \\
-Tesseract & Phi-4-mini & 0.341 & 0.354 & 1.750$^{+}$ & 0.509$^{+}$ & 1.740$^{+}$ & +1.385 [+1.175, +1.606] & 28/1/24 \\
-Tesseract & Llama 3.2 1B & 0.341 & 0.380 & 0.871$^{+}$ & 0.795$^{+}$ & 0.972$^{+}$ & +0.592 [+0.508, +0.686] & 27/12/27 \\
-\midrule
-EasyOCR & Gemma-2B-it & 0.297 & 0.301 & 0.338$^{+}$ & 0.512$^{+}$ & 0.520$^{+}$ & +0.220 [+0.187, +0.257] & 0/0/0 \\
-EasyOCR & Qwen3 1.7B & 0.297 & 0.315 & 0.721$^{+}$ & 0.695$^{+}$ & 0.917$^{+}$ & +0.602 [+0.548, +0.653] & 14/3/15 \\
-EasyOCR & Llama 3.2 1B & 0.297 & 0.330 & 0.783$^{+}$ & 0.818$^{+}$ & 0.942$^{+}$ & +0.612 [+0.529, +0.700] & 21/21/23 \\
-\midrule
-Clean text & Gemma-2B-it & -- & 0.032 & 0.049$^{+}$ & 0.327$^{+}$ & 0.360$^{+}$ & +0.328 [+0.298, +0.359] & 0/0/0 \\
-Clean text & Qwen3 1.7B & -- & 0.035 & 0.628$^{+}$ & 0.625$^{+}$ & 0.940$^{+}$ & +0.905 [+0.850, +0.966] & 10/7/22 \\
-Clean text & Phi-4-mini & -- & 0.060 & 1.282$^{+}$ & 0.366$^{+}$ & 1.406$^{+}$ & +1.345 [+1.093, +1.618] & 19/2/18 \\
-Clean text & Llama 3.2 1B & -- & 0.119 & 0.812$^{+}$ & 0.797$^{+}$ & 0.942$^{+}$ & +0.824 [+0.766, +0.885] & 27/17/25 \\
-\bottomrule
-\end{tabular}
-\par\smallskip
-\begin{minipage}{\linewidth}\footnotesize Plain: greedy decoding with only the length cap (the main runs). Penalty: \texttt{repetition\_penalty}=1.3; $n$-gram ban: \texttt{no\_repeat\_ngram\_size}=4; in a decoder-only model both also act on the prompt, so they penalise copying the OCR text. Clean text: the reference given as input, so any change is damage. $^{+}$/$^{-}$: higher/lower than plain decoding, Wilcoxon signed-rank test, Holm-corrected over the 33 preset-versus-plain tests (exploratory family). CI: paired bootstrap, 10{,}000 resamples, seed 403. Truncated: pages that reached the token limit (penalty/$n$-gram/both), of 40. Phi-4-mini was not run on EasyOCR text (time limit of the GPU session). An earlier ablation of guarded against plain decoding on 15 pages (August OCR, CPU, bfloat16) also covered two Bengali-pretrained checkpoints; guarded minus plain CER on Tesseract and EasyOCR text: TituLLMs 1B +1.07 and +1.56; BanglaT5 -0.01 and -0.02.\end{minipage}
-\end{table*}
-% ---- end tables/decoding ----
-
-\subsection{Prompt and chunking variants}
-\label{sec:variants}
-Table~\ref{tab:variants} reports the four general-purpose models under the three prompt variants and the model-independent chunks. No variant brings any model significantly below the raw OCR. The preserve-spelling instruction lowered mean CER in seven of the eight model-and-engine pairs, by up to 0.026 (Llama 3.2 1B on EasyOCR output), but none of these changes is significant. The Bengali prompt and the three worked examples raised CER in most pairs; the increase is significant for Llama 3.2 1B with the Bengali prompt on both engines and with the examples on Tesseract output, and for Phi-4-mini with the Bengali prompt on EasyOCR output. Chunks of at most 300 characters changed mean CER by at most 0.016, with no significant change.
-
-% ---- begin tables/variants ----
-\begin{table}[t]
-\centering
-\caption{Prompt and Chunking Variants (Mean CER, 40 Pages)}
-\label{tab:variants}
-\setlength{\tabcolsep}{4pt}
-\footnotesize
-\begin{tabular}{llcc}
-\toprule
-Model & Variant & Tesseract & EasyOCR \\
-\midrule
- & Raw OCR & 0.341 & 0.297 \\
-\midrule
-Gemma-2B-it & original & 0.353 & 0.301 \\
- & preserve spelling & 0.350 & 0.305 \\
- & Bengali prompt & 0.359 & 0.326 \\
- & three-shot & 0.435 & 0.390 \\
- & 300-char chunks & 0.343 & 0.300 \\
-\midrule
-Qwen3 1.7B & original & 0.337 & 0.315 \\
- & preserve spelling & 0.335 & 0.310 \\
- & Bengali prompt & 0.390 & 0.308 \\
- & three-shot & 0.368 & 0.303 \\
- & 300-char chunks & 0.343 & 0.299 \\
-\midrule
-Phi-4-mini & original & 0.354 & 0.315 \\
- & preserve spelling & 0.351 & 0.312 \\
- & Bengali prompt & 0.402 & 0.359$^{*}$ \\
- & three-shot & 0.447 & 0.324 \\
- & 300-char chunks & 0.343 & 0.319 \\
-\midrule
-Llama 3.2 1B & original & 0.380 & 0.330 \\
- & preserve spelling & 0.362 & 0.304 \\
- & Bengali prompt & 0.516$^{*}$ & 0.459$^{*}$ \\
- & three-shot & 0.480$^{*}$ & 0.395 \\
- & 300-char chunks & 0.380 & 0.321 \\
-\bottomrule
-\end{tabular}
-\par\smallskip
-\begin{minipage}{\linewidth}\footnotesize Original: English prompt, chunks of about 250 tokens. Each variant changes one thing: the preserve-spelling instruction, the prompt in Bengali, three worked examples, or chunks of at most 300 characters. $^{*}$: differs from the original setting, two-sided Wilcoxon signed-rank test, Holm-corrected over the 32 variant comparisons (exploratory family).\end{minipage}
-\end{table}
-% ---- end tables/variants ----
-
-\subsection{Per-page analysis}
-Figure~\ref{fig:corrected} plots each page's corrected CER against its baseline CER, and Fig.~\ref{fig:scatter} the change in CER against the baseline CER. Two patterns appear. For the general-purpose models and the dictionary baseline, the points lie along the identity line and corrected CER follows baseline CER almost exactly (Spearman $\rho$ between 0.88 and 1.00 on both engines): these methods leave most of each page as it was, so the page's own difficulty determines its score. Qwen3 1.7B lowered CER on 22 of the 40 Tesseract pages and Gemma-2B-it on 16, but by amounts that their increases on other pages offset. For BanglaT5 and the TituLLMs models, corrected CER is unrelated or only weakly related to baseline CER ($\rho$ between $-0.00$ and 0.55): their output has a similar error rate whatever the input quality, which suggests that they regenerate the text instead of editing it. Their points form a horizontal band above the identity line (Fig.~\ref{fig:corrected}; the change in CER is plotted in Fig.~\ref{fig:scatter} in the appendix). Split into thirds by baseline CER, BanglaT5, TituLLMs 1B and TituLLMs 3B Instruct have their smallest increase on the hardest third on both engines (TituLLMs 3B Instruct on Tesseract output: $+0.85$ on the easiest third, $+0.39$ on the hardest), and the dictionary shows the same pattern on a smaller scale; the general-purpose models stay within 0.07 of zero in every third.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_corrected.png}
-\caption{Corrected CER per page against the page's baseline CER, one panel per method, for Tesseract (circles) and EasyOCR (squares). The diagonal is the identity line: points on it have the same CER as the raw OCR, points below it a lower CER. Vertical scales differ between panels.}
-\label{fig:corrected}
-\end{figure*}
-
-\subsection{Robustness of the statistics and the reference}
+\subsubsection{Robustness of the statistics and the reference}
 \label{sec:robustness}
 The character-level conclusions do not depend on how the error is measured, how pages are resampled, or how the reference is ordered (Table~\ref{tab:robustness}, appendix). The pooled CER is lower than the mean page CER (0.298 against 0.341 for raw Tesseract output, 0.286 against 0.297 for EasyOCR), because short pages have higher error rates, but it ranks the methods in the same way, and on it no method is below the raw OCR. Grapheme-cluster CER improves only for Qwen3 1.7B on Tesseract output, as reported above. On the bounded cMER (Table~\ref{tab:damage}), 13 of the 18 tests are significant after Holm correction, all increases. Resampling whole books instead of pages gives practically the same intervals, as expected with 37 books for 40 pages.
 
 Against a reference rebuilt in the declared reading order, which changes 17 of the 40 references, the raw OCR scores slightly better (CER 0.335 and 0.294 against 0.341 and 0.297), and the same 12 of the 18 CER comparisons are significant, all increases; Qwen3 1.7B on Tesseract output stays at $-0.004$ ($p=0.82$). Reference-word recall, which ignores word order and extra text, is 0.431 and 0.484 for the raw OCR. No method raises it significantly: Qwen3 1.7B comes closest ($+0.003$ and $+0.002$), and every other method lowers it significantly, Gemma-2B-it included ($-0.017$ and $-0.019$). The absence of a significant improvement therefore persists under the declared reading order and under order-free word recall, and also when each region is read separately (Section~\ref{sec:region}).
 
-\subsection{Precision and prompt format}
-\label{sec:precision}
-Two choices in the main runs could have made the Bengali-pretrained checkpoints look worse than they are: the numerical precision of the two largest models, and the prompt format (Table~\ref{tab:checks}).
-
-\textbf{Precision.} TituLLMs 3B Instruct, run in float16, returned an empty page in 43 of its 120 outputs, each within 0.2 to 0.5~s, so it ended generation at or near its first token. Float16 overflow could cause this, so we reran it in float32 and recorded its first-token logits in both precisions. The first token was the same on all 208 chunks, and the end-of-sequence token on the same 87; no value was infinite or NaN, and the largest activation, about 1{,}000, was far below the float16 limit of 65{,}504. The float32 run returned the same empty pages and changed mean CER by at most 0.002 on OCR text and by $-0.040$ on the clean text, not significantly (95\% CI $[-0.132,+0.032]$), and Phi-4-mini in float32 gave the same CER on Tesseract text (0.354). The empty pages are the model's own behaviour, not a precision artefact.
-
-\textbf{Prompt format.} The base TituLLMs 1B checkpoint received our instruction as plain text with no cue for where its answer should begin. With a completion-style prompt that ends with such a cue, its CER fell from 1.084 to 0.877 on Tesseract text, from 1.033 to 0.861 on EasyOCR text and from 0.988 to 0.605 on the clean text (Wilcoxon signed-rank, unadjusted $p<0.001$ in each case; exploratory), but it remains far worse than the raw OCR ($+0.54$ and $+0.56$ CER on OCR text). Passing BanglaT5's input through the normaliser its model card asks for changed its CER by at most 0.002. The prompt format thus matters for the base checkpoint, but neither check changes a conclusion: every rerun of a Bengali-pretrained checkpoint stays significantly worse than the raw OCR.
-
-% ---- begin tables/checks ----
-\begin{table*}[t]
-\centering
-\caption{Precision and Prompt-Format Checks (Mean CER, 40 Pages)}
-\label{tab:checks}
-\setlength{\tabcolsep}{3pt}
-\scriptsize
-\begin{tabular}{llcccccc}
-\toprule
- & & \multicolumn{2}{c}{Tesseract} & \multicolumn{2}{c}{EasyOCR} & \multicolumn{2}{c}{Clean text} \\
-\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
-Check & Model & Main / check & $\Delta$ [95\% CI] & Main / check & $\Delta$ [95\% CI] & Main / check & $\Delta$ [95\% CI] \\
-\midrule
-Float32 & TituLLMs 3B Instruct & 0.958 / 0.959 & +0.000 [-0.001, +0.001] & 0.886 / 0.888 & +0.002 [-0.000, +0.005] & 0.967 / 0.927 & -0.040 [-0.132, +0.032] \\
-Float32 & Phi-4-mini & 0.354 / 0.354 & -0.000 [-0.001, +0.000] & -- & -- & -- & -- \\
-Completion prompt & TituLLMs 1B & 1.084 / 0.877 & -0.206$^{*}$ [-0.276, -0.118] & 1.033 / 0.861 & -0.172$^{*}$ [-0.262, -0.055] & 0.988 / 0.605 & -0.383$^{*}$ [-0.488, -0.295] \\
-Normalised input & BanglaT5 & 0.860 / 0.858 & -0.001 [-0.014, +0.013] & 0.831 / 0.830 & -0.001 [-0.004, +0.002] & 0.833 / 0.831 & -0.002 [-0.007, +0.004] \\
-\bottomrule
-\end{tabular}
-\par\smallskip
-\begin{minipage}{\linewidth}\footnotesize Float32: instead of float16. Main: the setting of the main runs (float16 for the two models above 3B parameters; each model's shipped chat template; BanglaT5 on unnormalised text). Check: the same model rerun with one change. $\Delta$: check $-$ main; CI: paired bootstrap, 10{,}000 resamples; $^{*}$: Wilcoxon signed-rank $p<0.05$, unadjusted (exploratory); the three completion-prompt changes have $p<0.001$. --: not run (Phi-4-mini in float32 on EasyOCR text) or incomplete (on clean text, 1 of 40 pages within the session's time limit). First-token check of TituLLMs 3B Instruct on all 208 chunks: the same first token in both precisions on 208, end-of-sequence first on 87 in both, no non-finite logits or hidden states, largest activation 1000 (float16 limit 65{,}504). Empty pages (float16/float32, Tesseract, EasyOCR, clean text): 13/13, 14/14, 16/16. Every check of a Bengali-pretrained checkpoint stays significantly worse than the raw OCR ($+$0.52 to $+$0.62 CER on OCR text, $p<0.001$).\end{minipage}
-\end{table*}
-% ---- end tables/checks ----
-
-\subsection{Region-level OCR}
+\subsubsection{Region-level OCR}
 \label{sec:region}
 Reading each annotated region on its own removes out-of-region text and reading-order differences at the source (Section~\ref{sec:further}), and it lowers the input CER. For EasyOCR, region OCR has CER 0.225 against 0.297 for the whole page read in the same run (paired difference $-0.072$, 95\% CI $[-0.120,-0.033]$); for Tesseract, with whole pages and regions read by the same build in the same run, 0.333 against 0.425 ($-0.092$, $[-0.152,-0.029]$). Correction still does not help (Table~\ref{tab:region}). No method lowers CER on either engine. Every method is significantly worse on EasyOCR text, and on Tesseract text all except Qwen3 1.7B ($+0.015$, $p=0.063$) and Qwen3 4B ($+0.009$, $p=0.19$). On whole-page EasyOCR output only Llama 3.2 1B among the general-purpose models was significantly worse; on region text all of them are, adding 0.009 to 0.066 CER. Phi-4-mini's $+0.066$, the widest interval, is driven by three pages whose output reached the token limit: they account for 87\% of its total increase, one of them alone rose by 1.35. Its median page change is $+0.007$, and it is worse on 30 of the 40 pages. A possible reason is that, with fewer errors to repair, their wrong edits weigh more. The dictionary raises CER by 0.036 and 0.044, and the Bengali-pretrained checkpoints again regenerate the text (CER 0.82 to 1.63). Qwen3 4B lowers WER while raising CER, on EasyOCR text significantly in both directions ($-0.030$ and $+0.014$).
 
@@ -676,7 +525,7 @@ Qwen3 4B & 0.342 & +0.009 [-0.001, +0.021] & -0.015 & 158 / 173 & 0.239$^{+}$ & 
 \end{table*}
 % ---- end tables/region ----
 
-\subsection{Synthetic noise}
+\subsubsection{Synthetic noise}
 \label{sec:noise}
 If the OCR were simply too noisy to correct, correction should start to help as the noise falls. It does not (Table~\ref{tab:noise}, Fig.~\ref{fig:noise}). On references corrupted to mean CERs of 0.020, 0.048, 0.100, 0.199 and 0.297, each of the four general-purpose models raised the CER at every level, and all 20 increases are significant. Only at the highest level (0.297) did two models lower the word error rate significantly, Llama 3.2 1B by 0.006 and Phi-4-mini by 0.018, while still raising CER. No tested noise level produced a CER reduction: at an input CER of 0.020 the corrected text has CER 0.044 to 0.107, two to five times the input. Gemma-2B-it adds the least, 0.016 to 0.034, and Llama 3.2 1B the most, 0.087 to 0.169 (computed from unrounded values, so differences of the rounded table entries can differ by 0.001). The synthetic noise is not a perfect stand-in for real OCR errors: at the same input CER of about 0.30, the models leave synthetic noise worse than real EasyOCR output (Qwen3 1.7B: 0.362 against 0.315), so the sweep shows the trend, not the exact level a real OCR text would reach.
 
@@ -709,9 +558,9 @@ Llama 3.2 1B & 0.107$^{+}$ & 0.145$^{+}$ & 0.239$^{+}$ & 0.352$^{+}$ & 0.465$^{+
 \end{table}
 % ---- end tables/noise ----
 
-\subsection{Model size}
+\subsubsection{Model size}
 \label{sec:scale}
-Table~\ref{tab:scale} adds six general-purpose models to the four of the main runs: Qwen3 at 0.6, 4 and 8 billion parameters, Gemma~3 at 1 and 4 billion, and Llama 3.2 3B. None lowers CER on either engine. More parameters do not help consistently within a family: Gemma~3 4B damages more than Gemma~3 1B ($+0.062$ against $+0.022$ on Tesseract text), while Llama 3.2 3B stays close to the raw OCR where Llama 3.2 1B was significantly worse. Qwen3 is the only family in which size moves correction towards improvement. Of the 4{,}497 aligned reference words, Qwen3 0.6B breaks 349 correct words and fixes 100 on Tesseract text, whereas the 4B and 8B models fix more than they break (209 and 263 fixed against 104 and 112 broken; on EasyOCR text 201 and 340 against 100 and 113), and their WER falls significantly (by 0.021 to 0.065). Their CER does not fall (changes of $+0.003$ and $+0.004$, not significant), so the extra repaired words do not show at the character level; the aggregate metrics do not tell us which edits account for this. Every model also changes error-free input (CER 0.024 to 0.212).
+Table~\ref{tab:scale} adds six general-purpose models to the four of the main runs: Qwen3 at 0.6, 4 and 8 billion parameters, Gemma~3 at 1 and 4 billion, and Llama 3.2 3B. None lowers CER on either engine. More parameters do not help consistently within a family: Gemma~3 4B damages more than Gemma~3 1B ($+0.062$ against $+0.022$ on Tesseract text), while Llama 3.2 3B stays close to the raw OCR where Llama 3.2 1B was significantly worse. Qwen3 is the only family in which size moves correction towards improvement. Of the 4{,}497 aligned reference words, Qwen3 0.6B breaks 349 correct words and fixes 100 on Tesseract text, whereas the 4B and 8B models fix more than they break (209 and 263 fixed against 104 and 112 broken; on EasyOCR text 201 and 340 against 100 and 113), and their WER falls significantly (by 0.021 to 0.065). Their CER does not fall (changes of $+0.003$ and $+0.004$, not significant), so the extra repaired words do not show at the character level; Section~\ref{sec:editlevel} shows which edits account for this. Every model also changes error-free input (CER 0.024 to 0.212).
 
 % ---- begin tables/scale ----
 \begin{table*}[t]
@@ -770,9 +619,9 @@ Qwen3 32B (4-bit) & -0.003 & -0.006 & +0.073 & -0.092 & -0.110 \\
 \end{table}
 % ---- end tables/large ----
 
-\subsection{Fine-tuning}
+\subsubsection{Fine-tuning pilot}
 \label{sec:finetune}
-A small model trained for the task behaves much like the larger zero-shot Qwen3 models (Table~\ref{tab:finetune}). The fine-tuned ByT5-small lowers WER significantly on both engines, by 0.024 and 0.037; it fixes 113 and 282 wrong words while breaking 102 and 146 correct ones. CER does not fall. It rises by 0.012 on Tesseract text, significantly, with 25 of the 40 pages worse, and by 0.016 on EasyOCR text, where the bootstrap interval excludes zero but the Holm-corrected test is not significant. On error-free input it does less damage than any other method run on the 40 pages: CER 0.015, against 0.017 for the best dictionary setting and 0.032 for Gemma-2B-it. The checkpoint chosen on the development pages also stayed just above their raw OCR (CER 0.365 against 0.362). A pilot that saw about 14{,}300 of its 43{,}312 training pairs, once each, is not the limit of fine-tuning, but it shows that training on synthetic noise teaches the copy-and-edit behaviour that the zero-shot models lack, without making the edits accurate enough to lower CER.
+A small model trained for the task behaves much like the larger zero-shot Qwen3 models (Table~\ref{tab:finetune}). The fine-tuned ByT5-small lowers WER significantly on both engines, by 0.024 and 0.037; it fixes 113 and 282 wrong words while breaking 102 and 146 correct ones. CER does not fall. It rises by 0.012 on Tesseract text, significantly, with 25 of the 40 pages worse, and by 0.016 on EasyOCR text, where the bootstrap interval excludes zero but the Holm-corrected test is not significant. On error-free input it does less damage than any other method run on the 40 pages: CER 0.015, against 0.017 for the best dictionary setting and 0.032 for Gemma-2B-it. The checkpoint chosen on the development pages also stayed just above their raw OCR (CER 0.365 against 0.362). This is a preliminary pilot: the model saw about 14{,}300 of its 43{,}312 training pairs, once each, before the time budget ran out. It shows only that this short training produced copy-and-edit behaviour, not how well a fully trained model would correct.
 
 % ---- begin tables/finetune ----
 \begin{table*}[t]
@@ -795,7 +644,7 @@ Clean text & 0.000 & 0.015$^{+}$ & +0.015 [+0.009, +0.023] & +0.051$^{+}$ & 196 
 \end{table*}
 % ---- end tables/finetune ----
 
-\subsection{Methods without a language model}
+\subsubsection{Methods without a language model}
 \label{sec:classical}
 Two further methods use no language model (Table~\ref{tab:classical}). A better lexicon and a smaller edit distance reduce the dictionary's damage but do not remove it. The 100{,}000 most frequent words of Bengali Wikipedia miss 37\% of the reference word tokens, against 52\% for the subtitle lexicon. With this lexicon and an edit distance of 1, SymSpell raises CER by 0.007 and 0.008 instead of 0.037 and 0.040, and error-free text reaches CER 0.017 instead of 0.057. Every setting nevertheless remains significantly worse than the raw OCR on both engines: the best one still breaks 211 and 251 correct words and fixes 88 and 201 wrong ones.
 
@@ -828,11 +677,41 @@ Fusion, confidence margin & -- & -0.002 [-0.005, -0.000] & -- & -- & -0.014$^{-}
 \end{table*}
 % ---- end tables/classical ----
 
-% =====================================================================
-\section{Failure Analysis}
-\label{sec:failure}
+\subsection{RQ2: Preservation and repair}
+\label{sec:rq2}
 
-\subsection{Word retention and word-level changes}
+\subsubsection{Clean-text control}
+\label{sec:clean}
+Giving the models reference text removes any recognition error they could repair. Nevertheless, every method changes it (Table~\ref{tab:clean}). Among the core methods, Gemma-2B-it and Qwen3 1.7B do the least damage, with CER 0.032 and 0.035, leaving 6 and 2 of the 40 pages exactly unchanged. The corresponding CERs are 0.060 for Phi-4-mini, 0.057 for the dictionary baseline and 0.119 for Llama 3.2 1B. The dictionary replaces about 31 correct words per page, giving WER 0.268. The Bengali-pretrained checkpoints reach CERs of 0.83 to 1.57 despite the error-free input. These changes are over-correction by construction; their magnitude gives nearly the same ordering of methods as the main evaluation. Phi-4-mini's pooled CER (0.097) is far above its mean (0.060) because of one long page: partway through a chunk its output switches to English prose about physical properties of an object and runs to the token limit, at 1.94 times the reference length, which gives 70\% of its character errors on the 40 pages.
+
+% ---- begin tables/clean ----
+\begin{table}[t]
+\centering
+\caption{Clean-Text Control: Ground Truth Given as Input}
+\label{tab:clean}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\begin{tabular}{lccccc}
+\toprule
+Model & \shortstack{Mean\\CER} & \shortstack{Pooled\\CER} & WER & wMER & \shortstack{Pages\\unchanged} \\
+\midrule
+SymSpell (dictionary) & 0.057 & 0.057 & 0.268 & 0.268 & 0/40 \\
+Gemma-2B-it & 0.032 & 0.028 & 0.097 & 0.096 & 6/40 \\
+Qwen3 1.7B & 0.035 & 0.031 & 0.156 & 0.154 & 2/40 \\
+Phi-4-mini & 0.060 & 0.097 & 0.148 & 0.132 & 4/40 \\
+Llama 3.2 1B & 0.119 & 0.118 & 0.163 & 0.157 & 3/40 \\
+BanglaT5 & 0.833 & 0.837 & 1.059 & 0.937 & 0/40 \\
+TituLLMs 1B & 0.988 & 0.976 & 1.341 & 0.810 & 0/40 \\
+TituLLMs 1B Instruct & 1.565 & 1.554 & 2.129 & 0.891 & 0/40 \\
+TituLLMs 3B Instruct & 0.967 & 0.954 & 1.173 & 0.927 & 0/40 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Each model receives the reference text itself, with the same prompt and plain decoding. Error rates are measured against that reference, so any value above 0 is damage to correct text; WER and wMER are per-page means. Pages unchanged: CER exactly 0 after normalisation.\end{minipage}
+\end{table}
+% ---- end tables/clean ----
+
+\subsubsection{Words fixed and broken}
 Table~\ref{tab:diagnostics} reports how many ground-truth words each output retains. Raw Tesseract output keeps 46\% of the distinct ground-truth words and raw EasyOCR output 53\%. Averaged over the outputs of both engines, the general-purpose models keep 46\% to 49\%, the dictionary baseline 37\%, and the Bengali-pretrained checkpoints between 3\% and 16\%. The script shares in the same table are pooled over all output characters, so they describe the text a method produced, not how often it produced any: the output of TituLLMs 3B Instruct is 97\% Bengali, but 27 of its 80 outputs are empty. Table~\ref{tab:damage} separates correct words that were changed from wrong words that were fixed, each as a share of its own group (words the raw OCR had right, words it had wrong), so the two shares cannot be compared with each other; counts of the same 4{,}497 reference words can (Table~\ref{tab:scale}). Gemma-2B-it broke 77 and 72 correct words and fixed 11 and 12. Qwen3 1.7B broke 65 and 95 and fixed 83 and 89, the only core model to fix more words than it broke, and only on Tesseract text. Phi-4-mini and Llama 3.2 1B broke 8\% to 11\% of the correct words, the dictionary baseline 29\% and 31\%, and the Bengali-pretrained checkpoints between 74\% and 99\%. The change ratio is below 1 for the general-purpose models and the dictionary (0.1 to 0.4) and between 3.9 and 7.0 for the Bengali-pretrained checkpoints.
 
 % ---- begin tables/diagnostics ----
@@ -904,7 +783,43 @@ EasyOCR & TituLLMs 3B Instruct & 0.845$^{+}$ & 95\% & 0.3\% & 4.1 & 2\% \\
 \end{table*}
 % ---- end tables/damage ----
 
-\subsection{Edit profiles by model}
+\subsubsection{Where the character errors go}
+\label{sec:editlevel}
+Table~\ref{tab:editlevel} splits the change in character errors between the reference words a method fixes, those it breaks, those that stay wrong, and the spaces between words. A fixed word usually saves about one character error: Qwen3 4B and 8B remove 185 to 416 errors by fixing 201 to 340 words, mostly in vowel signs and punctuation. The cost lies elsewhere. The same models edit 394 to 667 words that stay wrong and add 159 to 255 character errors to them, mostly consonants, and the words they break add 89 to 157 more. These costs match or exceed the savings (net $+54$ to $+189$ errors over 29{,}599 reference characters), so CER does not fall, while WER falls because it counts only whether a word is entirely right. The fine-tuned pilot shows the same pattern with larger costs. Merged and split words are not the explanation: with all spaces removed before scoring, every CER moves by at most 0.02 and keeps its direction relative to the raw OCR. Engine fusion is the exception: it removes errors from words that stay wrong instead of adding them, which is why it lowers CER slightly.
+
+% ---- begin tables/editlevel ----
+\begin{table*}[t]
+\centering
+\caption{Where the Character Errors Go: Change in Character Errors by Reference-Word Group (40 Pages, Pooled)}
+\label{tab:editlevel}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{lccccccc}
+\toprule
+Method & \shortstack{Words\\fixed / broken} & \shortstack{$\Delta$ errors,\\fixed words} & \shortstack{$\Delta$ errors,\\broken words} & \shortstack{$\Delta$ errors, still-wrong\\words (words edited)} & \shortstack{$\Delta$ errors,\\spaces and other} & \shortstack{$\Delta$ errors,\\total} & \shortstack{CER without spaces\\raw / corrected} \\
+\midrule
+\multicolumn{8}{l}{\textit{Tesseract}} \\
+Qwen3 1.7B & 83 / 65 & -83 & +63 & +95 (293) & -55 & +20 & 0.340 / 0.338 \\
+Qwen3 4B & 209 / 104 & -187 & +137 & +201 (559) & +38 & +189 & 0.340 / 0.343 \\
+Qwen3 8B & 263 / 112 & -243 & +157 & +241 (667) & -46 & +109 & 0.340 / 0.345 \\
+Llama 3.2 3B & 72 / 143 & -54 & +207 & +304 (620) & +187 & +644 & 0.340 / 0.360 \\
+ByT5-small, fine-tuned & 113 / 102 & -73 & +114 & +187 (597) & +97 & +325 & 0.340 / 0.353 \\
+\midrule
+\multicolumn{8}{l}{\textit{EasyOCR}} \\
+Qwen3 1.7B & 89 / 95 & -46 & +287 & +288 (248) & +53 & +582 & 0.303 / 0.320 \\
+Qwen3 4B & 201 / 100 & -185 & +89 & +159 (394) & +87 & +150 & 0.303 / 0.306 \\
+Qwen3 8B & 340 / 113 & -416 & +154 & +255 (622) & +61 & +54 & 0.303 / 0.304 \\
+Llama 3.2 3B & 137 / 126 & -142 & +100 & +249 (481) & +44 & +251 & 0.303 / 0.308 \\
+ByT5-small, fine-tuned & 282 / 146 & -286 & +255 & +399 (584) & +159 & +527 & 0.303 / 0.319 \\
+Fusion, higher confidence & 140 / 71 & -163 & +86 & -46 (152) & +28 & -95 & 0.303 / 0.299 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Each character error of the alignment with the reference is assigned to a reference word (insertions to the word they follow); $\Delta$: errors in the corrected text minus errors in the raw OCR, summed over the 40 pages (29{,}599 reference characters per engine), so the groups add up to the total. Fixed / broken: reference words the output gets right that the raw OCR had wrong, and the reverse. Still wrong: wrong in both; in brackets, how many of them the method edited. Spaces and other: errors on the spaces between words (merged or split words) and insertions next to words that stay right. CER without spaces: mean page CER with all spaces removed. Descriptive, no test.\end{minipage}
+\end{table*}
+% ---- end tables/editlevel ----
+
+\subsubsection{Examples}
 Table~\ref{tab:editops} counts substitutions, deletions and insertions per page against the reference; Table~\ref{tab:examples} shows the outputs for two reference lines. In the first example, Gemma-2B-it and Llama 3.2 1B reproduce the Tesseract text unchanged. Qwen3 1.7B repairs a broken word, while the dictionary modernises a historical form. The Bengali-pretrained checkpoints return unrelated text or nothing. In the second example, Qwen3 1.7B repairs one word but damages another.
 
 % ---- begin tables/examples ----
@@ -946,6 +861,295 @@ TituLLMs 3B Inst. & \textit{(empty)} \hfill{\scriptsize 1.00} & \bn{\textcolor{r
 \fi
 \end{table*}
 % ---- end tables/examples ----
+
+\subsection{RQ3: Decoding, prompts and safeguards}
+\label{sec:rq3}
+
+\subsubsection{Decoding constraints}
+\label{sec:decoding}
+Table~\ref{tab:decoding} and Fig.~\ref{fig:decoding} compare plain greedy decoding with the repetition penalty alone, the four-gram ban alone and both together (guarded decoding), for the four general-purpose models on the 40 pages, with the OCR text of both engines and with the clean text as input. Every constraint, alone or combined, raised CER in all 33 completed comparisons with plain decoding (Phi-4-mini was not run on EasyOCR text), and all 33 increases are significant after Holm correction. Guarded decoding raised Gemma-2B-it's CER from 0.353 to 0.545 on Tesseract text, Qwen3 1.7B's from 0.337 to 0.925 and Phi-4-mini's from 0.354 to 1.740, so the three models that leave the OCR almost unchanged under plain decoding become clearly harmful. The clean-text control shows the same effect without any recognition error to repair: guarded decoding raised the CER of error-free input from 0.032 to 0.360 for Gemma-2B-it, from 0.035 to 0.940 for Qwen3 1.7B and from 0.060 to 1.406 for Phi-4-mini. The constrained outputs really are worse; what would mislead is to attribute that loss to the checkpoints' ability to correct, since the same checkpoints barely change their input under plain decoding. That the damage arises because the constraints also act on the prompt is a hypothesis this comparison does not isolate: a four-gram ban can also block repetitions that the reference text itself contains, and a penalty can suppress valid repeated tokens in the output.
+
+Which constraint does the damage depends on the model. For Gemma-2B-it almost all of it comes from the $n$-gram ban ($+0.176$ on Tesseract text, against $+0.004$ for the penalty). For Phi-4-mini the penalty alone is catastrophic ($+1.396$, with 28 of 40 pages reaching the token limit) and the $n$-gram ban moderate ($+0.155$). For Qwen3 1.7B and Llama 3.2 1B each constraint alone raises CER by 0.35 to 0.49 on OCR text and by 0.59 to 0.69 on clean text. An evaluation that uses either constraint would thus misjudge a copying model, and testing only one of them would not show the size of the problem for every model. An earlier guarded-versus-plain comparison on the 15-page CPU sample (table note) also included two Bengali-pretrained checkpoints: guarded decoding raised the CER of the decoder-only TituLLMs 1B by more than 1, but not that of BanglaT5, an encoder-decoder model whose decoder does not see the input tokens as its own history.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig_decoding.pdf}
+\caption{The decoding pitfall. (a) In the Transformers \texttt{generate} function, the repetition penalty and the $n$-gram ban act on the whole token sequence, which for a decoder-only model includes the OCR text in the prompt, although a correction task needs them, if at all, only on the generated output. (b) Mean CER of the four general-purpose models on the 40 pages under plain greedy decoding, the repetition penalty alone (1.3), the four-gram ban alone, and both (guarded), on Tesseract, EasyOCR and clean-text input; the dashed line is the raw OCR. Markers are offset vertically so that coinciding values stay visible.}
+\label{fig:decoding}
+\end{figure*}
+
+% ---- begin tables/decoding ----
+\begin{table*}[t]
+\centering
+\caption{Decoding Ablation on the 40 Pages: Repetition Penalty and $n$-Gram Ban, Alone and Together (Mean CER)}
+\label{tab:decoding}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{llcccccll}
+\toprule
+Input & Model & Raw OCR & Plain & Penalty only & $n$-gram ban only & Both (guarded) & Guarded $-$ plain [95\% CI] & Truncated \\
+\midrule
+Tesseract & Gemma-2B-it & 0.341 & 0.353 & 0.357$^{+}$ & 0.529$^{+}$ & 0.545$^{+}$ & +0.192 [+0.156, +0.230] & 0/0/0 \\
+Tesseract & Qwen3 1.7B & 0.341 & 0.337 & 0.692$^{+}$ & 0.750$^{+}$ & 0.925$^{+}$ & +0.587 [+0.532, +0.639] & 8/3/11 \\
+Tesseract & Phi-4-mini & 0.341 & 0.354 & 1.750$^{+}$ & 0.509$^{+}$ & 1.740$^{+}$ & +1.385 [+1.175, +1.606] & 28/1/24 \\
+Tesseract & Llama 3.2 1B & 0.341 & 0.380 & 0.871$^{+}$ & 0.795$^{+}$ & 0.972$^{+}$ & +0.592 [+0.508, +0.686] & 27/12/27 \\
+\midrule
+EasyOCR & Gemma-2B-it & 0.297 & 0.301 & 0.338$^{+}$ & 0.512$^{+}$ & 0.520$^{+}$ & +0.220 [+0.187, +0.257] & 0/0/0 \\
+EasyOCR & Qwen3 1.7B & 0.297 & 0.315 & 0.721$^{+}$ & 0.695$^{+}$ & 0.917$^{+}$ & +0.602 [+0.548, +0.653] & 14/3/15 \\
+EasyOCR & Llama 3.2 1B & 0.297 & 0.330 & 0.783$^{+}$ & 0.818$^{+}$ & 0.942$^{+}$ & +0.612 [+0.529, +0.700] & 21/21/23 \\
+\midrule
+Clean text & Gemma-2B-it & -- & 0.032 & 0.049$^{+}$ & 0.327$^{+}$ & 0.360$^{+}$ & +0.328 [+0.298, +0.359] & 0/0/0 \\
+Clean text & Qwen3 1.7B & -- & 0.035 & 0.628$^{+}$ & 0.625$^{+}$ & 0.940$^{+}$ & +0.905 [+0.850, +0.966] & 10/7/22 \\
+Clean text & Phi-4-mini & -- & 0.060 & 1.282$^{+}$ & 0.366$^{+}$ & 1.406$^{+}$ & +1.345 [+1.093, +1.618] & 19/2/18 \\
+Clean text & Llama 3.2 1B & -- & 0.119 & 0.812$^{+}$ & 0.797$^{+}$ & 0.942$^{+}$ & +0.824 [+0.766, +0.885] & 27/17/25 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Plain: greedy decoding with only the length cap (the main runs). Penalty: \texttt{repetition\_penalty}=1.3; $n$-gram ban: \texttt{no\_repeat\_ngram\_size}=4; in a decoder-only model both also act on the prompt, so they penalise copying the OCR text. Clean text: the reference given as input, so any change is damage. $^{+}$/$^{-}$: higher/lower than plain decoding, Wilcoxon signed-rank test, Holm-corrected over the 33 preset-versus-plain tests (exploratory family). CI: paired bootstrap, 10{,}000 resamples, seed 403. Truncated: pages that reached the token limit (penalty/$n$-gram/both), of 40. Phi-4-mini was not run on EasyOCR text (time limit of the GPU session). An earlier ablation of guarded against plain decoding on 15 pages (August OCR, CPU, bfloat16) also covered two Bengali-pretrained checkpoints; guarded minus plain CER on Tesseract and EasyOCR text: TituLLMs 1B +1.07 and +1.56; BanglaT5 -0.01 and -0.02.\end{minipage}
+\end{table*}
+% ---- end tables/decoding ----
+
+\subsubsection{Prompt and chunking variants}
+\label{sec:variants}
+Table~\ref{tab:variants} reports the four general-purpose models under the three prompt variants and the model-independent chunks. No variant brings any model significantly below the raw OCR. The preserve-spelling instruction lowered mean CER in seven of the eight model-and-engine pairs, by up to 0.026 (Llama 3.2 1B on EasyOCR output), but none of these changes is significant. The Bengali prompt and the three worked examples raised CER in most pairs; the increase is significant for Llama 3.2 1B with the Bengali prompt on both engines and with the examples on Tesseract output, and for Phi-4-mini with the Bengali prompt on EasyOCR output. Chunks of at most 300 characters changed mean CER by at most 0.016, with no significant change.
+
+% ---- begin tables/variants ----
+\begin{table}[t]
+\centering
+\caption{Prompt and Chunking Variants (Mean CER, 40 Pages)}
+\label{tab:variants}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{llcc}
+\toprule
+Model & Variant & Tesseract & EasyOCR \\
+\midrule
+ & Raw OCR & 0.341 & 0.297 \\
+\midrule
+Gemma-2B-it & original & 0.353 & 0.301 \\
+ & preserve spelling & 0.350 & 0.305 \\
+ & Bengali prompt & 0.359 & 0.326 \\
+ & three-shot & 0.435 & 0.390 \\
+ & 300-char chunks & 0.343 & 0.300 \\
+\midrule
+Qwen3 1.7B & original & 0.337 & 0.315 \\
+ & preserve spelling & 0.335 & 0.310 \\
+ & Bengali prompt & 0.390 & 0.308 \\
+ & three-shot & 0.368 & 0.303 \\
+ & 300-char chunks & 0.343 & 0.299 \\
+\midrule
+Phi-4-mini & original & 0.354 & 0.315 \\
+ & preserve spelling & 0.351 & 0.312 \\
+ & Bengali prompt & 0.402 & 0.359$^{*}$ \\
+ & three-shot & 0.447 & 0.324 \\
+ & 300-char chunks & 0.343 & 0.319 \\
+\midrule
+Llama 3.2 1B & original & 0.380 & 0.330 \\
+ & preserve spelling & 0.362 & 0.304 \\
+ & Bengali prompt & 0.516$^{*}$ & 0.459$^{*}$ \\
+ & three-shot & 0.480$^{*}$ & 0.395 \\
+ & 300-char chunks & 0.380 & 0.321 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Original: English prompt, chunks of about 250 tokens. Each variant changes one thing: the preserve-spelling instruction, the prompt in Bengali, three worked examples, or chunks of at most 300 characters. $^{*}$: differs from the original setting, two-sided Wilcoxon signed-rank test, Holm-corrected over the 32 variant comparisons (exploratory family). Equal entries in a column come from different outputs (unrounded: Tesseract: Gemma-2B-it 300-char chunks 0.3432, Qwen3 1.7B 300-char chunks 0.3434, Phi-4-mini 300-char chunks 0.3435; Tesseract: Llama 3.2 1B original 0.3799, Llama 3.2 1B 300-char chunks 0.3796; EasyOCR: Qwen3 1.7B original 0.3146, Phi-4-mini original 0.3147).\end{minipage}
+\end{table}
+% ---- end tables/variants ----
+
+Two checks of prompt fit change no conclusion (appendix). The instruction-tuned TituLLMs checkpoints often answer with commentary; a generous commentary filter (Table~\ref{tab:filter}) lowers the CER of TituLLMs 1B Instruct on Tesseract text from 1.64 to 0.87, but every Bengali-pretrained checkpoint stays far above the raw OCR (0.87 to 0.98 against 0.341), and the general-purpose models change by at most 0.009. Float32 precision and a completion-style prompt likewise leave every Bengali-pretrained checkpoint significantly worse than the raw OCR (Table~\ref{tab:checks}).
+
+\subsubsection{Confidence gating}
+\label{sec:gating}
+Confidence gating (Table~\ref{tab:gated}) works at the word level instead of the page level. The engines are unsure of much of the text: 41\% of Tesseract words have a confidence below 50 and 77\% below 90, and 52\% of EasyOCR words lie in boxes below 0.5. Gating reduces the damage of the harmful methods, for example lowering the CER of TituLLMs 1B on Tesseract output from 1.084 to 0.454 and that of the dictionary baseline from 0.378 to 0.348 at the lowest threshold, but nearly all of them remain significantly worse than the raw OCR. For the general-purpose models gating keeps the CER at or just below the raw OCR on Tesseract output. Qwen3 1.7B at threshold 70 gives the only significant reduction of CER in this study (engine fusion gains about as much, but not significantly; Section~\ref{sec:classical}), from 0.341 to 0.337 ($-0.004$, 95\% CI $[-0.006,-0.002]$, $p=0.038$ after Holm correction over 54 tests), 1.1\% of the raw CER. Gating left 4 of the 40 pages identical to the raw OCR; of the 36 non-zero differences the test uses, 25 are improvements and 11 deteriorations. The gain is negligible and not robust: after Holm correction it is not significant at thresholds 50 or 90 (unadjusted $p=0.014$ and 0.069), not on EasyOCR output, and the ungated Qwen3 change it starts from is itself not significant. On EasyOCR output, where confidence is per box and therefore coarse, no gated method improves on the raw OCR. The thresholds were fixed in advance, not chosen on these pages, but the development pages have no confidence scores from this OCR run, so the gain could not be validated on held-out pages; we report it as exploratory. Lower thresholds, which allow fewer changes, give the lowest error throughout.
+
+% ---- begin tables/gated ----
+\begin{table}[t]
+\centering
+\caption{Confidence-Gated Correction (Mean CER, 40 Pages)}
+\label{tab:gated}
+\setlength{\tabcolsep}{2pt}
+\footnotesize
+\begin{tabular}{lcccccc}
+\toprule
+ & \multicolumn{3}{c}{Tesseract (word conf.)} & \multicolumn{3}{c}{EasyOCR (box conf.)} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Method & 50 & 70 & 90 & 0.5 & 0.7 & 0.9 \\
+\midrule
+Raw OCR & 0.341 & 0.341 & 0.341 & 0.297 & 0.297 & 0.297 \\
+\midrule
+SymSpell (dictionary) & 0.348$^{+}$ & 0.353$^{+}$ & 0.365$^{+}$ & 0.315$^{+}$ & 0.328$^{+}$ & 0.334$^{+}$ \\
+Gemma-2B-it & 0.340 & 0.340 & 0.341 & 0.298 & 0.300 & 0.302 \\
+Qwen3 1.7B & 0.338 & 0.337$^{-}$ & 0.338 & 0.297 & 0.305 & 0.306 \\
+Phi-4-mini & 0.338 & 0.338 & 0.340 & 0.297 & 0.301 & 0.308 \\
+Llama 3.2 1B & 0.342 & 0.348 & 0.356 & 0.303 & 0.318$^{+}$ & 0.325$^{+}$ \\
+BanglaT5 & 0.440$^{+}$ & 0.441$^{+}$ & 0.480$^{+}$ & 0.375$^{+}$ & 0.450$^{+}$ & 0.569$^{+}$ \\
+TituLLMs 1B & 0.454$^{+}$ & 0.511$^{+}$ & 0.619$^{+}$ & 0.444$^{+}$ & 0.674$^{+}$ & 0.868$^{+}$ \\
+TituLLMs 1B Instruct & 0.427$^{+}$ & 0.541$^{+}$ & 0.813$^{+}$ & 0.567$^{+}$ & 0.834$^{+}$ & 1.061$^{+}$ \\
+TituLLMs 3B Instruct & 0.357 & 0.346 & 0.365 & 0.317 & 0.382 & 0.519$^{+}$ \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize A model's edit is kept only where every OCR word it changes has a confidence below the threshold (column header); elsewhere the raw OCR is kept. $^{+}$/$^{-}$: significantly higher/lower than the raw OCR, Wilcoxon signed-rank test, Holm-corrected over the 54 gated tests (exploratory family); pages left identical to the raw OCR are dropped by the test.\end{minipage}
+\end{table}
+% ---- end tables/gated ----
+
+% =====================================================================
+\section{Discussion}
+\label{sec:discussion}
+
+For practice, a correction step has to improve on keeping the raw OCR. We answer the three research questions, then discuss why word-level gains come without character-level gains, what explains the failures, and what follows for institutions.
+
+\subsection{Answers to the research questions}
+\textbf{RQ1.} At the character level, not under the evaluated conditions. No ungated model significantly reduced mean code-point CER, bounded cMER or pooled CER on either engine (Tables~\ref{tab:matrix}, \ref{tab:robustness} and~\ref{tab:scale}), nor on region-level OCR (Table~\ref{tab:region}); the 10-page intervals of Qwen3 32B include zero (Table~\ref{tab:large}). On the grapheme-cluster CER, Qwen3 1.7B on Tesseract text is the one significant exception (Section~\ref{sec:main}). The word error rate behaves differently: Qwen3 1.7B on Tesseract text, Qwen3 4B and 8B and the fine-tuned ByT5-small on both engines, and Llama 3.2 3B on EasyOCR text lower it significantly, as do Qwen3 4B on EasyOCR region text and two models at the highest synthetic noise level. The only significant CER reduction is exploratory and small, about 1\% of the raw CER: Qwen3 1.7B with confidence gating at one of three thresholds (Table~\ref{tab:gated}). Engine fusion gains about as much, but we report this gain as descriptive, not significant (Table~\ref{tab:classical}). The engines and the two OCR settings agree in direction and ranking.
+
+\textbf{RQ2.} Preservation is the larger problem. Every method changed error-free text (Tables~\ref{tab:clean}, \ref{tab:scale} and~\ref{tab:finetune}), from CER 0.015 for the fine-tuned model to more than 0.8 for the Bengali-pretrained checkpoints, which regenerate the text and lose most correct words. The general-purpose core models keep most of their input, and the attribution maps on sampled chunks are consistent with copying (Table~\ref{tab:attribution}, appendix); they repair few words, and only Qwen3 1.7B on Tesseract text repairs more than it breaks. The larger Qwen3 models and the fine-tuned model repair more words than they break, but their other edits add at least as many character errors as the repairs remove (Table~\ref{tab:editlevel}).
+
+\textbf{RQ3.} Repetition constraints that include the prompt changed the outcome most: alone or together they made every general-purpose model significantly worse, on OCR text and on error-free text (Table~\ref{tab:decoding}). Float32 precision and a completion prompt did not bring a Bengali-pretrained checkpoint near the raw OCR (Table~\ref{tab:checks}). No tested prompt variant, chunking scheme or page-level safeguard produced a statistically significant CER reduction relative to raw OCR (Tables~\ref{tab:variants} and~\ref{tab:safeguards}), although some lowered mean CER slightly (for example 0.335 against 0.341 for Qwen3 1.7B with the preserve-spelling instruction on Tesseract text). Confidence gating and engine fusion reduced the damage, with the small gains noted under RQ1.
+
+Table~\ref{tab:claims} lists each main claim with its evidence and states whether it rests on the primary test family, an exploratory test or a descriptive analysis.
+
+% ---- begin tables/claims ----
+% Claim-to-evidence summary (external review 2026-10-19, item 12). Hand-written
+% design table: claims, where the evidence is, and its status; no numbers.
+\begin{table*}[t]
+\centering
+\caption{Main Claims, Their Evidence and Their Status}
+\label{tab:claims}
+\setlength{\tabcolsep}{3.5pt}
+\footnotesize
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{>{\raggedright\arraybackslash}p{7.4cm}>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{5.2cm}}
+\toprule
+Claim & Evidence & Status \\
+\midrule
+No ungated model significantly lowers code-point CER on whole-page OCR & Table~\ref{tab:matrix}; Tables~\ref{tab:robustness}, \ref{tab:scale}, \ref{tab:large} & Primary family (eight core models, dictionary); exploratory for the other models and measures \\
+The same holds for region-level OCR and for synthetic noise down to an input CER of 0.02 & Tables~\ref{tab:region}, \ref{tab:noise} & Exploratory, Holm within each family \\
+Larger Qwen3 models and the fine-tuning pilot lower WER but not CER & Tables~\ref{tab:scale}, \ref{tab:finetune} & Exploratory; the pilot is under-trained \\
+Their word repairs are offset by edits to other words & Table~\ref{tab:editlevel} & Descriptive \\
+Every method changes error-free text & Tables~\ref{tab:clean}, \ref{tab:scale}, \ref{tab:finetune} & Descriptive stress test of preservation \\
+Repetition constraints make copying models much worse & Table~\ref{tab:decoding} & Exploratory, Holm within the family \\
+In Transformers~5.19.0 these constraints also act on the prompt & One-step test, Section~\ref{sec:correction} & Verified mechanism; its role in the damage is a hypothesis \\
+Confidence gating gives a small CER gain at one of three thresholds & Table~\ref{tab:gated} & Exploratory, not validated on held-out pages \\
+Engine fusion gains about as much & Table~\ref{tab:classical} & Descriptive (test family chosen after a first scoring) \\
+The tested Bengali-pretrained checkpoints regenerate text instead of editing it & Tables~\ref{tab:matrix}, \ref{tab:diagnostics}, \ref{tab:filter}; Fig.~\ref{fig:corrected} & Descriptive; specific to these checkpoints and prompts \\
+\bottomrule
+\end{tabular}
+\end{table*}
+% ---- end tables/claims ----
+
+\subsection{Word-level gains without character-level gains}
+A word counts as fixed only when it becomes exactly right, and as broken when any of its characters changes; CER also counts every changed character inside words that stay wrong, and every insertion and deletion. A model can therefore turn more words right than wrong, as the larger Qwen3 models and the fine-tuned model do, without lowering CER. The edit-level analysis (Section~\ref{sec:editlevel}) shows what offsets the repairs: the repaired words were mostly one sign away from correct, while the same models also change consonants in words that stay wrong and break some correct words, which together add at least as many character errors as the repairs remove. The distinction matters for use: a collection searched by whole words might benefit from the word-level gains, whereas a faithful transcription needs the character-level result. We did not measure either downstream use.
+
+\subsection{Relation to prior work}
+Our outcome agrees with reported zero-shot failures on Finnish~\cite{kanerva2025nofreelunches}, on historical transcripts in several languages~\cite{boros2024postcorrection} and on Hindi speech-recognition output~\cite{kumar2026postasr}, and our clean-text control measures directly the over-correction that HIPE-OCRepair~\cite{ehrmann2026hipeocrepair} and a study of GPT models on historical English~\cite{zhang2024prosody} report. The successful studies fine-tune for correction~\cite{thomas2024leveraging,ehrmann2026hipeocrepair}, use a frontier model~\cite{viana2026reframing}, or start from nearly clean English~\cite{koynov2025opportunities}. Our input CER (0.30 to 0.34) exceeds the 0.25 or less of those studies, but high input CER alone does not account for the difference: a 70-billion-parameter model helped at an input CER of 0.07~\cite{koynov2025opportunities}, whereas the small models here made even synthetic text with a CER of 0.02 worse, and they did not help on region-level OCR (0.23 and 0.33) either. The decoding ablation adds a caution for negative results in general: before a failure is attributed to correction itself, it should be checked under plain decoding.
+
+\subsection{Possible explanations}
+\begin{itemize}
+\item \emph{Input noise.} High input CER alone does not explain the failures: every method damaged error-free text, every general-purpose model raised CER at all five synthetic noise levels down to 0.020 (Section~\ref{sec:noise}), and region-level OCR, with a lower input CER, was made worse more consistently than whole-page OCR (Section~\ref{sec:region}). The structure of real OCR errors, historical vocabulary or interactions between error types may still matter; the synthetic noise only approximates real errors, which the models handle somewhat better at the same CER.
+\item \emph{Model size.} Within Qwen3, size moves correction towards repairing words: from 0.6B to 8B the balance of fixed and broken words turns from negative to positive, and WER falls. CER does not fall, and at 32B the model changes error-free text more than the smaller Qwen3 models (Section~\ref{sec:scale}). Up to 32 billion parameters in 4-bit, size alone did not make zero-shot correction lower CER.
+\item \emph{Task-specific training.} A briefly trained pilot learned to copy and edit: it changed error-free text least of all methods and lowered WER, but not CER (Section~\ref{sec:finetune}). Because it saw only a third of its training data once, it does not show whether full training would lower CER.
+\item \emph{Tokenisation.} Bengali needs several times the token count of English under English-centric tokenizers~\cite{petrov2023tokenizer,ahia2023cost}, and our models use 0.29 to 1.22 tokens per character (Table~\ref{tab:cost}). Fertility does not rank the outcomes: Llama 3.2 1B and TituLLMs 1B share a tokenizer and the highest fertility, yet one stays near the baseline while the other triples its error rate.
+\item \emph{Historical spelling.} A model or lexicon built for modern Bengali may mistake older spellings for errors. Our subtitle dictionary replaces about 31 correct words per page of clean text, and half of the reference words are missing from it. A Wikipedia lexicon, which misses about a third of them, together with a smaller edit distance, cuts the dictionary's damage by four-fifths but does not remove it (Section~\ref{sec:classical}). Asking models to preserve spelling slightly reduces damage in seven of the eight general-purpose model-and-engine pairs. Mixing old and modern literary registers also caused difficulty for GPT-4o in grammar correction~\cite{bhattacharyya2025banglagec}. Historical spelling is therefore part of the explanation for the dictionary; for the language models we have not tested its effect directly.
+\item \emph{Prompt format and instruction-following.} The instruction-tuned TituLLMs checkpoints often describe the input or return nothing rather than correct it. The prompt format explains only part of this: a completion prompt lowered the base checkpoint's CER by about 0.2 but left it far above the raw OCR, and normalising BanglaT5's input changed nothing (Section~\ref{sec:precision}). Instruction tuning that did not cover copy-and-edit tasks is a plausible cause; the Instruct checkpoints were tested with their shipped template only.
+\end{itemize}
+These explanations and results apply to the checkpoints and configuration tested here. They do not establish how other Bengali-pretrained checkpoints, or models fine-tuned with more data or with real OCR pairs, would perform.
+
+\subsection{Practical implications}
+For comparable historical Bengali material, the evidence supports keeping the raw OCR and validating any correction step against reference transcriptions before it replaces the OCR text. Keeping the raw OCR also saves two to fourteen minutes of CPU time per page, as measured on the 15-page sample (Table~\ref{tab:cost}). Restricting edits to low-confidence words reduced the damage of every method that had increased error, and fusing two engines by word confidence needs no model and no GPU and broke the fewest correct words; both gained about 1\% of the raw CER at best, in exploratory tests that need validation on held-out material. Larger models and the fine-tuned model lowered WER but not CER, so a project that values whole-word accuracy, for example for search, might consider them after checking their damage to correct text; we did not measure search or other downstream uses. In copy-heavy correction with Transformers generation, leave repetition constraints off, or check whether they include the source prompt and validate their effect on clean text before use.
+\subsection{Threats to validity and limitations}
+\begin{itemize}
+\item \emph{Sample size and statistics.} With 40 pages from 37 books the intervals are moderately wide. Only the 36 CER and WER tests of the main evaluation form the primary family; every other test is exploratory, Holm correction holds only within each family, and the 10-page comparison of the 32-billion-parameter model cannot reach significance at all.
+\item \emph{Reference coverage and order.} The engines read the whole page, while the ground truth covers the annotated regions in file order. A reference in the declared reading order, an order-free word recall and region-level OCR gave the same conclusions, but the region-level Tesseract text comes from a later build whose output differs from the main run, so it is compared only with whole-page text of that build and never mixed with the main run's text.
+\item \emph{Reuse of data.} The few-shot examples, the noise model and the fine-tuning checkpoint come from the 10 development pages, which were also used for debugging. The extensions were added after the main evaluation and reuse its 40 pages; the region crop settings were compared on 8 of them, and the fusion test family was fixed after a first scoring. The guarded decoding setting was chosen after seeing development output.
+\item \emph{Model and prompt fit.} The results describe the tested checkpoint and prompt combinations: the instruction-tuned TituLLMs checkpoints received only their shipped template, no output filter removed preambles (which penalises the TituLLMs Instruct checkpoints most; the copying models add almost none), and Phi-4-mini was rerun in float32 on Tesseract text only.
+\item \emph{Environment.} PyTorch and CUDA versions of the main runs were not recorded, and the OCR could not be regenerated a week later; the released outputs, not a rerun, are the reference for every reported score.
+\item \emph{Metric scope.} We measured string agreement with the reference, not search, information extraction or a human corrector's time. WER and CER can disagree, as they do for the larger models.
+\item \emph{External validity.} The pages are early printed books from one release, chosen by whether a transcription exists and labelled by page type by one annotator, so the page-type figures are descriptive; the results may not transfer to modern print or other collections. They also cover only the tested sizes: up to 8 billion parameters on 40 pages and one 32-billion-parameter model on 10, so they say nothing about frontier-scale models.
+\end{itemize}
+Three extensions follow most directly from these findings. First, the small gating and fusion gains were found in exploratory tests and need validation on held-out pages. Second, the fine-tuning pilot should be repeated with a complete training schedule, more data, or real OCR pairs once they exist, before anything is concluded about task-specific training. Third, because WER and CER diverge, the value of correction for search, extraction or a human corrector should be measured directly. Other collections, larger models and multimodal transcription would widen the scope.
+
+% =====================================================================
+\section{Conclusion}
+
+We evaluated small language models as a post-correction step for historical Bengali OCR. On 40 pages of historical printed Bengali from one collection, read by two engines, none of the ungated models significantly reduced mean code-point CER, on whole pages, on region-level OCR or on synthetic noise down to an input CER of 0.02. Larger Qwen3 models and a briefly trained fine-tuning pilot repaired more words than they broke and lowered the word error rate, but their edits to other words added at least as many character errors as the repairs removed. Every method changed error-free text, and repetition constraints that included the source prompt substantially worsened the outputs of models that otherwise copy their input. Confidence gating and engine fusion reduced the damage but gained only about 1\% of the raw CER, in exploratory tests. For comparable material, institutions should keep the raw OCR and validate any correction step on reference transcriptions before it replaces the OCR text. These findings do not establish the limits of task-specific training, performance on other Bengali collections, or the value of correction for search and other downstream uses.
+
+\appendices
+\section{Additional Results}
+This appendix holds the secondary diagnostics: the per-page analysis, the precision and prompt-format checks with the commentary filter, the edit profiles, the gradient-based attribution, the page-level safeguards, a check of CPU against GPU runs, and further tables.
+
+\subsection{Per-page analysis}
+Figure~\ref{fig:corrected} plots each page's corrected CER against its baseline CER, and Fig.~\ref{fig:scatter} the change in CER against the baseline CER. Two patterns appear. For the general-purpose models and the dictionary baseline, the points lie along the identity line and corrected CER follows baseline CER almost exactly (Spearman $\rho$ between 0.88 and 1.00 on both engines): these methods leave most of each page as it was, so the page's own difficulty determines its score. Qwen3 1.7B lowered CER on 22 of the 40 Tesseract pages and Gemma-2B-it on 16, but by amounts that their increases on other pages offset. For BanglaT5 and the TituLLMs models, corrected CER is unrelated or only weakly related to baseline CER ($\rho$ between $-0.00$ and 0.55): their output has a similar error rate whatever the input quality, which suggests that they regenerate the text instead of editing it. Their points form a horizontal band above the identity line (Fig.~\ref{fig:corrected}; the change in CER is plotted in Fig.~\ref{fig:scatter}). Split into thirds by baseline CER, BanglaT5, TituLLMs 1B and TituLLMs 3B Instruct have their smallest increase on the hardest third on both engines (TituLLMs 3B Instruct on Tesseract output: $+0.85$ on the easiest third, $+0.39$ on the hardest), and the dictionary shows the same pattern on a smaller scale; the general-purpose models stay within 0.07 of zero in every third.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig_corrected.png}
+\caption{Corrected CER per page against the page's baseline CER, one panel per method, for Tesseract (circles) and EasyOCR (squares). The diagonal is the identity line: points on it have the same CER as the raw OCR, points below it a lower CER. Vertical scales differ between panels.}
+\label{fig:corrected}
+\end{figure*}
+
+
+\subsection{Precision and prompt format}
+\label{sec:precision}
+Two choices in the main runs could have made the Bengali-pretrained checkpoints look worse than they are: the numerical precision of the two largest models, and the prompt format (Table~\ref{tab:checks}).
+
+\textbf{Precision.} TituLLMs 3B Instruct, run in float16, returned an empty page in 43 of its 120 outputs, each within 0.2 to 0.5~s, so it ended generation at or near its first token. Float16 overflow could cause this, so we reran it in float32 and recorded its first-token logits in both precisions. The first token was the same on all 208 chunks, and the end-of-sequence token on the same 87; no value was infinite or NaN, and the largest activation, about 1{,}000, was far below the float16 limit of 65{,}504. The float32 run returned the same empty pages and changed mean CER by at most 0.002 on OCR text and by $-0.040$ on the clean text, not significantly (95\% CI $[-0.132,+0.032]$), and Phi-4-mini in float32 gave the same CER on Tesseract text (0.354). The empty pages are the model's own behaviour, not a precision artefact.
+
+\textbf{Prompt format.} The base TituLLMs 1B checkpoint received our instruction as plain text with no cue for where its answer should begin. With a completion-style prompt that ends with such a cue, its CER fell from 1.084 to 0.877 on Tesseract text, from 1.033 to 0.861 on EasyOCR text and from 0.988 to 0.605 on the clean text (Wilcoxon signed-rank, unadjusted $p<0.001$ in each case; exploratory), but it remains far worse than the raw OCR ($+0.54$ and $+0.56$ CER on OCR text). Passing BanglaT5's input through the normaliser its model card asks for changed its CER by at most 0.002. The prompt format thus matters for the base checkpoint, but neither check changes a conclusion: every rerun of a Bengali-pretrained checkpoint stays significantly worse than the raw OCR.
+
+% ---- begin tables/checks ----
+\begin{table*}[t]
+\centering
+\caption{Precision and Prompt-Format Checks (Mean CER, 40 Pages)}
+\label{tab:checks}
+\setlength{\tabcolsep}{3pt}
+\scriptsize
+\begin{tabular}{llcccccc}
+\toprule
+ & & \multicolumn{2}{c}{Tesseract} & \multicolumn{2}{c}{EasyOCR} & \multicolumn{2}{c}{Clean text} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+Check & Model & Main / check & $\Delta$ [95\% CI] & Main / check & $\Delta$ [95\% CI] & Main / check & $\Delta$ [95\% CI] \\
+\midrule
+Float32 & TituLLMs 3B Instruct & 0.958 / 0.959 & +0.000 [-0.001, +0.001] & 0.886 / 0.888 & +0.002 [-0.000, +0.005] & 0.967 / 0.927 & -0.040 [-0.132, +0.032] \\
+Float32 & Phi-4-mini & 0.354 / 0.354 & -0.000 [-0.001, +0.000] & -- & -- & -- & -- \\
+Completion prompt & TituLLMs 1B & 1.084 / 0.877 & -0.206$^{*}$ [-0.276, -0.118] & 1.033 / 0.861 & -0.172$^{*}$ [-0.262, -0.055] & 0.988 / 0.605 & -0.383$^{*}$ [-0.488, -0.295] \\
+Normalised input & BanglaT5 & 0.860 / 0.858 & -0.001 [-0.014, +0.013] & 0.831 / 0.830 & -0.001 [-0.004, +0.002] & 0.833 / 0.831 & -0.002 [-0.007, +0.004] \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Float32: instead of float16. Main: the setting of the main runs (float16 for the two models above 3B parameters; each model's shipped chat template; BanglaT5 on unnormalised text). Check: the same model rerun with one change. $\Delta$: check $-$ main; CI: paired bootstrap, 10{,}000 resamples; $^{*}$: Wilcoxon signed-rank $p<0.05$, unadjusted (exploratory); the three completion-prompt changes have $p<0.001$. --: Phi-4-mini in float32 was not run on EasyOCR text, and on the clean text only 1 of 40 pages finished within the session's time limit, so neither is reported. Float32 reruns: two Kaggle T4 GPUs. First-token check of TituLLMs 3B Instruct on all 208 chunks: the same first token in both precisions on 208, end-of-sequence first on 87 in both, no non-finite logits or hidden states, largest activation 1000 (float16 limit 65{,}504). Empty pages (float16/float32, Tesseract, EasyOCR, clean text): 13/13, 14/14, 16/16. Every check of a Bengali-pretrained checkpoint stays significantly worse than the raw OCR ($+$0.52 to $+$0.62 CER on OCR text, $p<0.001$).\end{minipage}
+\end{table*}
+% ---- end tables/checks ----
+
+% ---- begin tables/filter ----
+\begin{table*}[t]
+\centering
+\caption{Mean CER With a Generous Commentary Filter (40 Pages)}
+\label{tab:filter}
+\setlength{\tabcolsep}{5pt}
+\footnotesize
+\begin{tabular}{lcccccc}
+\toprule
+ & \multicolumn{3}{c}{Tesseract (raw 0.341)} & \multicolumn{3}{c}{EasyOCR (raw 0.297)} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Model & Output & Filtered & Lines dropped & Output & Filtered & Lines dropped \\
+\midrule
+Gemma-2B-it & 0.353 & 0.348 & 15 / 890 & 0.301 & 0.299 & 19 / 1876 \\
+Qwen3 1.7B & 0.337 & 0.337 & 1 / 764 & 0.315 & 0.316 & 37 / 1423 \\
+Phi-4-mini & 0.354 & 0.345 & 6 / 797 & 0.315 & 0.306 & 25 / 1525 \\
+Llama 3.2 1B & 0.380 & 0.379 & 2 / 829 & 0.330 & 0.329 & 10 / 1813 \\
+BanglaT5 & 0.860 & 0.940 & 43 / 62 & 0.831 & 0.968 & 50 / 63 \\
+TituLLMs 1B & 1.084 & 0.895 & 61 / 616 & 1.033 & 0.882 & 210 / 2001 \\
+TituLLMs 1B Instruct & 1.642 & 0.866 & 339 / 840 & 1.633 & 0.901 & 461 / 1636 \\
+TituLLMs 3B Instruct & 0.958 & 0.976 & 41 / 147 & 0.886 & 0.942 & 70 / 256 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Filter: an output line is dropped when fewer than 30\% of its character trigrams occur in the page's OCR input. It removes preambles and descriptions of the text, but also invented lines, so the filtered CER is a lower bound for any such filter, not a method we evaluate. Descriptive, no test.\end{minipage}
+\end{table*}
+% ---- end tables/filter ----
+
+\subsection{Edit profiles by model}
+\label{sec:profiles}
 
 \emph{General-purpose models.} Gemma-2B-it, Qwen3 1.7B and Phi-4-mini leave substitutions, deletions and insertions close to the raw OCR's counts (on Tesseract text, Gemma-2B-it: 93, 76 and 64 against 92, 60 and 69). Llama 3.2 1B mainly deletes: deletions rise from 60 to 110 per page on Tesseract text and from 58 to 93 on EasyOCR text.
 
@@ -1013,96 +1217,10 @@ TituLLMs 3B Instruct & 25 & 0.50 & 0.17 & 0.33 & 68 & 61 & 6 & 1.4 \\
 \end{table*}
 % ---- end tables/attribution ----
 
-\subsection{Effect of the safeguards}
+\subsection{Page-level safeguards}
 \label{sec:safeguards}
 The length rule (Table~\ref{tab:safeguards}, appendix) replaces outputs only for three Bengali-pretrained checkpoints, on 5 to 23 of the 40 pages. This lowers their CER, for example from 0.958 to 0.660 for TituLLMs 3B Instruct on Tesseract output, but each remains significantly worse than the raw OCR (there $+0.319$, 95\% CI $[+0.193,+0.460]$, $p=0.001$ after Holm correction over 18 tests); the other models never trigger the rule. The edit-distance cap brings no method significantly below the raw OCR at any $\tau$ (lowest: Qwen3 1.7B on Tesseract output, 0.337 against 0.341, not significant); seven capped results are significantly worse, and for the Bengali-pretrained checkpoints the cap keeps the raw OCR on all but at most two pages.
 
-Confidence gating (Table~\ref{tab:gated}) works at the word level instead of the page level. The engines are unsure of much of the text: 41\% of Tesseract words have a confidence below 50 and 77\% below 90, and 52\% of EasyOCR words lie in boxes below 0.5. Gating reduces the damage of the harmful methods, for example lowering the CER of TituLLMs 1B on Tesseract output from 1.084 to 0.454 and that of the dictionary baseline from 0.378 to 0.348 at the lowest threshold, but nearly all of them remain significantly worse than the raw OCR. For the general-purpose models gating keeps the CER at or just below the raw OCR on Tesseract output. Qwen3 1.7B at threshold 70 gives the only significant reduction of CER in this study (engine fusion gains about as much, but not significantly; Section~\ref{sec:classical}), from 0.341 to 0.337 ($-0.004$, 95\% CI $[-0.006,-0.002]$, $p=0.038$ after Holm correction over 54 tests), 1.1\% of the raw CER. Gating left 4 of the 40 pages identical to the raw OCR; of the 36 non-zero differences the test uses, 25 are improvements and 11 deteriorations. The gain is negligible and not robust: after Holm correction it is not significant at thresholds 50 or 90 (unadjusted $p=0.014$ and 0.069), not on EasyOCR output, and the ungated Qwen3 change it starts from is itself not significant. On EasyOCR output, where confidence is per box and therefore coarse, no gated method improves on the raw OCR. Lower thresholds, which allow fewer changes, give the lowest error throughout.
-
-% ---- begin tables/gated ----
-\begin{table}[t]
-\centering
-\caption{Confidence-Gated Correction (Mean CER, 40 Pages)}
-\label{tab:gated}
-\setlength{\tabcolsep}{2pt}
-\footnotesize
-\begin{tabular}{lcccccc}
-\toprule
- & \multicolumn{3}{c}{Tesseract (word conf.)} & \multicolumn{3}{c}{EasyOCR (box conf.)} \\
-\cmidrule(lr){2-4}\cmidrule(lr){5-7}
-Method & 50 & 70 & 90 & 0.5 & 0.7 & 0.9 \\
-\midrule
-Raw OCR & 0.341 & 0.341 & 0.341 & 0.297 & 0.297 & 0.297 \\
-\midrule
-SymSpell (dictionary) & 0.348$^{+}$ & 0.353$^{+}$ & 0.365$^{+}$ & 0.315$^{+}$ & 0.328$^{+}$ & 0.334$^{+}$ \\
-Gemma-2B-it & 0.340 & 0.340 & 0.341 & 0.298 & 0.300 & 0.302 \\
-Qwen3 1.7B & 0.338 & 0.337$^{-}$ & 0.338 & 0.297 & 0.305 & 0.306 \\
-Phi-4-mini & 0.338 & 0.338 & 0.340 & 0.297 & 0.301 & 0.308 \\
-Llama 3.2 1B & 0.342 & 0.348 & 0.356 & 0.303 & 0.318$^{+}$ & 0.325$^{+}$ \\
-BanglaT5 & 0.440$^{+}$ & 0.441$^{+}$ & 0.480$^{+}$ & 0.375$^{+}$ & 0.450$^{+}$ & 0.569$^{+}$ \\
-TituLLMs 1B & 0.454$^{+}$ & 0.511$^{+}$ & 0.619$^{+}$ & 0.444$^{+}$ & 0.674$^{+}$ & 0.868$^{+}$ \\
-TituLLMs 1B Instruct & 0.427$^{+}$ & 0.541$^{+}$ & 0.813$^{+}$ & 0.567$^{+}$ & 0.834$^{+}$ & 1.061$^{+}$ \\
-TituLLMs 3B Instruct & 0.357 & 0.346 & 0.365 & 0.317 & 0.382 & 0.519$^{+}$ \\
-\bottomrule
-\end{tabular}
-\par\smallskip
-\begin{minipage}{\linewidth}\footnotesize A model's edit is kept only where every OCR word it changes has a confidence below the threshold (column header); elsewhere the raw OCR is kept. $^{+}$/$^{-}$: significantly higher/lower than the raw OCR, Wilcoxon signed-rank test, Holm-corrected over the 54 gated tests (exploratory family); pages left identical to the raw OCR are dropped by the test.\end{minipage}
-\end{table}
-% ---- end tables/gated ----
-
-% =====================================================================
-\section{Discussion}
-\label{sec:discussion}
-
-For practice, a correction step has to improve on keeping the raw OCR. We answer the three research questions, then discuss why word-level gains come without character-level gains, what explains the failures, and what follows for institutions.
-
-\subsection{Answers to the research questions}
-\textbf{RQ1.} At the character level, not under the evaluated conditions. No ungated model significantly reduced mean code-point CER, bounded cMER or pooled CER on either engine (Tables~\ref{tab:matrix}, \ref{tab:robustness} and~\ref{tab:scale}), nor on region-level OCR (Table~\ref{tab:region}); the 10-page intervals of Qwen3 32B include zero (Table~\ref{tab:large}). On the grapheme-cluster CER, Qwen3 1.7B on Tesseract text is the one significant exception (Section~\ref{sec:main}). The word error rate behaves differently: Qwen3 1.7B on Tesseract text, Qwen3 4B and 8B and the fine-tuned ByT5-small on both engines, and Llama 3.2 3B on EasyOCR text lower it significantly, as do Qwen3 4B on EasyOCR region text and two models at the highest synthetic noise level. The only significant CER reduction is exploratory and small, about 1\% of the raw CER: Qwen3 1.7B with confidence gating at one of three thresholds (Table~\ref{tab:gated}). Engine fusion gains about as much, but we report this gain as descriptive, not significant (Table~\ref{tab:classical}). The engines and the two OCR settings agree in direction and ranking.
-
-\textbf{RQ2.} Preservation is the larger problem. Every method changed error-free text (Tables~\ref{tab:clean}, \ref{tab:scale} and~\ref{tab:finetune}), from CER 0.015 for the fine-tuned model to more than 0.8 for the Bengali-pretrained checkpoints, which regenerate the text and lose most correct words. The general-purpose core models keep most of their input, and the attribution maps on sampled chunks are consistent with copying (Table~\ref{tab:attribution}); they repair few words, and only Qwen3 1.7B on Tesseract text repairs more than it breaks. The larger Qwen3 models and the fine-tuned model repair more words than they break.
-
-\textbf{RQ3.} Repetition constraints that include the prompt changed the outcome most: alone or together they made every general-purpose model significantly worse, on OCR text and on error-free text (Table~\ref{tab:decoding}). Float32 precision and a completion prompt did not bring a Bengali-pretrained checkpoint near the raw OCR (Table~\ref{tab:checks}). No tested prompt variant, chunking scheme or page-level safeguard produced a statistically significant CER reduction relative to raw OCR (Tables~\ref{tab:variants} and~\ref{tab:safeguards}), although some lowered mean CER slightly (for example 0.335 against 0.341 for Qwen3 1.7B with the preserve-spelling instruction on Tesseract text). Confidence gating and engine fusion reduced the damage, with the small gains noted under RQ1.
-
-\subsection{Word-level gains without character-level gains}
-A word counts as fixed only when it becomes exactly right, and as broken when any of its characters changes; CER also counts every changed character inside words that stay wrong, and every insertion and deletion. A model can therefore turn more words right than wrong, as the larger Qwen3 models and the fine-tuned model do, without lowering CER. Our aggregate measures do not show which edits offset the repaired words at the character level; an edit-level analysis would be needed. The distinction matters for use: a collection searched by whole words might benefit from the word-level gains, whereas a faithful transcription needs the character-level result. We did not measure either downstream use.
-
-\subsection{Relation to prior work}
-Our outcome agrees with reported zero-shot failures on Finnish~\cite{kanerva2025nofreelunches}, on historical transcripts in several languages~\cite{boros2024postcorrection} and on Hindi speech-recognition output~\cite{kumar2026postasr}, and our clean-text control measures directly the over-correction that HIPE-OCRepair~\cite{ehrmann2026hipeocrepair} and a study of GPT models on historical English~\cite{zhang2024prosody} report. The successful studies fine-tune for correction~\cite{thomas2024leveraging,ehrmann2026hipeocrepair}, use a frontier model~\cite{viana2026reframing}, or start from nearly clean English~\cite{koynov2025opportunities}. Our input CER (0.30 to 0.34) exceeds the 0.25 or less of those studies, but high input CER alone does not account for the difference: a 70-billion-parameter model helped at an input CER of 0.07~\cite{koynov2025opportunities}, whereas the small models here made even synthetic text with a CER of 0.02 worse, and they did not help on region-level OCR (0.23 and 0.33) either. The decoding ablation adds a caution for negative results in general: before a failure is attributed to correction itself, it should be checked under plain decoding.
-
-\subsection{Possible explanations}
-\begin{itemize}
-\item \emph{Input noise.} High input CER alone does not explain the failures: every method damaged error-free text, every general-purpose model raised CER at all five synthetic noise levels down to 0.020 (Section~\ref{sec:noise}), and region-level OCR, with a lower input CER, was made worse more consistently than whole-page OCR (Section~\ref{sec:region}). The structure of real OCR errors, historical vocabulary or interactions between error types may still matter; the synthetic noise only approximates real errors, which the models handle somewhat better at the same CER.
-\item \emph{Model size.} Within Qwen3, size moves correction towards repairing words: from 0.6B to 8B the balance of fixed and broken words turns from negative to positive, and WER falls. CER does not fall, and at 32B the model changes error-free text more than the smaller Qwen3 models (Section~\ref{sec:scale}). Up to 32 billion parameters in 4-bit, size alone did not make zero-shot correction lower CER.
-\item \emph{Task-specific training.} A small model fine-tuned on synthetic noise learned to copy and edit: it changed error-free text least of all methods and lowered WER. It still did not lower CER (Section~\ref{sec:finetune}), so the lack of training may account for the regeneration and over-correction of the zero-shot models, but in our pilot not for the absence of a gain.
-\item \emph{Tokenisation.} Bengali needs several times the token count of English under English-centric tokenizers~\cite{petrov2023tokenizer,ahia2023cost}, and our models use 0.29 to 1.22 tokens per character (Table~\ref{tab:models}). Fertility does not rank the outcomes: Llama 3.2 1B and TituLLMs 1B share a tokenizer and the highest fertility, yet one stays near the baseline while the other triples its error rate.
-\item \emph{Historical spelling.} A model or lexicon built for modern Bengali may mistake older spellings for errors. Our subtitle dictionary replaces about 31 correct words per page of clean text, and half of the reference words are missing from it. A Wikipedia lexicon, which misses about a third of them, together with a smaller edit distance, cuts the dictionary's damage by four-fifths but does not remove it (Section~\ref{sec:classical}). Asking models to preserve spelling slightly reduces damage in seven of the eight general-purpose model-and-engine pairs. Mixing old and modern literary registers also caused difficulty for GPT-4o in grammar correction~\cite{bhattacharyya2025banglagec}. Historical spelling is therefore part of the explanation for the dictionary; for the language models we have not tested its effect directly.
-\item \emph{Prompt format and instruction-following.} The instruction-tuned TituLLMs checkpoints often describe the input or return nothing rather than correct it. The prompt format explains only part of this: a completion prompt lowered the base checkpoint's CER by about 0.2 but left it far above the raw OCR, and normalising BanglaT5's input changed nothing (Section~\ref{sec:precision}). Instruction tuning that did not cover copy-and-edit tasks is a plausible cause; the Instruct checkpoints were tested with their shipped template only.
-\end{itemize}
-These explanations and results apply to the checkpoints and configuration tested here. They do not establish how other Bengali-pretrained checkpoints, or models fine-tuned with more data or with real OCR pairs, would perform.
-
-\subsection{Practical implications}
-For comparable historical Bengali material, the evidence supports keeping the raw OCR and validating any correction step against reference transcriptions before it replaces the OCR text. Keeping the raw OCR also saves two to fourteen minutes of CPU time per page, as measured on the 15-page sample (Table~\ref{tab:cost}). Restricting edits to low-confidence words reduced the damage of every method that had increased error, and fusing two engines by word confidence needs no model and no GPU and broke the fewest correct words; both gained about 1\% of the raw CER at best, in exploratory tests that need validation on held-out material. Larger models and the fine-tuned model lowered WER but not CER, so a project that values whole-word accuracy, for example for search, might consider them after checking their damage to correct text; we did not measure search or other downstream uses. In copy-heavy correction with Transformers generation, check whether repetition constraints include the source prompt, and restrict them to generated tokens or leave them off. Fine-tuning with more data, or with real OCR pairs once they exist, is the most promising next step: our small pilot was the gentlest corrector we tested.
-
-\subsection{Threats to validity and limitations}
-\begin{itemize}
-\item \emph{Sample size and statistics.} With 40 pages from 37 books the intervals are moderately wide. Only the 36 CER and WER tests of the main evaluation form the primary family; every other test is exploratory, Holm correction holds only within each family, and the 10-page comparison of the 32-billion-parameter model cannot reach significance at all.
-\item \emph{Reference coverage and order.} The engines read the whole page, while the ground truth covers the annotated regions in file order. A reference in the declared reading order, an order-free word recall and region-level OCR gave the same conclusions, but the region-level Tesseract text comes from a later build whose output differs from the main run.
-\item \emph{Reuse of data.} The few-shot examples, the noise model and the fine-tuning checkpoint come from the 10 development pages, which were also used for debugging. The extensions were added after the main evaluation and reuse its 40 pages; the region crop settings were compared on 8 of them, and the fusion test family was fixed after a first scoring. The guarded decoding setting was chosen after seeing development output.
-\item \emph{Model and prompt fit.} The results describe the tested checkpoint and prompt combinations: the instruction-tuned TituLLMs checkpoints received only their shipped template, no output filter removed preambles (which penalises the TituLLMs Instruct checkpoints most; the copying models add almost none), and Phi-4-mini was rerun in float32 on Tesseract text only.
-\item \emph{Environment.} PyTorch and CUDA versions of the main runs were not recorded, and the OCR could not be regenerated a week later; the released outputs, not a rerun, are the reference for every reported score.
-\item \emph{Metric scope.} We measured string agreement with the reference, not search, information extraction or a human corrector's time. WER and CER can disagree, as they do for the larger models.
-\item \emph{External validity.} The pages are early printed books from one release, labelled by page type by one annotator; the results may not transfer to modern print or other collections.
-\end{itemize}
-Three extensions follow most directly from these findings. First, the small gating and fusion gains were found in exploratory tests and need validation on held-out pages. Second, the fine-tuned pilot preserved correct text better than any other method, so task-specific training with more data, or with real OCR pairs once they exist, is the most promising route to a character-level gain. Third, because WER and CER diverge, the value of correction for search, extraction or a human corrector should be measured directly. Other collections, larger models and multimodal transcription would widen the scope.
-
-% =====================================================================
-\section{Conclusion}
-
-We evaluated small language models as a post-correction step for historical Bengali OCR. On 40 pages from two engines, none of the ungated models significantly reduced mean code-point CER, on whole pages, on region-level OCR or on synthetic noise down to an input CER of 0.02. Larger Qwen3 models and a small fine-tuned model repaired more words than they broke and lowered the word error rate, so their repairs and new errors affect the two metrics differently. Every method changed error-free text, and repetition constraints that included the source prompt substantially worsened the outputs of models that otherwise copy their input. Confidence gating and engine fusion reduced the damage but gained only about 1\% of the raw CER, in exploratory tests. For comparable material, institutions should keep the raw OCR and validate any correction step on reference transcriptions before it replaces the OCR text. These findings do not establish the limits of task-specific training, performance on other Bengali collections, or the value of correction for search and other downstream uses.
-
-\appendices
-\section{Additional Results}
-This appendix holds the per-page changes in CER, the robustness checks, the edit operations, the results by page type, the page-level safeguards and a check of CPU against GPU runs.
 
 \subsection{CPU and GPU runs}
 \label{sec:cpugpu}

@@ -1,6 +1,6 @@
 # Paper
 
-`main.tex` is the current source of the paper. Every table and figure in it is generated from the result files by the scripts in `scripts/`, except `tables/literature.tex` and `tables/preamble.tex`, which are hand-written. No number in a table is typed by hand.
+`main.tex` is the current source of the paper. Every table and figure in it is generated from the result files by the scripts in `scripts/`, except `tables/literature.tex`, `tables/preamble.tex` and the two design tables `tables/experiments.tex` (experiment map with test families) and `tables/claims.tex` (claims and their evidence, no numbers), which are hand-written. No number in a table is typed by hand.
 
 ## Compile
 The paper needs **XeLaTeX**. The example table (`tables/examples.tex`) sets Bengali text in `fonts/NotoSerifBengali-Regular.ttf` (Noto, SIL Open Font License). Under pdfLaTeX the build stops with an error that says so.
@@ -11,6 +11,8 @@ The paper needs **XeLaTeX**. The example table (`tables/examples.tex`) sets Beng
 - **References:** published work only, no preprints (author's rule, 2026-10-18). Models are cited by their Hugging Face model cards, not by arXiv technical reports.
 
 ## Regenerate analyses, tables and figures
+**One command:** `PY=.venv/Scripts/python.exe bash paper/scripts/reproduce_tables.sh` rescoring the released outputs and regenerating every generated table (verified 2026-10-19: all 47 summary files and every table identical; back up `results/` first, since it rewrites the summaries). The commands below are the same steps one by one.
+
 Run everything **from the repository root** with the project venv (`.venv/Scripts/python.exe` on Windows). The per-page run outputs live in `results/` (local, gitignored; see the root README). After an analysis is re-run, copy its JSON output to `summaries/`.
 
 **Main study (40 pages, eight models, two engines)**
@@ -49,6 +51,14 @@ python eval/matrix_analysis.py --ocr-path results/ocr_eval40.jsonl --corrections
 python eval/lexicon_coverage.py --ocr-path results/ocr_eval40.jsonl --lexicons data/lexicon/bn_50k.txt data/lexicon/bn_wiki100k.txt --out results/m4_lexicon_coverage.json
 python correction/ocr_fusion.py --ocr-path results/ocr_eval40.jsonl --conf-path results/ocr_conf40.jsonl --out results/m6_fusion40.jsonl
 python eval/matrix_analysis.py --ocr-path results/ocr_eval40.jsonl --corrections results/m6_fusion40.jsonl --engines easyocr --label "engine fusion (M6), against EasyOCR, its base" --out-prefix results/m6_fusion40
+```
+
+**External-review analyses (2026-10-19, descriptive)**
+```
+python eval/edit_analysis.py --ocr-path results/ocr_eval40.jsonl --out-json results/edit_analysis40.json --cell <file>:<model>:<engine> ...   # full list in reproduce_tables.sh
+python eval/output_filter.py --ocr-path results/ocr_eval40.jsonl --corrections results/gpu_eval40.jsonl --out-json results/output_filter40.json
+python eval/page_deltas.py --ocr-path results/region/ocr_region40.jsonl --corrections results/review3c/c5_phi4-mini.jsonl --engine easyocr --out-json results/region_phi4-mini_easyocr_pages.json
+python eval/check_prompt_constraints.py --model Qwen/Qwen3-0.6B --out-json results/prompt_constraints_5.19.0.json   # with Transformers 5.19.0
 ```
 
 **Tables and figures**

@@ -87,3 +87,9 @@ Run under mixed early settings; every model was already worse than the baseline.
 - `results/region_phi4-mini_easyocr_pages.json` (`eval/page_deltas.py`): mean +0.066, median +0.007; 3 truncated pages give 87% of the total increase (VT_1252_E_0005 +1.347, 279_2_a_15_0005 +0.658, 14048_D_11_0063 +0.301); without the largest page +0.033.
 - Noise: Gemma-2B-it's smallest increase is 0.0158 (input 0.2966, output 0.3124), so "0.016" is correct from unrounded values.
 - Region EasyOCR: same-run CI [-0.120, -0.033] (p 0.003), main-run CI [-0.121, -0.033] (p 0.002); the paper now uses the same-run comparison, as the table does.
+
+**External-review analyses (D63, 2026-10-19).**
+- `results/edit_analysis40.json`: change in pooled character errors by reference-word group (fixed / broken / still wrong / spaces and other), e.g. Qwen3 8B EasyOCR 8480 -> 8534: fixed -416, broken +154, still wrong +255 (622 edited), other +61; Qwen3 4B Tesseract 8822 -> 9011: -187, +137, +201 (559), +38; fusion (conf) EasyOCR 8480 -> 8385: -163, +86, -46, +28. No-space CER: Tesseract raw 0.340, EasyOCR raw 0.303; every method keeps its direction.
+- `results/output_filter40.json`: filtered mean CER (Tesseract / EasyOCR): TituLLMs 1B Instruct 0.866 / 0.901 (from 1.642 / 1.633), TituLLMs 1B 0.895 / 0.882, 3B Instruct 0.976 / 0.942, BanglaT5 0.940 / 0.968; general models within 0.009 of their unfiltered CER.
+- `results/prompt_constraints_5.19.0.json` now also has `generated_only`: prompt-only scores unchanged, all 5 distinct generated ids penalised, a 4-gram repeated within the generated part banned.
+- Table XI equal entries (unrounded): 300-char chunks, Tesseract: Gemma 0.3432, Qwen3 1.7B 0.3434, Phi-4-mini 0.3435; Llama original 0.3799 vs 300-char 0.3796; EasyOCR original Qwen3 1.7B 0.3146 vs Phi-4-mini 0.3147. Outputs differ on all 40 pages.

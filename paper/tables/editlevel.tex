@@ -1,0 +1,29 @@
+\begin{table*}[t]
+\centering
+\caption{Where the Character Errors Go: Change in Character Errors by Reference-Word Group (40 Pages, Pooled)}
+\label{tab:editlevel}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{lccccccc}
+\toprule
+Method & \shortstack{Words\\fixed / broken} & \shortstack{$\Delta$ errors,\\fixed words} & \shortstack{$\Delta$ errors,\\broken words} & \shortstack{$\Delta$ errors, still-wrong\\words (words edited)} & \shortstack{$\Delta$ errors,\\spaces and other} & \shortstack{$\Delta$ errors,\\total} & \shortstack{CER without spaces\\raw / corrected} \\
+\midrule
+\multicolumn{8}{l}{\textit{Tesseract}} \\
+Qwen3 1.7B & 83 / 65 & -83 & +63 & +95 (293) & -55 & +20 & 0.340 / 0.338 \\
+Qwen3 4B & 209 / 104 & -187 & +137 & +201 (559) & +38 & +189 & 0.340 / 0.343 \\
+Qwen3 8B & 263 / 112 & -243 & +157 & +241 (667) & -46 & +109 & 0.340 / 0.345 \\
+Llama 3.2 3B & 72 / 143 & -54 & +207 & +304 (620) & +187 & +644 & 0.340 / 0.360 \\
+ByT5-small, fine-tuned & 113 / 102 & -73 & +114 & +187 (597) & +97 & +325 & 0.340 / 0.353 \\
+\midrule
+\multicolumn{8}{l}{\textit{EasyOCR}} \\
+Qwen3 1.7B & 89 / 95 & -46 & +287 & +288 (248) & +53 & +582 & 0.303 / 0.320 \\
+Qwen3 4B & 201 / 100 & -185 & +89 & +159 (394) & +87 & +150 & 0.303 / 0.306 \\
+Qwen3 8B & 340 / 113 & -416 & +154 & +255 (622) & +61 & +54 & 0.303 / 0.304 \\
+Llama 3.2 3B & 137 / 126 & -142 & +100 & +249 (481) & +44 & +251 & 0.303 / 0.308 \\
+ByT5-small, fine-tuned & 282 / 146 & -286 & +255 & +399 (584) & +159 & +527 & 0.303 / 0.319 \\
+Fusion, higher confidence & 140 / 71 & -163 & +86 & -46 (152) & +28 & -95 & 0.303 / 0.299 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Each character error of the alignment with the reference is assigned to a reference word (insertions to the word they follow); $\Delta$: errors in the corrected text minus errors in the raw OCR, summed over the 40 pages (29{,}599 reference characters per engine), so the groups add up to the total. Fixed / broken: reference words the output gets right that the raw OCR had wrong, and the reverse. Still wrong: wrong in both; in brackets, how many of them the method edited. Spaces and other: errors on the spaces between words (merged or split words) and insertions next to words that stay right. CER without spaces: mean page CER with all spaces removed. Descriptive, no test.\end{minipage}
+\end{table*}

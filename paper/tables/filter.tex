@@ -1,0 +1,25 @@
+\begin{table*}[t]
+\centering
+\caption{Mean CER With a Generous Commentary Filter (40 Pages)}
+\label{tab:filter}
+\setlength{\tabcolsep}{5pt}
+\footnotesize
+\begin{tabular}{lcccccc}
+\toprule
+ & \multicolumn{3}{c}{Tesseract (raw 0.341)} & \multicolumn{3}{c}{EasyOCR (raw 0.297)} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Model & Output & Filtered & Lines dropped & Output & Filtered & Lines dropped \\
+\midrule
+Gemma-2B-it & 0.353 & 0.348 & 15 / 890 & 0.301 & 0.299 & 19 / 1876 \\
+Qwen3 1.7B & 0.337 & 0.337 & 1 / 764 & 0.315 & 0.316 & 37 / 1423 \\
+Phi-4-mini & 0.354 & 0.345 & 6 / 797 & 0.315 & 0.306 & 25 / 1525 \\
+Llama 3.2 1B & 0.380 & 0.379 & 2 / 829 & 0.330 & 0.329 & 10 / 1813 \\
+BanglaT5 & 0.860 & 0.940 & 43 / 62 & 0.831 & 0.968 & 50 / 63 \\
+TituLLMs 1B & 1.084 & 0.895 & 61 / 616 & 1.033 & 0.882 & 210 / 2001 \\
+TituLLMs 1B Instruct & 1.642 & 0.866 & 339 / 840 & 1.633 & 0.901 & 461 / 1636 \\
+TituLLMs 3B Instruct & 0.958 & 0.976 & 41 / 147 & 0.886 & 0.942 & 70 / 256 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Filter: an output line is dropped when fewer than 30\% of its character trigrams occur in the page's OCR input. It removes preambles and descriptions of the text, but also invented lines, so the filtered CER is a lower bound for any such filter, not a method we evaluate. Descriptive, no test.\end{minipage}
+\end{table*}

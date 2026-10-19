@@ -8,7 +8,8 @@ What the reported runs used, as far as it was recorded (review item W9). Where a
 - **Page types:** `data/page_types.tsv`. These were assigned from the transcriptions after the runs and are used only for the descriptive page-type table.
 
 ## OCR (October 2026, Google Colab CPU runtime)
-- Tesseract 5.3.4 with the LSTM engine and the Bengali `tessdata_best` model. It ran in the default page-segmentation mode (3) with no preprocessing.
+- Tesseract 5.3.4 with the LSTM engine and the Bengali `tessdata_best` model (`ben.traineddata`, SHA-256 `1cd0129288d1f74f6661c35e638e487bd146a66bb732ecd9e011e48dcb0df623`, unchanged on GitHub since 2017). It ran in the default page-segmentation mode (3) with no preprocessing.
+- Not recorded for the main run (11 October 2026): the Leptonica version, the image libraries and the CPU instruction sets. `ocr/run_ocr.py` now writes them (`<out>.environment.json`).
 - EasyOCR 1.7.2 with Bengali enabled, on default settings.
 - Both used the page image as released.
 - The August 2026 Tesseract build (15-page CPU runs) was not recorded. Its output differs from 5.3.4.

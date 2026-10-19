@@ -140,6 +140,8 @@ def main():
     parser.add_argument("--m2-log", type=Path, default=RESULTS / "review3e" / "m2_train_log.json")
     parser.add_argument("--m4-runs", type=Path, default=RESULTS / "m4_dict40.json")
     parser.add_argument("--fusion-runs", type=Path, default=RESULTS / "m6_fusion40.json")
+    parser.add_argument("--edit-analysis", type=Path, default=RESULTS / "edit_analysis40.json")
+    parser.add_argument("--output-filter", type=Path, default=RESULTS / "output_filter40.json")
     parser.add_argument("--fusion-family4", type=Path, default=RESULTS / "m6_fusion40_family4.json",
                         help="first scoring of fusion against both engines (4-cell Holm family, D51/D60)")
     parser.add_argument("--m7-runs", type=Path, default=RESULTS / "m7_runs10.json")
@@ -448,6 +450,11 @@ def main():
                     .replace("-", "-\\allowbreak ") + "@\\allowbreak " + REVISIONS[m])
             weights_gb = PARAMS_B[m] * (2 if GPU_DTYPE[m] == "fp16" else 4)
             fmt = "text" if m == "banglat5" else "template"
+            # Group headings: general-purpose models vs Bengali-pretrained diagnostic checkpoints.
+            if m == "gemma-2b":
+                conf_rows.append("\\multicolumn{6}{l}{\\textit{General-purpose, instruction-tuned}} \\\\")
+            if m == "banglat5":
+                conf_rows.append("\\multicolumn{6}{l}{\\textit{Bengali-pretrained (diagnostic)}} \\\\")
             conf_rows.append(f"{MODEL_NAMES[m]} & \\texttt{{{ckpt}}} & {PARAMS_B[m]:.2f} & "
                              f"{GPU_DTYPE[m]} & {fmt} & {r['mean_chars_per_chunk']:.0f} \\\\")
             cost_rows.append(f"{MODEL_NAMES[m]} & {r['tokens_per_char']:.2f} & "
@@ -536,6 +543,18 @@ def main():
                 rows.append(" & ".join(cols) + " \\\\")
             if m != vmodels[-1]:
                 rows.append("\\midrule")
+        # Entries of one variant that coincide after rounding come from different outputs;
+        # print their unrounded values so they are not mistaken for copy errors.
+        ties = []
+        for e, ename in ENGINES:
+            vals = {(m, v): cell[(e, m, v)]["mean_cer"] for m in vmodels for v in labels}
+            for x in sorted({"%.3f" % y for y in vals.values()}):
+                same = [k for k in vals if "%.3f" % vals[k] == x]
+                if len(same) > 1:
+                    ties.append("%s: %s" % (ename, ", ".join(
+                        "%s %s %.4f" % (MODEL_NAMES[m], v, vals[(m, v)]) for m, v in same)))
+        tie_note = (" Equal entries in a column come from different outputs (unrounded: "
+                    + "; ".join(ties) + ").") if ties else ""
         base = {e: b[(e, models[0], "cer")]["baseline_mean"] for e, _ in ENGINES}
         (OUT_DIR / "variants.tex").write_text(
             "\\begin{table}[t]\n\\centering\n"
@@ -549,7 +568,8 @@ def main():
             "250 tokens. Each variant changes one thing: the preserve-spelling instruction, the "
             "prompt in Bengali, three worked examples, or chunks of at most 300 characters. "
             "$^{*}$: differs from the original setting, two-sided Wilcoxon signed-rank test, "
-            "Holm-corrected over the 32 variant comparisons (exploratory family).\\end{minipage}\n"
+            "Holm-corrected over the 32 variant comparisons (exploratory family)." + tie_note
+            + "\\end{minipage}\n"
             "\\end{table}\n",
             encoding="utf-8")
 
@@ -655,8 +675,9 @@ def main():
             "for the two models above 3B parameters; each model's shipped chat template; BanglaT5 on "
             "unnormalised text). Check: the same model rerun with one change. $\\Delta$: check $-$ "
             "main; CI: paired bootstrap, 10{,}000 resamples; $^{*}$: Wilcoxon signed-rank $p<0.05$, "
-            "unadjusted (exploratory); the three completion-prompt changes have $p<0.001$. --: not run (Phi-4-mini in float32 on EasyOCR text) or "
-            "incomplete (on clean text, 1 of 40 pages within the session's time limit). First-token "
+            "unadjusted (exploratory); the three completion-prompt changes have $p<0.001$. --: Phi-4-mini in "
+            "float32 was not run on EasyOCR text, and on the clean text only " + "%d of 40 pages" % c1[("phi4-mini", "ground_truth")]["n"]
+            + " finished within the session's time limit, so neither is reported. Float32 reruns: two Kaggle T4 GPUs. First-token "
             "check of TituLLMs 3B Instruct on all " + str(ag["chunks"]) + " chunks: the same first "
             "token in both precisions on " + str(ag["same_first_token"]) + ", end-of-sequence first on "
             + str(ag["eos_both"]) + " in both, no non-finite logits or hidden states, largest "
@@ -1110,6 +1131,74 @@ def main():
             "no clean-text control. $^{+}$/$^{-}$: Holm-significant, Wilcoxon signed-rank, over the "
             "%d dictionary cells and, separately, the %d fusion cells, per metric (exploratory). "
             % (len(m4), n_fus) + fus_note + BF_NOTE % nref(m4) + "\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
+
+    # ---- output filter for commentary (external review item 5) ----
+    if args.output_filter.exists():
+        of = {(r["engine"], r["model"]): r for r in json.loads(args.output_filter.read_text(encoding="utf-8"))}
+        rows = []
+        for m in [m for m in MODEL_ORDER if ("tesseract", m) in of]:
+            cols = [MODEL_NAMES[m]]
+            for e, _ in ENGINES:
+                r = of[(e, m)]
+                cols += ["%.3f" % r["output_cer"], "%.3f" % r["filtered_cer"], "%d / %d" % (r["lines_dropped"], r["lines"])]
+            rows.append(" & ".join(cols) + " \\\\")
+        any_r = next(iter(of.values()))
+        (OUT_DIR / "filter.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n"
+            "\\caption{Mean CER With a Generous Commentary Filter (40 Pages)}\n\\label{tab:filter}\n"
+            "\\setlength{\\tabcolsep}{5pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lcccccc}\n\\toprule\n"
+            " & \\multicolumn{3}{c}{Tesseract (raw %.3f)} & \\multicolumn{3}{c}{EasyOCR (raw %.3f)} \\\\\n"
+            "\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}\n"
+            "Model & Output & Filtered & Lines dropped & Output & Filtered & Lines dropped \\\\\n\\midrule\n"
+            % tuple(next(r["raw_cer"] for (ee, _), r in of.items() if ee == e) for e, _ in ENGINES)
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize Filter: an output line is dropped when fewer than "
+            "%.0f\\%% of its character trigrams occur in the page's OCR input. It removes preambles and "
+            "descriptions of the text, but also invented lines, so the filtered CER is a lower bound for "
+            "any such filter, not a method we evaluate. Descriptive, no test.\\end{minipage}\n"
+            "\\end{table*}\n" % (100 * any_r["min_overlap"]), encoding="utf-8")
+
+    # ---- where the character errors go (external review item 7) ----
+    if args.edit_analysis.exists():
+        ea = json.loads(args.edit_analysis.read_text(encoding="utf-8"))
+        names = {**MODEL_NAMES, "fusion-conf": "Fusion, higher confidence", "fusion-margin": "Fusion, margin"}
+        order = ["qwen3-1.7b", "qwen3-4b", "qwen3-8b", "llama3.2-3b", "byt5-small-ft", "fusion-conf"]
+        rows = []
+        for i, (e, ename) in enumerate(ENGINES):
+            rs = [r for m in order for r in ea if r["model"] == m and r["engine"] == e]
+            if not rs:
+                continue
+            rows.append("%s\\multicolumn{8}{l}{\\textit{%s}} \\\\" % ("\\midrule\n" if i else "", ename))
+            for r in rs:
+                d, w = r["delta_by_group"], r["words"]
+                rows.append(" & ".join([
+                    names[r["model"]], "%d / %d" % (w.get("fixed", 0), w.get("broken", 0)),
+                    "%+d" % d["fixed"], "%+d" % d["broken"],
+                    "%+d (%d)" % (d["still_wrong"], r["still_wrong_changed"]),
+                    "%+d" % (d["boundary"] + d["kept"]),
+                    "%+d" % (r["char_errors_corrected"] - r["char_errors_raw"]),
+                    "%.3f / %.3f" % (r["nospace_cer_raw"], r["nospace_cer_corrected"])]) + " \\\\")
+        ref_chars = ea[0]["ref_chars"]
+        (OUT_DIR / "editlevel.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n"
+            "\\caption{Where the Character Errors Go: Change in Character Errors by Reference-Word Group "
+            "(40 Pages, Pooled)}\n\\label{tab:editlevel}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lccccccc}\n\\toprule\n"
+            "Method & \\shortstack{Words\\\\fixed / broken} & \\shortstack{$\\Delta$ errors,\\\\fixed words} & "
+            "\\shortstack{$\\Delta$ errors,\\\\broken words} & \\shortstack{$\\Delta$ errors, still-wrong\\\\words "
+            "(words edited)} & \\shortstack{$\\Delta$ errors,\\\\spaces and other} & \\shortstack{$\\Delta$ errors,\\\\"
+            "total} & \\shortstack{CER without spaces\\\\raw / corrected} \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize Each character error of the alignment with the "
+            "reference is assigned to a reference word (insertions to the word they follow); $\\Delta$: errors "
+            "in the corrected text minus errors in the raw OCR, summed over the 40 pages (%s reference "
+            "characters per engine), so the groups add up to the total. Fixed / broken: reference words the "
+            "output gets right that the raw OCR had wrong, and the reverse. Still wrong: wrong in both; in "
+            "brackets, how many of them the method edited. Spaces and other: errors on the spaces between "
+            "words (merged or split words) and insertions next to words that stay right. CER without "
+            "spaces: mean page CER with all spaces removed. Descriptive, no test.\\end{minipage}\n"
+            "\\end{table*}\n" % "{:,}".format(ref_chars).replace(",", "{,}"), encoding="utf-8")
 
     # ---- large model on 10 pages (item M7) ----
     m7 = matrix(args.m7_runs)

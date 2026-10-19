@@ -8,10 +8,12 @@
 \toprule
 Model & Checkpoint@revision & \shortstack{Params\\(B)} & \shortstack{GPU\\prec.} & Input & \shortstack{Chars/\\chunk} \\
 \midrule
+\multicolumn{6}{l}{\textit{General-purpose, instruction-tuned}} \\
 Gemma-2B-it & \texttt{google/\allowbreak gemma-\allowbreak 2b-\allowbreak it@\allowbreak 9698841} & 2.51 & fp32 & template & 312 \\
 Qwen3 1.7B & \texttt{Qwen/\allowbreak Qwen3-\allowbreak 1.7B@\allowbreak 70d244c} & 1.72 & fp32 & template & 190 \\
 Phi-4-mini & \texttt{microsoft/\allowbreak Phi-\allowbreak 4-\allowbreak mini-\allowbreak instruct@\allowbreak cfbefac} & 3.84 & fp16 & template & 389 \\
 Llama 3.2 1B & \texttt{meta-\allowbreak llama/\allowbreak Llama-\allowbreak 3.2-\allowbreak 1B-\allowbreak Instruct@\allowbreak 9213176} & 1.24 & fp32 & template & 168 \\
+\multicolumn{6}{l}{\textit{Bengali-pretrained (diagnostic)}} \\
 BanglaT5 & \texttt{csebuetnlp/\allowbreak banglat5@\allowbreak 76b135c} & 0.25 & fp32 & text & 483 \\
 TituLLMs 1B & \texttt{hishab/\allowbreak titulm-\allowbreak llama-\allowbreak 3.2-\allowbreak 1b-\allowbreak v1.1@\allowbreak 521da71} & 1.24 & fp32 & template & 168 \\
 TituLLMs 1B Instruct & \texttt{hishab/\allowbreak titulm-\allowbreak llama-\allowbreak 3.2-\allowbreak 1b-\allowbreak v2.0-\allowbreak Instruct-\allowbreak v1.0@\allowbreak 039dbd2} & 1.32 & fp32 & template & 422 \\

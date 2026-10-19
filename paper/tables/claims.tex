@@ -1,0 +1,26 @@
+% Claim-to-evidence summary (external review 2026-10-19, item 12). Hand-written
+% design table: claims, where the evidence is, and its status; no numbers.
+\begin{table*}[t]
+\centering
+\caption{Main Claims, Their Evidence and Their Status}
+\label{tab:claims}
+\setlength{\tabcolsep}{3.5pt}
+\footnotesize
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{>{\raggedright\arraybackslash}p{7.4cm}>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{5.2cm}}
+\toprule
+Claim & Evidence & Status \\
+\midrule
+No ungated model significantly lowers code-point CER on whole-page OCR & Table~\ref{tab:matrix}; Tables~\ref{tab:robustness}, \ref{tab:scale}, \ref{tab:large} & Primary family (eight core models, dictionary); exploratory for the other models and measures \\
+The same holds for region-level OCR and for synthetic noise down to an input CER of 0.02 & Tables~\ref{tab:region}, \ref{tab:noise} & Exploratory, Holm within each family \\
+Larger Qwen3 models and the fine-tuning pilot lower WER but not CER & Tables~\ref{tab:scale}, \ref{tab:finetune} & Exploratory; the pilot is under-trained \\
+Their word repairs are offset by edits to other words & Table~\ref{tab:editlevel} & Descriptive \\
+Every method changes error-free text & Tables~\ref{tab:clean}, \ref{tab:scale}, \ref{tab:finetune} & Descriptive stress test of preservation \\
+Repetition constraints make copying models much worse & Table~\ref{tab:decoding} & Exploratory, Holm within the family \\
+In Transformers~5.19.0 these constraints also act on the prompt & One-step test, Section~\ref{sec:correction} & Verified mechanism; its role in the damage is a hypothesis \\
+Confidence gating gives a small CER gain at one of three thresholds & Table~\ref{tab:gated} & Exploratory, not validated on held-out pages \\
+Engine fusion gains about as much & Table~\ref{tab:classical} & Descriptive (test family chosen after a first scoring) \\
+The tested Bengali-pretrained checkpoints regenerate text instead of editing it & Tables~\ref{tab:matrix}, \ref{tab:diagnostics}, \ref{tab:filter}; Fig.~\ref{fig:corrected} & Descriptive; specific to these checkpoints and prompts \\
+\bottomrule
+\end{tabular}
+\end{table*}
