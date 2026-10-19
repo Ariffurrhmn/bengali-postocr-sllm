@@ -392,6 +392,10 @@ Three extensions follow most directly from these findings. First, the small gati
 We evaluated small language models as a post-correction step for historical Bengali OCR. On 40 pages of historical printed Bengali from one collection, read by two engines, none of the ungated models significantly reduced mean code-point CER, on whole pages, on region-level OCR or on synthetic noise down to an input CER of 0.02. Larger Qwen3 models and a briefly trained fine-tuning pilot repaired more words than they broke and lowered the word error rate, but their edits to other words added at least as many character errors as the repairs removed. Every method changed error-free text, and repetition constraints that included the source prompt substantially worsened the outputs of models that otherwise copy their input; restricting the constraints to generated tokens reduced this damage but did not remove it. Confidence gating and engine fusion reduced the damage but gained only about 1\% of the raw CER, in exploratory tests. For comparable material, institutions should keep the raw OCR and validate any correction step on reference transcriptions before it replaces the OCR text. These findings do not establish the limits of task-specific training, performance on other Bengali collections, or the value of correction for search and other downstream uses.
 
 \appendices
+% Let up to three wide floats share an appendix page instead of one float per page.
+\renewcommand{\dbltopfraction}{0.95}
+\setcounter{dbltopnumber}{3}
+\renewcommand{\dblfloatpagefraction}{0.6}
 \section{Additional Results}
 This appendix holds the secondary diagnostics: the per-page analysis, the precision and prompt-format checks with the commentary filter, the edit profiles, the gradient-based attribution, the page-level safeguards, a check of CPU against GPU runs, and further tables.
 
@@ -461,7 +465,7 @@ On the five pages whose EasyOCR text was byte-identical between the CPU and the 
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_scatter.png}
+\includegraphics[width=0.78\textwidth]{figures/fig_scatter.png}
 \caption{Change in CER per page against the page's baseline CER, one panel per method, for Tesseract (circles) and EasyOCR (squares). Points above the horizontal line are pages the correction made worse. Vertical scales differ between panels.}
 \label{fig:scatter}
 \end{figure*}

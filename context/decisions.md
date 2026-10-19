@@ -444,3 +444,6 @@ Computing setting: the GPU statement now covers the language-model scores of the
 
 ### D68. Fixes after reading the author's Overleaf build (2026-10-19)
 The author's own compile (32 pages) renders correctly. Fixed: Fig. 5(a) no longer labels the generated output "Scope a correction task needs" (contradicted by D64); it now reads "Output only: less damage, not none" and the caption cites Table decodinggen. The whole-sequence decoding table now precedes the generated-only table (XX, XXI). Student ID removed from the author block, as in the author's build (author's decision).
+
+### D69. Appendix float layout (2026-10-19)
+An external check (of the build before D68) flagged Fig. 5's label (already fixed in D68) and appendix pages with one float each. Fixed: the edit-operations table is now a wide table with the engines side by side (same values, generated); in the appendix up to three wide floats may share a page (`\dbltopfraction` 0.95, `dbltopnumber` 3, `\dblfloatpagefraction` 0.6, set after `\appendices` only); Fig. 8 at 0.78 text width. Appendix floats now fill two pages instead of four; 31 pages (was 32). No overfull boxes; references resolve; Bengali font embedded.

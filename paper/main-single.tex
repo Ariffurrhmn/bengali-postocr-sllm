@@ -1106,6 +1106,10 @@ Three extensions follow most directly from these findings. First, the small gati
 We evaluated small language models as a post-correction step for historical Bengali OCR. On 40 pages of historical printed Bengali from one collection, read by two engines, none of the ungated models significantly reduced mean code-point CER, on whole pages, on region-level OCR or on synthetic noise down to an input CER of 0.02. Larger Qwen3 models and a briefly trained fine-tuning pilot repaired more words than they broke and lowered the word error rate, but their edits to other words added at least as many character errors as the repairs removed. Every method changed error-free text, and repetition constraints that included the source prompt substantially worsened the outputs of models that otherwise copy their input; restricting the constraints to generated tokens reduced this damage but did not remove it. Confidence gating and engine fusion reduced the damage but gained only about 1\% of the raw CER, in exploratory tests. For comparable material, institutions should keep the raw OCR and validate any correction step on reference transcriptions before it replaces the OCR text. These findings do not establish the limits of task-specific training, performance on other Bengali collections, or the value of correction for search and other downstream uses.
 
 \appendices
+% Let up to three wide floats share an appendix page instead of one float per page.
+\renewcommand{\dbltopfraction}{0.95}
+\setcounter{dbltopnumber}{3}
+\renewcommand{\dblfloatpagefraction}{0.6}
 \section{Additional Results}
 This appendix holds the secondary diagnostics: the per-page analysis, the precision and prompt-format checks with the commentary filter, the edit profiles, the gradient-based attribution, the page-level safeguards, a check of CPU against GPU runs, and further tables.
 
@@ -1260,7 +1264,7 @@ On the five pages whose EasyOCR text was byte-identical between the CPU and the 
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_scatter.png}
+\includegraphics[width=0.78\textwidth]{figures/fig_scatter.png}
 \caption{Change in CER per page against the page's baseline CER, one panel per method, for Tesseract (circles) and EasyOCR (squares). Points above the horizontal line are pages the correction made worse. Vertical scales differ between panels.}
 \label{fig:scatter}
 \end{figure*}
@@ -1307,40 +1311,32 @@ TituLLMs 3B Instruct & 0.869 & +0.527 [+0.449, +0.603] & $<$0.001 & [+0.511, +0.
 % ---- end tables/robustness ----
 
 % ---- begin tables/editops ----
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \caption{Mean Edit Operations per Page Against the Reference}
 \label{tab:editops}
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{6pt}
 \footnotesize
-\begin{tabular}{llccc}
+\begin{tabular}{lcccccc}
 \toprule
-Engine & Model & Subst. & Del. & Ins. \\
+ & \multicolumn{3}{c}{Tesseract} & \multicolumn{3}{c}{EasyOCR} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Model & Subst. & Del. & Ins. & Subst. & Del. & Ins. \\
 \midrule
-Tesseract & (no correction) & 92 & 60 & 69 \\
-Tesseract & SymSpell (dictionary) & 111 & 71 & 66 \\
-Tesseract & Gemma-2B-it & 93 & 76 & 64 \\
-Tesseract & Qwen3 1.7B & 92 & 66 & 64 \\
-Tesseract & Phi-4-mini & 102 & 70 & 68 \\
-Tesseract & Llama 3.2 1B & 90 & 110 & 53 \\
-Tesseract & BanglaT5 & 126 & 503 & 5 \\
-Tesseract & TituLLMs 1B & 370 & 19 & 384 \\
-Tesseract & TituLLMs 1B Instruct & 344 & 33 & 797 \\
-Tesseract & TituLLMs 3B Instruct & 170 & 432 & 88 \\
+(no correction) & 92 & 60 & 69 & 84 & 58 & 70 \\
 \midrule
-EasyOCR & (no correction) & 84 & 58 & 70 \\
-EasyOCR & SymSpell (dictionary) & 108 & 68 & 64 \\
-EasyOCR & Gemma-2B-it & 83 & 71 & 67 \\
-EasyOCR & Qwen3 1.7B & 92 & 62 & 72 \\
-EasyOCR & Phi-4-mini & 98 & 68 & 64 \\
-EasyOCR & Llama 3.2 1B & 87 & 93 & 59 \\
-EasyOCR & BanglaT5 & 181 & 434 & 1 \\
-EasyOCR & TituLLMs 1B & 352 & 22 & 385 \\
-EasyOCR & TituLLMs 1B Instruct & 350 & 30 & 722 \\
-EasyOCR & TituLLMs 3B Instruct & 135 & 458 & 50 \\
+SymSpell (dictionary) & 111 & 71 & 66 & 108 & 68 & 64 \\
+Gemma-2B-it & 93 & 76 & 64 & 83 & 71 & 67 \\
+Qwen3 1.7B & 92 & 66 & 64 & 92 & 62 & 72 \\
+Phi-4-mini & 102 & 70 & 68 & 98 & 68 & 64 \\
+Llama 3.2 1B & 90 & 110 & 53 & 87 & 93 & 59 \\
+BanglaT5 & 126 & 503 & 5 & 181 & 434 & 1 \\
+TituLLMs 1B & 370 & 19 & 384 & 352 & 22 & 385 \\
+TituLLMs 1B Instruct & 344 & 33 & 797 & 350 & 30 & 722 \\
+TituLLMs 3B Instruct & 170 & 432 & 88 & 135 & 458 & 50 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 % ---- end tables/editops ----
 
 % ---- begin tables/pagetypes ----

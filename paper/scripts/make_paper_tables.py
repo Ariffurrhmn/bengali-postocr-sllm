@@ -420,22 +420,23 @@ def main():
                 encoding="utf-8")
 
     # ---- edit operations (review item T3) ----
-    rows = []
-    for i, (e, name) in enumerate(ENGINES):
-        raw = cells[(e, models[0])]["edit_ops_vs_gt_raw_ocr"]
-        rows.append(f"{name} & (no correction) & {raw['S']:.0f} & {raw['D']:.0f} & {raw['I']:.0f} \\\\")
-        for m in models:
-            c = cells[(e, m)]["edit_ops_vs_gt_corrected"]
-            rows.append(f"{name} & {MODEL_NAMES[m]} & {c['S']:.0f} & {c['D']:.0f} & {c['I']:.0f} \\\\")
-        if i == 0:
-            rows.append("\\midrule")
+    # Engines side by side in one wide, short table (fewer appendix float pages; external check).
+    def ops(e, m=None):
+        c = (cells[(e, models[0])]["edit_ops_vs_gt_raw_ocr"] if m is None
+             else cells[(e, m)]["edit_ops_vs_gt_corrected"])
+        return [f"{c['S']:.0f}", f"{c['D']:.0f}", f"{c['I']:.0f}"]
+    rows = [" & ".join(["(no correction)"] + ops("tesseract") + ops("easyocr")) + " \\\\", "\\midrule"]
+    for m in models:
+        rows.append(" & ".join([MODEL_NAMES[m]] + ops("tesseract", m) + ops("easyocr", m)) + " \\\\")
     (OUT_DIR / "editops.tex").write_text(
-        "\\begin{table}[t]\n\\centering\n"
+        "\\begin{table*}[t]\n\\centering\n"
         "\\caption{Mean Edit Operations per Page Against the Reference}\n\\label{tab:editops}\n"
-        "\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
-        "\\begin{tabular}{llccc}\n\\toprule\n"
-        "Engine & Model & Subst. & Del. & Ins. \\\\\n\\midrule\n"
-        + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n", encoding="utf-8")
+        "\\setlength{\\tabcolsep}{6pt}\n\\footnotesize\n"
+        "\\begin{tabular}{lcccccc}\n\\toprule\n"
+        " & \\multicolumn{3}{c}{Tesseract} & \\multicolumn{3}{c}{EasyOCR} \\\\\n"
+        "\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}\n"
+        "Model & Subst. & Del. & Ins. & Subst. & Del. & Ins. \\\\\n\\midrule\n"
+        + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\end{table*}\n", encoding="utf-8")
 
     # ---- model and configuration details (review item T2) ----
     if args.profile.exists():
