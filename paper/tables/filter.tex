@@ -21,5 +21,5 @@ TituLLMs 3B Instruct & 0.958 & 0.976 & 41 / 147 & 0.886 & 0.942 & 70 / 256 \\
 \bottomrule
 \end{tabular}
 \par\smallskip
-\begin{minipage}{\linewidth}\footnotesize Filter: an output line is dropped when fewer than 30\% of its character trigrams occur in the page's OCR input. It removes preambles and descriptions of the text, but also invented lines, so the filtered CER is a lower bound for any such filter, not a method we evaluate. Descriptive, no test.\end{minipage}
+\begin{minipage}{\linewidth}\footnotesize Filter: an output line is dropped when fewer than 30\% of its character trigrams occur in the page's OCR input. It removes preambles and descriptions of the text, but also invented lines and occasionally correct ones, so it can raise CER as well as lower it. A rough diagnostic of how much of the error commentary accounts for, not a bound and not a method we evaluate. Descriptive, no test.\end{minipage}
 \end{table*}

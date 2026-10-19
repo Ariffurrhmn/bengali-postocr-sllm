@@ -4,8 +4,8 @@ A documented, generous output filter in the spirit of Kanerva et al.: an output
 line is dropped when fewer than --min-overlap of its character trigrams (after
 normalisation, spaces removed) occur anywhere in the OCR input of that page.
 This removes preambles, descriptions of the text and other commentary, but also
-invented lines, so the filtered CER is a lower bound on what a filter could
-reach, not a corrected method. Every core model is rescored on both engines;
+invented lines and occasionally correct ones, so the filtered CER is a rough
+diagnostic, not a bound on what a filter could reach and not a corrected method. Every core model is rescored on both engines;
 the result is descriptive (no test).
 
 Usage:

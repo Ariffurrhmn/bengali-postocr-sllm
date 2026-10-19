@@ -1200,8 +1200,9 @@ def main():
             + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
             "\\begin{minipage}{\\linewidth}\\footnotesize Filter: an output line is dropped when fewer than "
             "%.0f\\%% of its character trigrams occur in the page's OCR input. It removes preambles and "
-            "descriptions of the text, but also invented lines, so the filtered CER is a lower bound for "
-            "any such filter, not a method we evaluate. Descriptive, no test.\\end{minipage}\n"
+            "descriptions of the text, but also invented lines and occasionally correct ones, so it can "
+            "raise CER as well as lower it. A rough diagnostic of how much of the error commentary accounts "
+            "for, not a bound and not a method we evaluate. Descriptive, no test.\\end{minipage}\n"
             "\\end{table*}\n" % (100 * any_r["min_overlap"]), encoding="utf-8")
 
     # ---- where the character errors go (external review item 7) ----
