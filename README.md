@@ -1,8 +1,6 @@
 <div align="center">
 
-# Does Zero-Shot Small-Model Post-Correction Help Bengali OCR?
-
-### A negative result across eight models and two OCR engines
+<img src="docs/banner.png" alt="Does zero-shot small-model post-correction help Bengali OCR? A negative result" width="100%">
 
 Arifur Rahman · CSE403 · Bangladesh University of Business and Technology · 2026
 
