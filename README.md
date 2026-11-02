@@ -1,21 +1,77 @@
-# bengali-postocr-sllm
+<div align="center">
 
-Code, data splits and paper for **"Does Zero-Shot Small-Model Post-Correction Help Bengali OCR? A Negative Result Across Eight Models and Two OCR Engines"** (Arifur Rahman, CSE403, Bangladesh University of Business and Technology, 2026). The paper is being revised after a third review.
+# Does Zero-Shot Small-Model Post-Correction Help Bengali OCR?
 
-**Paper:** [paper/main.pdf](paper/main.pdf) (source: [paper/main.tex](paper/main.tex)). **Cite:** see [CITATION.cff](CITATION.cff).
+### A negative result across eight models and two OCR engines
 
-## In short
-40 pages of Bengali books printed 1713–1914, read by Tesseract 5.3.4 and EasyOCR 1.7.2, corrected zero-shot by 14 open language models of 0.25–8 billion parameters (and Qwen3 32B in 4-bit on 10 pages), by SymSpell dictionary baselines and by a word-level fusion of the two engines.
+Arifur Rahman · CSE403 · Bangladesh University of Business and Technology · 2026
 
-- **No language model lowers the character error rate (CER)** on either engine. General-purpose models mostly copy their input; the Bengali-pretrained checkpoints regenerate it (CER above 0.8). Every method damages error-free text.
-- **The failure is not explained by noisy input:** correction also hurts on region-level OCR with lower CER, and on reference text corrupted to any CER from 0.02 to 0.30.
-- **A common decoding default misleads evaluations:** a repetition penalty or n-gram ban also acts on the prompt in Hugging Face `generate` and makes copying models look harmful.
-- **Larger Qwen3 models** (4B, 8B, 32B) fix more wrong words and lower the word error rate, but break correct ones, so CER does not fall.
-- **Without a language model:** a better (Wikipedia) lexicon cuts the dictionary's damage by four-fifths but it stays harmful; fusing the two engines by word confidence breaks few correct words and fixes more than it breaks, but lowers CER by under 1%.
-- Token-level Grad-CAM maps show copying from inside the models: copied tokens rely on their own source token.
-- **Fine-tuning** a small byte-level model (ByT5-small) on synthetic noise gives the least damage to error-free text and lowers WER, but not CER.
+[![Paper](https://img.shields.io/badge/paper-PDF-b31b1b)](paper/main.pdf)
+![Pages](https://img.shields.io/badge/pages-40-blue)
+![Models](https://img.shields.io/badge/models-14%20%2B%20Qwen3%2032B-8a2be2)
+![Engines](https://img.shields.io/badge/OCR-Tesseract%20%7C%20EasyOCR-2ea44f)
+![Result](https://img.shields.io/badge/CER%20improvement-none-critical)
 
-Current numbers: [context/results.md](context/results.md).
+</div>
+
+> **Short answer: no.** Across 40 historical Bengali pages, no language model lowers the character error rate (CER) of Tesseract or EasyOCR output. Most leave it unchanged; many make it worse.
+
+**Paper:** [paper/main.pdf](paper/main.pdf) (source: [paper/main.tex](paper/main.tex)) · **Cite:** [CITATION.cff](CITATION.cff) · **Numbers:** [context/results.md](context/results.md)
+
+## The study
+
+```mermaid
+flowchart LR
+    A["Page image<br/>Bengali print 1713-1914<br/>40 pages"] --> B["Tesseract 5.3.4"]
+    A --> C["EasyOCR 1.7.2"]
+    B --> D["Raw OCR"]
+    C --> D
+    D --> E["Chunking"]
+    E --> F["Zero-shot correction<br/>14 open LMs, 0.25-8B<br/>+ SymSpell + engine fusion"]
+    F --> G["Evaluation<br/>CER / WER / cMER<br/>bootstrap + Holm"]
+    D -. "baseline" .-> G
+    style A fill:#e8eef8,stroke:#555
+    style B fill:#edf5ea,stroke:#555
+    style C fill:#edf5ea,stroke:#555
+    style F fill:#fbeee2,stroke:#555
+    style G fill:#efeaf6,stroke:#555
+```
+
+## Headline result
+
+<p align="center">
+  <img src="paper/figures/fig_delta.png" alt="Change in CER (corrected minus raw OCR) for every method on both engines" width="880">
+</p>
+<p align="center"><em>Change in CER after correction (right of the line = worse), with 95% bootstrap intervals. Nothing lands clearly left of zero.</em></p>
+
+| Method | Tesseract CER | EasyOCR CER | vs. raw OCR |
+|---|---:|---:|---|
+| **Raw OCR (baseline)** | **0.341** | **0.297** | — |
+| Gemma 2B | 0.353 | 0.301 | no significant change |
+| Qwen3 1.7B | 0.337 | 0.315 | no significant change |
+| Phi-4-mini | 0.354 | 0.315 | no significant change |
+| Llama 3.2 1B | 0.380 | 0.330 | significantly worse |
+| SymSpell dictionary | 0.378 | 0.337 | significantly worse |
+| BanglaT5 | 0.860 | 0.831 | significantly worse |
+| TituLLMs 1B | 1.084 | 1.033 | significantly worse |
+| TituLLMs 3B Instruct | 0.958 | 0.886 | significantly worse |
+
+## Key findings
+
+| | Finding |
+|---|---|
+| 🔁 | **General-purpose models copy their input; Bengali-pretrained models regenerate it** (CER above 0.8). Every method damages error-free text. |
+| 🧪 | **Noisy input is not the explanation.** Correction also hurts on region-level OCR with lower CER, and on reference text corrupted to any CER from 0.02 to 0.30. |
+| ⚠️ | **A common decoding default misleads evaluations.** A repetition penalty or n-gram ban in Hugging Face `generate` also acts on the prompt and makes copying models look harmful (figure below). |
+| 📈 | **Bigger Qwen3 models** (4B, 8B, 32B) fix more wrong words and lower WER, but break correct ones, so CER does not fall. |
+| 📖 | **No language model needed?** A Wikipedia lexicon cuts the dictionary's damage by four-fifths but it stays harmful; fusing the two engines by word confidence fixes more than it breaks, yet lowers CER by under 1%. |
+| 🔬 | **Grad-CAM** shows the copying from inside: copied tokens rely on their own source token. |
+| 🛠️ | **Fine-tuning** ByT5-small on synthetic noise gives the least damage to clean text and lowers WER, but not CER. |
+
+<p align="center">
+  <img src="paper/figures/fig_decoding.png" alt="Decoding guards act on the prompt and inflate CER" width="880">
+</p>
+<p align="center"><em>The repetition penalty and n-gram ban cover the prompt as well as the output, so a model that only copies is penalised for copying.</em></p>
 
 ## Repository layout
 | Folder | Contents |
@@ -30,8 +86,6 @@ Current numbers: [context/results.md](context/results.md).
 | `context/` | The project's memory: decisions with reasons, results, timeline, engineering notes, the third review with status, and the handoff for the next session. |
 | `results/` | Run outputs (local, gitignored). |
 
-[ENVIRONMENT.md](ENVIRONMENT.md) records versions, checkpoints and settings.
-
 ## Reproducing
 1. **Dataset:** the REID2019 Bengali ground truth from the British Library, version 2 ([doi:10.23636/1168](https://doi.org/10.23636/1168); public domain). Unzip it locally or in the Colab/Kaggle runtime.
 2. **Python:** `python -m venv .venv`, activate it, `pip install -r requirements.txt`.
@@ -41,5 +95,5 @@ Current numbers: [context/results.md](context/results.md).
 
 On Windows, scripts that print Bengali re-wrap stdout as UTF-8 so the console does not crash.
 
-## Licence and data
-The code is released under the [MIT licence](LICENSE). The per-page OCR text and model outputs are not in this repository; they will be released separately under CC BY 4.0 together with the final paper. The page images are out of copyright and the transcriptions carry the Public Domain Mark. The bundled font, Noto Serif Bengali, is under the SIL Open Font License. Model checkpoints are under their own licences and are not redistributed here.
+## Data and release
+The code is not released under any licence. The per-page OCR text and model outputs are not in this repository; they will be released separately together with the final paper. The page images are out of copyright and the transcriptions carry the Public Domain Mark. The bundled font, Noto Serif Bengali, is under the SIL Open Font License. Model checkpoints are under their own licences and are not redistributed here.
