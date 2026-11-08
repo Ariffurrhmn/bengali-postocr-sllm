@@ -105,7 +105,7 @@ def method_figure():
         ("raw", "Raw OCR", "one per page\nper engine", "plain"),
         ("chunk", "Chunking", "~250 tokens\n(or 300 chars),\nwhole lines", "plain"),
         ("model", "Zero-shot correction", "8 models, 0.25-3.8B\nfixed instruction\ngreedy decoding\n+ SymSpell baseline", "model"),
-        ("eval", "Evaluation", "vs ground truth\nCER, WER, cMER\nbootstrap, Holm\nclean-text control", "eval"),
+        ("eval", "Evaluation", "vs ground truth\nCER, WER, cMER, wMER\nbootstrap, Holm\nclean-text control", "eval"),
     ]
     widths = [max(d.size(*ocr_a)[0], d.size(*ocr_b)[0]) if key == "ocr" else d.size(title, body)[0]
               for key, title, body, _ in nodes]

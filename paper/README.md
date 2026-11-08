@@ -10,6 +10,11 @@ The paper needs **XeLaTeX**. The example table (`tables/examples.tex`) sets Beng
 - **Single file (final version for the reviewer and Overleaf):** `python paper/scripts/make_single_file.py` writes `paper/main-single.tex`, one self-contained file with every table and the reference list inlined (no `references.bib` needed), and `paper/overleaf-final.zip` (that file as `main.tex`, plus the figures, the font and the pre-rendered Bengali table). Upload the zip on Overleaf (New Project → Upload Project) and set Menu → Compiler → XeLaTeX. Rerun the script after any edit to `main.tex`, a table or `references.bib`; never edit `main-single.tex` by hand.
 - **References:** published work only, no preprints (author's rule, 2026-10-18). Models are cited by their Hugging Face model cards, not by arXiv technical reports.
 
+For reporting-only revisions to the dictionary/fusion and 10-page scaling tables, the saved summaries suffice; raw outputs are not needed:
+```
+python paper/scripts/make_paper_tables.py --reporting-only --m4-runs summaries/m4_dict40.json --fusion-runs summaries/m6_fusion40.json --m7-runs summaries/m7_runs10.json
+```
+
 ## Regenerate analyses, tables and figures
 **One command:** `PY=.venv/Scripts/python.exe bash paper/scripts/reproduce_tables.sh` rescoring the released outputs and regenerating every generated table (verified 2026-10-19: all 47 summary files and every table identical; back up `results/` first, since it rewrites the summaries). The commands below are the same steps one by one.
 

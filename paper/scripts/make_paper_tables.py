@@ -117,6 +117,133 @@ def load_jsonl(path: Path):
     return [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
 
 
+def matrix(path):
+    if not path.exists():
+        return None
+    return {(c["engine"], c["model"]): c for c in json.loads(path.read_text(encoding="utf-8"))["cells"]}
+
+def hmark(m):
+    """$^{+}$/$^{-}$ for a Holm-significant increase/decrease in one metric of a matrix cell."""
+    if m["p_holm"] >= 0.05:
+        return ""
+    return "$^{+}$" if m["delta"] > 0 else "$^{-}$"
+
+def pct(x):
+    return "--" if x != x else "%.0f" % (100 * x)
+
+def bf(c):
+    """Broken / fixed as word counts: the shares have different denominators
+    (words the raw OCR had right vs. wrong), so only counts can be compared."""
+    w = c["words"]
+    return "%d / %s" % (w["broken"], w["fixed"] if w["raw_wrong"] else "--")
+
+def nref(m):
+    c = next(iter(m.values()))["words"]
+    return format(c["raw_correct"] + c["raw_wrong"], ",").replace(",", "{,}")
+
+BF_NOTE = ("Broken / fixed: reference words the raw OCR had right that the output gets wrong, and words "
+           "it had wrong that the output gets right, as counts of the %s aligned reference words, so the "
+           "two can be compared directly.")
+
+
+
+def write_classical_table(args):
+    # ---- dictionary variants (item M4) and engine fusion (item M6) ----
+    m4, fus = matrix(args.m4_runs), matrix(args.fusion_runs)
+    if m4 and fus:
+        names = {"symspell": "SymSpell, subtitles, $d\\le2$ (main)", "symspell-ed1": "SymSpell, subtitles, $d\\le1$",
+                 "symspell-wiki": "SymSpell, Wikipedia, $d\\le2$", "symspell-wiki-ed1": "SymSpell, Wikipedia, $d\\le1$",
+                 "fusion-conf": "Fusion, higher confidence", "fusion-margin": "Fusion, confidence margin"}
+        rows = []
+        for src, keys in ((m4, ["symspell", "symspell-ed1", "symspell-wiki", "symspell-wiki-ed1"]),
+                          (fus, ["fusion-conf", "fusion-margin"])):
+            if src is fus:
+                rows.append("\\midrule")
+            for m in [k for k in keys if ("easyocr", k) in src]:
+                cols = [names[m]]
+                for e, _ in ENGINES:
+                    c = None if src is fus and e == "tesseract" else src.get((e, m))
+                    # Fusion CER changes are descriptive: their family was chosen after a first scoring.
+                    cols.append("--" if c is None else "%+.3f%s %s" % (
+                        c["cer"]["delta"], "" if src is fus else hmark(c["cer"]), ci(*c["cer"]["ci"])))
+                g = src.get(("ground_truth", m))
+                cols.append("--" if g is None else "%.3f" % g["cer"]["output"])
+                for e, _ in ENGINES:
+                    c = None if src is fus and e == "tesseract" else src.get((e, m))
+                    cols.append("--" if c is None else "%+.3f%s" % (c["wer"]["delta"], "" if src is fus else hmark(c["wer"])))
+                for e, _ in ENGINES:
+                    c = None if src is fus and e == "tesseract" else src.get((e, m))
+                    cols.append("--" if c is None else bf(c))
+                rows.append(" & ".join(cols) + " \\\\")
+        fus_note = ("Fusion CER and WER changes are descriptive; no significance marks are assigned "
+                    "because the comparison family was reduced after inspecting the first scoring. ")
+        (OUT_DIR / "classical.tex").write_text(
+            "\\begin{table*}[t]\n\\centering\n"
+            "\\caption{Methods Without a Language Model: Dictionary Variants and Engine Fusion (40 Pages)}\n"
+            "\\label{tab:classical}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lccccccc}\n\\toprule\n"
+            " & \\multicolumn{2}{c}{$\\Delta$CER [95\\% CI]} & Clean text & \\multicolumn{2}{c}{$\\Delta$WER} & "
+            "\\multicolumn{2}{c}{Broken / fixed (words)} \\\\\n"
+            "\\cmidrule(lr){2-3}\\cmidrule(lr){4-4}\\cmidrule(lr){5-6}\\cmidrule(lr){7-8}\n"
+            "Method & Tesseract & EasyOCR & CER & Tesseract & EasyOCR & Tesseract & EasyOCR \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize $\\Delta$: output $-$ raw OCR of that engine "
+            "(positive = worse). SymSpell: lexicon of the 50{,}000 most frequent OpenSubtitles words "
+            "(main baseline) or of the most frequent words of Bengali Wikipedia; $d$: maximum edit "
+            "distance. Fusion: EasyOCR text in which short stretches where the engines disagree take "
+            "Tesseract's reading if its confidence ranks higher within the page (margin: by more than "
+            "0.25); it is compared with EasyOCR, its base, only, and needs two OCR readings, so it has "
+            "no clean-text control. $^{+}$/$^{-}$: Holm-significant, Wilcoxon signed-rank, over the "
+            "%d dictionary cells per metric (exploratory); these marks apply only to dictionary rows. "
+            % len(m4) + fus_note + BF_NOTE % nref(m4) + "\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
+
+
+
+def write_large_table(args):
+    INPUTS = ENGINES + [("ground_truth", "Clean text")]
+    # ---- large model on 10 pages (item M7) ----
+    m7 = matrix(args.m7_runs)
+    if m7 and any(m == "qwen3-32b" for (_, m) in m7):
+        sizes = [m for m in SCALE_ORDER if m.startswith("qwen3") and ("tesseract", m) in m7]
+        rows = []
+        for m in sizes:
+            cols = [MODEL_NAMES[m]]
+            for e, _ in INPUTS:
+                c = m7.get((e, m))
+                cols.append("--" if c is None else "%+.3f%s" % (c["cer"]["delta"], hmark(c["cer"])))
+            for e, _ in ENGINES:
+                c = m7.get((e, m))
+                cols.append("--" if c is None else "%+.3f%s" % (c["wer"]["delta"], hmark(c["wer"])))
+            rows.append(" & ".join(cols) + " \\\\")
+        n = next(iter(m7.values()))["n"]
+        raw = {e: next(c["cer"]["input"] for (ee, _), c in m7.items() if ee == e) for e, _ in ENGINES}
+        # The Holm family is every model scored on these pages, not only the Qwen3 rows shown.
+        m7_models = sorted({m for (_, m) in m7})
+        core = [m for m in m7_models if m in MODEL_ORDER]
+        extra = [MODEL_NAMES[m] for m in SCALE_ORDER if m in m7_models and m not in MODEL_ORDER]
+        m7_desc = "the %d core models and %s" % (len(core), ", ".join(extra))
+        (OUT_DIR / "large.tex").write_text(
+            "\\begin{table}[t]\n\\centering\n"
+            "\\caption{Qwen3 from 0.6B to 32B Parameters on %d Pages (Change Against the Input)}\n"
+            "\\label{tab:large}\n\\setlength{\\tabcolsep}{3pt}\n\\footnotesize\n"
+            "\\begin{tabular}{lccccc}\n\\toprule\n"
+            " & \\multicolumn{3}{c}{$\\Delta$CER} & \\multicolumn{2}{c}{$\\Delta$WER} \\\\\n"
+            "\\cmidrule(lr){2-4}\\cmidrule(lr){5-6}\n"
+            "Model & Tess. & Easy. & Clean & Tess. & Easy. \\\\\n\\midrule\n" % n
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
+            "\\begin{minipage}{\\linewidth}\\footnotesize The %d pages of the attribution analysis "
+            "(raw CER %.3f Tesseract, %.3f EasyOCR). Qwen3 32B in 4-bit (NF4) on two T4 GPUs; the others "
+            "as in Table~\\ref{tab:scale}, restricted to the same pages. Tests: Wilcoxon signed-rank, "
+            "Holm-corrected over the %d cells of each metric, that is, all %d models rescored on these pages "
+            "(%s) on the %d inputs; the table shows the Qwen3 rows. No reported change passes "
+            "this correction. The subset is descriptive and has limited power; non-significance is "
+            "not evidence of equivalence. The text gives 95\\%% intervals.\\end{minipage}\n\\end{table}\n"
+            % (n, raw["tesseract"], raw["easyocr"], len(m7), len(m7_models), m7_desc,
+               len({e for (e, _) in m7})),
+            encoding="utf-8")
+
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--ocr", type=Path, default=RESULTS / "ocr_eval40.jsonl")
@@ -148,7 +275,14 @@ def main():
     parser.add_argument("--m7-runs", type=Path, default=RESULTS / "m7_runs10.json")
     parser.add_argument("--review3-runs", type=Path, default=RESULTS / "review3_runs.json",
                         help="third-review GPU runs (review3_runs_analysis.py): C1, C2, C4, X1")
+    parser.add_argument("--reporting-only", action="store_true",
+                        help="regenerate classical and large-model tables from saved summaries only")
     args = parser.parse_args()
+    if args.reporting_only:
+        OUT_DIR.mkdir(parents=True, exist_ok=True)
+        write_classical_table(args)
+        write_large_table(args)
+        return
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     boot = json.loads(args.boot.read_text(encoding="utf-8"))
@@ -901,34 +1035,6 @@ def main():
             "tests.\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
 
     # ---- later third-review runs (matrix_analysis.py summaries) ----
-    def matrix(path):
-        if not path.exists():
-            return None
-        return {(c["engine"], c["model"]): c for c in json.loads(path.read_text(encoding="utf-8"))["cells"]}
-
-    def hmark(m):
-        """$^{+}$/$^{-}$ for a Holm-significant increase/decrease in one metric of a matrix cell."""
-        if m["p_holm"] >= 0.05:
-            return ""
-        return "$^{+}$" if m["delta"] > 0 else "$^{-}$"
-
-    def pct(x):
-        return "--" if x != x else "%.0f" % (100 * x)
-
-    def bf(c):
-        """Broken / fixed as word counts: the shares have different denominators
-        (words the raw OCR had right vs. wrong), so only counts can be compared."""
-        w = c["words"]
-        return "%d / %s" % (w["broken"], w["fixed"] if w["raw_wrong"] else "--")
-
-    def nref(m):
-        c = next(iter(m.values()))["words"]
-        return format(c["raw_correct"] + c["raw_wrong"], ",").replace(",", "{,}")
-
-    BF_NOTE = ("Broken / fixed: reference words the raw OCR had right that the output gets wrong, and words "
-               "it had wrong that the output gets right, as counts of the %s aligned reference words, so the "
-               "two can be compared directly.")
-
     # ---- region-level OCR (item C5) ----
     reg_ocr = json.loads(args.region_ocr.read_text(encoding="utf-8")) if args.region_ocr.exists() else None
     reg = matrix(args.region_runs)
@@ -1078,61 +1184,7 @@ def main():
             "over the %d cells (exploratory). " % len(m2) + BF_NOTE % nref(m2)
             + "\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
 
-    # ---- dictionary variants (item M4) and engine fusion (item M6) ----
-    m4, fus = matrix(args.m4_runs), matrix(args.fusion_runs)
-    if m4 and fus:
-        names = {"symspell": "SymSpell, subtitles, $d\\le2$ (main)", "symspell-ed1": "SymSpell, subtitles, $d\\le1$",
-                 "symspell-wiki": "SymSpell, Wikipedia, $d\\le2$", "symspell-wiki-ed1": "SymSpell, Wikipedia, $d\\le1$",
-                 "fusion-conf": "Fusion, higher confidence", "fusion-margin": "Fusion, confidence margin"}
-        rows = []
-        for src, keys in ((m4, ["symspell", "symspell-ed1", "symspell-wiki", "symspell-wiki-ed1"]),
-                          (fus, ["fusion-conf", "fusion-margin"])):
-            if src is fus:
-                rows.append("\\midrule")
-            for m in [k for k in keys if ("easyocr", k) in src]:
-                cols = [names[m]]
-                for e, _ in ENGINES:
-                    c = None if src is fus and e == "tesseract" else src.get((e, m))
-                    # Fusion CER changes are descriptive: their family was chosen after a first scoring.
-                    cols.append("--" if c is None else "%+.3f%s %s" % (
-                        c["cer"]["delta"], "" if src is fus else hmark(c["cer"]), ci(*c["cer"]["ci"])))
-                g = src.get(("ground_truth", m))
-                cols.append("--" if g is None else "%.3f" % g["cer"]["output"])
-                for e, _ in ENGINES:
-                    c = None if src is fus and e == "tesseract" else src.get((e, m))
-                    cols.append("--" if c is None else "%+.3f%s" % (c["wer"]["delta"], hmark(c["wer"])))
-                for e, _ in ENGINES:
-                    c = None if src is fus and e == "tesseract" else src.get((e, m))
-                    cols.append("--" if c is None else bf(c))
-                rows.append(" & ".join(cols) + " \\\\")
-        n_fus = sum(1 for (e, _) in fus if e == "easyocr")
-        fus4 = matrix(args.fusion_family4)
-        p_fus = "; ".join("%s rule %.3f / %.3f" % (
-            lbl, fus[("easyocr", k)]["cer"]["p_holm"], fus4[("easyocr", k)]["cer"]["p_holm"])
-            for k, lbl in (("fusion-conf", "higher-confidence"), ("fusion-margin", "margin"))) if fus4 else ""
-        fus_note = ("Fusion CER changes are descriptive, not significant. Holm-adjusted Wilcoxon $p$ over the "
-                    "%d fusion cells / over the %d cells of the first scoring, which added the comparisons "
-                    "with Tesseract output (the smaller family was chosen after it): " % (n_fus, len(fus4))
-                    + p_fus + ". ") if fus4 else ""
-        (OUT_DIR / "classical.tex").write_text(
-            "\\begin{table*}[t]\n\\centering\n"
-            "\\caption{Methods Without a Language Model: Dictionary Variants and Engine Fusion (40 Pages)}\n"
-            "\\label{tab:classical}\n\\setlength{\\tabcolsep}{4pt}\n\\footnotesize\n"
-            "\\begin{tabular}{lccccccc}\n\\toprule\n"
-            " & \\multicolumn{2}{c}{$\\Delta$CER [95\\% CI]} & Clean text & \\multicolumn{2}{c}{$\\Delta$WER} & "
-            "\\multicolumn{2}{c}{Broken / fixed (words)} \\\\\n"
-            "\\cmidrule(lr){2-3}\\cmidrule(lr){4-4}\\cmidrule(lr){5-6}\\cmidrule(lr){7-8}\n"
-            "Method & Tesseract & EasyOCR & CER & Tesseract & EasyOCR & Tesseract & EasyOCR \\\\\n\\midrule\n"
-            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
-            "\\begin{minipage}{\\linewidth}\\footnotesize $\\Delta$: output $-$ raw OCR of that engine "
-            "(positive = worse). SymSpell: lexicon of the 50{,}000 most frequent OpenSubtitles words "
-            "(main baseline) or of the most frequent words of Bengali Wikipedia; $d$: maximum edit "
-            "distance. Fusion: EasyOCR text in which short stretches where the engines disagree take "
-            "Tesseract's reading if its confidence ranks higher within the page (margin: by at least "
-            "0.25); it is compared with EasyOCR, its base, only, and needs two OCR readings, so it has "
-            "no clean-text control. $^{+}$/$^{-}$: Holm-significant, Wilcoxon signed-rank, over the "
-            "%d dictionary cells and, separately, the %d fusion cells, per metric (exploratory). "
-            % (len(m4), n_fus) + fus_note + BF_NOTE % nref(m4) + "\\end{minipage}\n\\end{table*}\n", encoding="utf-8")
+    write_classical_table(args)
 
     # ---- constraints on generated tokens only (external review item 4) ----
     if args.review4_runs.exists():
@@ -1247,47 +1299,7 @@ def main():
             "spaces: mean page CER with all spaces removed. Descriptive, no test.\\end{minipage}\n"
             "\\end{table*}\n" % "{:,}".format(ref_chars).replace(",", "{,}"), encoding="utf-8")
 
-    # ---- large model on 10 pages (item M7) ----
-    m7 = matrix(args.m7_runs)
-    if m7 and any(m == "qwen3-32b" for (_, m) in m7):
-        sizes = [m for m in SCALE_ORDER if m.startswith("qwen3") and ("tesseract", m) in m7]
-        rows = []
-        for m in sizes:
-            cols = [MODEL_NAMES[m]]
-            for e, _ in INPUTS:
-                c = m7.get((e, m))
-                cols.append("--" if c is None else "%+.3f%s" % (c["cer"]["delta"], hmark(c["cer"])))
-            for e, _ in ENGINES:
-                c = m7.get((e, m))
-                cols.append("--" if c is None else "%+.3f%s" % (c["wer"]["delta"], hmark(c["wer"])))
-            rows.append(" & ".join(cols) + " \\\\")
-        n = next(iter(m7.values()))["n"]
-        raw = {e: next(c["cer"]["input"] for (ee, _), c in m7.items() if ee == e) for e, _ in ENGINES}
-        # The Holm family is every model scored on these pages, not only the Qwen3 rows shown.
-        m7_models = sorted({m for (_, m) in m7})
-        core = [m for m in m7_models if m in MODEL_ORDER]
-        extra = [MODEL_NAMES[m] for m in SCALE_ORDER if m in m7_models and m not in MODEL_ORDER]
-        m7_desc = "the %d core models and %s" % (len(core), ", ".join(extra))
-        (OUT_DIR / "large.tex").write_text(
-            "\\begin{table}[t]\n\\centering\n"
-            "\\caption{Qwen3 from 0.6B to 32B Parameters on %d Pages (Change Against the Input)}\n"
-            "\\label{tab:large}\n\\setlength{\\tabcolsep}{3pt}\n\\footnotesize\n"
-            "\\begin{tabular}{lccccc}\n\\toprule\n"
-            " & \\multicolumn{3}{c}{$\\Delta$CER} & \\multicolumn{2}{c}{$\\Delta$WER} \\\\\n"
-            "\\cmidrule(lr){2-4}\\cmidrule(lr){5-6}\n"
-            "Model & Tess. & Easy. & Clean & Tess. & Easy. \\\\\n\\midrule\n" % n
-            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n\\par\\smallskip\n"
-            "\\begin{minipage}{\\linewidth}\\footnotesize The %d pages of the attribution analysis "
-            "(raw CER %.3f Tesseract, %.3f EasyOCR). Qwen3 32B in 4-bit (NF4) on two T4 GPUs; the others "
-            "as in Table~\\ref{tab:scale}, restricted to the same pages. Tests: Wilcoxon signed-rank, "
-            "Holm-corrected over the %d cells of each metric, that is, all %d models rescored on these pages "
-            "(%s) on the %d inputs; the table shows the Qwen3 rows. With %d pages the smallest possible "
-            "two-sided Wilcoxon $p$ is $2/2^{%d}$, so after this correction no change can reach significance "
-            "(smallest adjusted $p$ %.3f): the table gives descriptive estimates, and the text gives 95\\%% "
-            "intervals.\\end{minipage}\n\\end{table}\n"
-            % (n, raw["tesseract"], raw["easyocr"], len(m7), len(m7_models), m7_desc,
-               len({e for (e, _) in m7}), n, n, min(1.0, len(m7) * 2 / 2 ** n)),
-            encoding="utf-8")
+    write_large_table(args)
 
     print(f"Wrote tables to {OUT_DIR}")
 
