@@ -2,11 +2,12 @@
 
 The correction models are used zero-shot, so the usual train/test leakage only
 applies to the parts that use data: the frozen page split, the few-shot prompt
-examples, the synthetic noise model, the fine-tuning pilot (ByT5-small) and the
-dictionary lexicons. This script checks each of them against the 40 evaluation
-references and prints what it found. It needs results/ocr_dev.jsonl and
-results/ocr_eval40.jsonl (local run outputs); the lexicon check is skipped if
-the lexicon files are missing.
+examples, the synthetic noise model and the fine-tuning pilot (ByT5-small).
+This script checks each of them against the 40 evaluation references and
+prints what it found. It needs results/ocr_dev.jsonl and
+results/ocr_eval40.jsonl (local run outputs). Text overlap is measured with
+character shingles, with a positive control so that a score of 0 means
+something.
 
 Usage (from the repository root):
     python eval/check_leakage.py --out-json logs/leakage/leakage_report.json
