@@ -65,8 +65,14 @@ def main():
 
     env = dict(os.environ, PYTHONIOENCODING="utf-8")
     t0 = time.perf_counter()
+    if (REPO / cmd[0]).exists():  # Windows does not resolve a relative program path itself
+        cmd = [str((REPO / cmd[0]).resolve())] + cmd[1:]
     with open(d / "stdout.txt", "wb") as so, open(d / "stderr.txt", "wb") as se:
-        rc = subprocess.run(cmd, cwd=REPO, stdout=so, stderr=se, env=env).returncode
+        try:
+            rc = subprocess.run(cmd, cwd=REPO, stdout=so, stderr=se, env=env).returncode
+        except OSError as e:  # the program could not be started at all
+            se.write(f"could not start the command: {e}\n".encode())
+            rc = 127
     secs = round(time.perf_counter() - t0, 2)
     end = datetime.now().astimezone()
 
