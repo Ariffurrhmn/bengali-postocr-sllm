@@ -95,7 +95,23 @@ def main():
         s, q = max_share(g, {k: v for k, v in g_ev.items() if k != p})
         within.append({"page": p, "most_similar_other_eval_page": q, "share": round(s, 4)})
     exact_dupes = [k for k, c in Counter(normalize(r["ground_truth"]) for r in ev_rows.values()).items() if c > 1]
+    # Shorter shingles catch partial reuse (a shared heading or verse line).
+    g12_dev = {p: grams(r["ground_truth"], 12) for p, r in dev_rows.items()}
+    g12_ev = {p: grams(r["ground_truth"], 12) for p, r in ev_rows.items()}
+    short = sorted(({"eval_page": p, "most_similar_dev_page": max_share(g, g12_dev)[1],
+                     "share": round(max_share(g, g12_dev)[0], 4)} for p, g in g12_ev.items()),
+                   key=lambda c: -c["share"])
+    # Positive control: the same measure must find a page in itself, and a page
+    # with half of another page pasted in must score about 0.5.
+    p0 = next(iter(ev_rows))
+    half = normalize(ev_rows[p0]["ground_truth"])[: len(normalize(ev_rows[p0]["ground_truth"])) // 2]
+    planted = grams(half + " " + normalize(next(iter(dev_rows.values()))["ground_truth"]), NGRAM)
+    report["positive_control"] = {
+        "page_vs_itself": max_share(g_ev[p0], {p0: g_ev[p0]})[0],
+        "half_of_eval_page_planted_in_dev_text": round(len(g_ev[p0] & planted) / len(g_ev[p0]), 3),
+    }
     report["reference_text"] = {
+        "eval_vs_dev_12char_top5": short[:5],
         "shingle_length": NGRAM,
         "eval_pages_with_identical_reference": len(exact_dupes),
         "max_eval_vs_dev_share": max(c["share_of_eval_shingles_in_dev_page"] for c in cross),
@@ -123,17 +139,6 @@ def main():
     report["finetune_dev_lines"] = {"dev_lines": len(dev_lines), "lines_sharing_a_25gram_with_eval": len(hit),
                                     "note": "finetune_byt5.py drops these before training; the Wikipedia part was "
                                             "filtered the same way (Kaggle logs: 0 segments dropped)."}
-
-    # 6. Lexicons (dictionary baseline): share of eval reference words in each lexicon
-    lex = {}
-    words = Counter(w for r in ev_rows.values() for w in normalize(r["ground_truth"]).split())
-    for name in ["bn_50k.txt", "bn_wiki100k.txt"]:
-        f = REPO / "data/lexicon" / name
-        if f.exists():
-            vocab = {l.split()[0] for l in f.read_text(encoding="utf-8").splitlines() if l.strip()}
-            lex[name] = {"entries": len(vocab), "eval_word_tokens_in_lexicon": round(
-                sum(c for w, c in words.items() if w in vocab) / sum(words.values()), 4)}
-    report["lexicons"] = lex or "lexicon files not present"
 
     args.out_json.parent.mkdir(parents=True, exist_ok=True)
     args.out_json.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")

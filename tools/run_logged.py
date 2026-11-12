@@ -80,7 +80,7 @@ def main():
         "run_id": run_id, "label": a.label, "command": subprocess.list2cmdline(cmd),
         "start": start.isoformat(timespec="seconds"), "end": end.isoformat(timespec="seconds"),
         "seconds": secs, "exit_code": rc,
-        "git_commit": git("rev-parse", "HEAD"), "git_dirty": bool(git("status", "--porcelain")),
+        "git_commit": git("rev-parse", "HEAD"), "git_dirty": bool(git("status", "--porcelain", "--untracked-files=no")),
         "python": sys.version.split()[0], "packages": versions(),
         "machine": f"{platform.system()} {platform.release()} {platform.machine()}",
     }
