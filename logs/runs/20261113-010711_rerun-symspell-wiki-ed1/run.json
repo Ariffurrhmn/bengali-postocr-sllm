@@ -1,0 +1,26 @@
+{
+  "run_id": "20261113-010711_rerun-symspell-wiki-ed1",
+  "label": "rerun-symspell-wiki-ed1",
+  "command": "G:\\bengali-postocr-sllm\\.venv\\Scripts\\python.exe correction/dictionary_baseline.py --ocr-path results/ocr_eval40.jsonl --lexicon data/lexicon/bn_wiki100k.txt --max-edit-distance 1 --model-key symspell-wiki-ed1 --out logs/reruns/m4_dict_wiki_ed1.jsonl",
+  "start": "2026-11-13T01:07:11+06:00",
+  "end": "2026-11-13T01:07:13+06:00",
+  "seconds": 1.48,
+  "exit_code": 0,
+  "git_commit": "a5bd089980b5a8673fd7cdb13802353546b10266",
+  "git_dirty": false,
+  "python": "3.11.0",
+  "packages": {
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "jiwer": "4.0.0",
+    "rapidfuzz": "3.14.5",
+    "regex": "2026.7.19",
+    "matplotlib": "3.11.1",
+    "symspellpy": "6.10.0",
+    "torch": "2.13.0",
+    "transformers": "5.14.1",
+    "pytesseract": "0.3.13",
+    "easyocr": "1.7.2"
+  },
+  "machine": "Windows 10 AMD64"
+}

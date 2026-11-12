@@ -1,0 +1,3 @@
+fusion-conf: 379 of 4952 EasyOCR words replaced by Tesseract's (7.7%)
+fusion-margin: 173 of 4952 EasyOCR words replaced by Tesseract's (3.5%)
+wrote logs\reruns\m6_fusion40.jsonl

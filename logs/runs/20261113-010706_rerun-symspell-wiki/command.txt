@@ -1,0 +1,1 @@
+.venv/Scripts/python.exe correction/dictionary_baseline.py --ocr-path results/ocr_eval40.jsonl --lexicon data/lexicon/bn_wiki100k.txt --model-key symspell-wiki --out logs/reruns/m4_dict_wiki.jsonl

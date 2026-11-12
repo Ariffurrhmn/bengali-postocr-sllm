@@ -28,3 +28,6 @@ paper/CHECK-BEFORE-SUBMITTING.md
 
 # Overleaf upload zips are rebuilt by paper/make_overleaf_zip.py
 paper/*.zip
+
+# Local reruns contain page text (see logs/README.md)
+logs/reruns/

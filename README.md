@@ -1,50 +1,33 @@
-<div align="center">
+# bengali-postocr-sllm
 
-<img src="docs/banner.png" alt="Does zero-shot small-model post-correction help Bengali OCR? A negative result" width="100%">
+Code, data splits, logs and paper for "Does Zero-Shot Small-Model Post-Correction Help Historical Bengali OCR? A Negative Result Across Eight Models and Two OCR Engines" (Arifur Rahman, CSE403, Bangladesh University of Business and Technology, 2026).
 
-Arifur Rahman · CSE403 · Bangladesh University of Business and Technology · 2026
+Paper: [paper/main.pdf](paper/main.pdf) (source [paper/main.tex](paper/main.tex)). Numbers: [context/results.md](context/results.md). Cite: [CITATION.cff](CITATION.cff).
 
-[![Paper](https://img.shields.io/badge/paper-PDF-b31b1b)](paper/main.pdf)
-![Pages](https://img.shields.io/badge/pages-40-blue)
-![Models](https://img.shields.io/badge/models-14%20%2B%20Qwen3%2032B-8a2be2)
-![Engines](https://img.shields.io/badge/OCR-Tesseract%20%7C%20EasyOCR-2ea44f)
-![Result](https://img.shields.io/badge/CER%20improvement-none-critical)
-
-</div>
-
-> **Short answer: no.** Across 40 historical Bengali pages, no language model lowers the character error rate (CER) of Tesseract or EasyOCR output. Most leave it unchanged; many make it worse.
-
-**Paper:** [paper/main.pdf](paper/main.pdf) (source: [paper/main.tex](paper/main.tex)) · **Cite:** [CITATION.cff](CITATION.cff) · **Numbers:** [context/results.md](context/results.md)
-
-## The study
+## What the study does
+I took 40 pages of Bengali books printed between 1713 and 1914 (REID2019, British Library), read them with Tesseract 5.3.4 and EasyOCR 1.7.2, and asked small open language models to correct the OCR text without any examples. I also tried a SymSpell dictionary, a fusion of the two engines, larger models, and a small model fine-tuned on synthetic errors. Every output was scored against the human transcription with CER and WER, with paired bootstrap intervals and Holm-corrected Wilcoxon tests.
 
 ```mermaid
 flowchart LR
-    A["Page image<br/>Bengali print 1713-1914<br/>40 pages"] --> B["Tesseract 5.3.4"]
+    A["40 page images"] --> B["Tesseract 5.3.4"]
     A --> C["EasyOCR 1.7.2"]
-    B --> D["Raw OCR"]
+    B --> D["Raw OCR text"]
     C --> D
-    D --> E["Chunking"]
-    E --> F["Zero-shot correction<br/>14 open LMs, 0.25-8B<br/>+ SymSpell + engine fusion"]
-    F --> G["Evaluation<br/>CER / WER / cMER<br/>bootstrap + Holm"]
-    D -. "baseline" .-> G
-    style A fill:#e8eef8,stroke:#555
-    style B fill:#edf5ea,stroke:#555
-    style C fill:#edf5ea,stroke:#555
-    style F fill:#fbeee2,stroke:#555
-    style G fill:#efeaf6,stroke:#555
+    D --> E["Zero-shot correction<br/>14 open models, SymSpell, fusion"]
+    E --> F["CER / WER against the transcription"]
+    D -. "baseline" .-> F
 ```
 
-## Headline result
+## Result
+No language model lowered the character error rate of either engine. Most left it about the same and several made it much worse.
 
 <p align="center">
-  <img src="paper/figures/fig_delta.png" alt="Change in CER (corrected minus raw OCR) for every method on both engines" width="880">
+  <img src="paper/figures/fig_delta.png" alt="Change in CER (corrected minus raw OCR) for every method on both engines" width="820">
 </p>
-<p align="center"><em>Change in CER after correction (right of the line = worse), with 95% bootstrap intervals. Nothing lands clearly left of zero.</em></p>
 
-| Method | Tesseract CER | EasyOCR CER | vs. raw OCR |
+| Method | Tesseract CER | EasyOCR CER | Compared with raw OCR |
 |---|---:|---:|---|
-| **Raw OCR (baseline)** | **0.341** | **0.297** | — |
+| Raw OCR (no correction) | 0.341 | 0.297 | |
 | Gemma 2B | 0.353 | 0.301 | no significant change |
 | Qwen3 1.7B | 0.337 | 0.315 | no significant change |
 | Phi-4-mini | 0.354 | 0.315 | no significant change |
@@ -54,22 +37,16 @@ flowchart LR
 | TituLLMs 1B | 1.084 | 1.033 | significantly worse |
 | TituLLMs 3B Instruct | 0.958 | 0.886 | significantly worse |
 
-## Key findings
+"Significant" here means the Holm-corrected Wilcoxon test in the paper's full evaluation matrix. On EasyOCR the bootstrap intervals of Qwen3 1.7B ([+0.004, +0.033]) and Phi-4-mini ([+0.000, +0.046]) start at or above zero, so on that engine they lean worse, not better.
 
-| | Finding |
-|---|---|
-| 🔁 | **General-purpose models copy their input; Bengali-pretrained models regenerate it** (CER above 0.8). Every method damages error-free text. |
-| 🧪 | **Noisy input is not the explanation.** Correction also hurts on region-level OCR with lower CER, and on reference text corrupted to any CER from 0.02 to 0.30. |
-| ⚠️ | **A common decoding default misleads evaluations.** A repetition penalty or n-gram ban in Hugging Face `generate` also acts on the prompt and makes copying models look harmful (figure below). |
-| 📈 | **Bigger Qwen3 models** (4B, 8B, 32B) fix more wrong words and lower WER, but break correct ones, so CER does not fall. |
-| 📖 | **No language model needed?** A Wikipedia lexicon cuts the dictionary's damage by four-fifths but it stays harmful; fusing the two engines by word confidence fixes more than it breaks, yet lowers CER by under 1%. |
-| 🔬 | **Grad-CAM** shows the copying from inside: copied tokens rely on their own source token. |
-| 🛠️ | **Fine-tuning** ByT5-small on synthetic noise gives the least damage to clean text and lowers WER, but not CER. |
-
-<p align="center">
-  <img src="paper/figures/fig_decoding.png" alt="Decoding guards act on the prompt and inflate CER" width="880">
-</p>
-<p align="center"><em>The repetition penalty and n-gram ban cover the prompt as well as the output, so a model that only copies is penalised for copying.</em></p>
+Other findings:
+- General-purpose models mostly copy their input. The Bengali-pretrained checkpoints rewrite it and end up above CER 0.8. Every method changes some text that was already correct.
+- Noisy input is not the reason. Correction also hurts on region-level OCR with lower CER, and on clean transcriptions corrupted to any CER from 0.02 to 0.30.
+- A repetition penalty or n-gram ban in Hugging Face `generate` also acts on the prompt, so a model that copies its input gets penalised for it. This makes copying models look harmful in an evaluation.
+- Qwen3 4B, 8B and 32B fix more wrong words and lower WER, but they also break correct words, so CER does not fall.
+- A Wikipedia lexicon cuts the dictionary's damage by about four-fifths, but it is still harmful. Fusing the two engines by word confidence lowers CER by less than 1%.
+- Grad-CAM maps show the copying from inside: a copied token mostly relies on its own source token.
+- ByT5-small fine-tuned on synthetic noise does the least damage to clean text and lowers WER, but not CER.
 
 ## Repository layout
 | Folder | Contents |
@@ -77,21 +54,31 @@ flowchart LR
 | `paper/` | `main.tex`, `references.bib`, generated `tables/` and `figures/`, the Bengali font, the compiled `main.pdf`, and `scripts/` that generate every table and figure. See [paper/README.md](paper/README.md). |
 | `data/` | Frozen page lists (`split_dev.txt`, `split_eval.txt`, `excluded_no_ground_truth.txt`), page-type labels, the development-page noise model, the 10-page list of the large-model run, and the scripts that made them. The dataset itself is not committed. |
 | `ocr/` | Whole-page OCR (`run_ocr.py`), word and box confidences (`run_ocr_conf.py`), region-level OCR from the PAGE-XML regions (`run_region_ocr.py`). |
-| `correction/` | The correction harness: models, prompts, decoding presets (`models.py`), chunking, the resumable sweep (`run_sweep.py`), the SymSpell baseline, the fine-tuning pilot (`finetune_byt5.py`), the float16 check. `sessions/` holds the drivers of the Kaggle GPU sessions. |
-| `eval/` | Scoring (`metrics.py`: NFC-normalised CER, WER, cMER), paired bootstrap and Holm-corrected Wilcoxon tests, every analysis, the synthetic-noise model (`make_noise.py`) and the Grad-CAM attribution (`xai_gradcam.py`). |
-| `notebooks/` | `kaggle/`: the GPU and CPU sessions that produced the results (main run, prompt variants, region OCR, third-review runs a-d). `colab/`: the first-version CPU pipeline on 15 pages (decoding comparison and CPU timings). |
+| `correction/` | Models, prompts and decoding presets (`models.py`), chunking, the resumable sweep (`run_sweep.py`), the SymSpell baseline, engine fusion, the fine-tuning pilot (`finetune_byt5.py`). `sessions/` holds the drivers of the Kaggle GPU sessions. |
+| `eval/` | Scoring (`metrics.py`: NFC-normalised CER and WER), bootstrap and Wilcoxon tests, every analysis, the synthetic-noise model, the Grad-CAM attribution, and the data leakage check (`check_leakage.py`). |
+| `notebooks/` | `kaggle/`: the GPU and CPU sessions that produced the results. `colab/`: the first CPU pipeline on 15 pages. |
+| `tools/` | `run_logged.py` runs a command and saves its output, exit code, timing, git commit and package versions in `logs/`. `compare_outputs.py` checks a rerun against a saved result file. |
+| `logs/` | Records of runs made with `run_logged.py` (see [logs/README.md](logs/README.md)) and the leakage report. |
 | `summaries/` | Numeric outputs of the analyses that the tables and figures are built from. No page text. |
-| `context/` | The project's memory: decisions with reasons, results, timeline, engineering notes, the third review with status, and the handoff for the next session. |
-| `results/` | Run outputs (local, gitignored). |
+| `context/` | Decisions with reasons, results, timeline, engineering notes and the review responses. |
+| `results/` | Run outputs and the original Kaggle logs (local only, gitignored). |
+
+[ENVIRONMENT.md](ENVIRONMENT.md) records versions, checkpoints and settings.
 
 ## Reproducing
-1. **Dataset:** the REID2019 Bengali ground truth from the British Library, version 2 ([doi:10.23636/1168](https://doi.org/10.23636/1168); public domain). Unzip it locally or in the Colab/Kaggle runtime.
-2. **Python:** `python -m venv .venv`, activate it, `pip install -r requirements.txt`.
-3. **Tesseract:** install the binary and put `ben.traineddata` from `tessdata_best` in `.tessdata/`, with `TESSDATA_PREFIX` pointing there. Note that Tesseract 5.3.4 no longer reproduces the main run's text (ENVIRONMENT.md), so the main OCR files are kept as released data.
-4. **Hugging Face:** Gemma, Gemma 3 and Llama are gated; accept their licences and provide `HF_TOKEN` as a Kaggle/Colab secret.
-5. **Run:** OCR with `ocr/`; correction with the notebooks in `notebooks/kaggle/` (they clone this repo and call `correction/run_sweep.py` or a driver in `correction/sessions/`); the dictionary baseline with `correction/dictionary_baseline.py`; analyses, tables and figures with the commands in [paper/README.md](paper/README.md), from the repository root.
+1. Dataset: the REID2019 Bengali ground truth from the British Library, version 2 ([doi:10.23636/1168](https://doi.org/10.23636/1168), public domain). Unzip it locally or in the Colab/Kaggle runtime.
+2. Python: `python -m venv .venv`, activate it, then `pip install -r requirements.txt`. The exact versions used for the analysis are in `requirements-lock-analysis.txt`.
+3. Tesseract: install the binary and put `ben.traineddata` from `tessdata_best` in `.tessdata/`, with `TESSDATA_PREFIX` pointing there. Tesseract 5.3.4 no longer reproduces the main run's text (see ENVIRONMENT.md), so the main OCR files are kept as released data.
+4. Hugging Face: Gemma, Gemma 3 and Llama are gated. Accept their licences and give `HF_TOKEN` as a Kaggle/Colab secret.
+5. Run: OCR with `ocr/`; correction with the notebooks in `notebooks/kaggle/` (they clone this repo and call `correction/run_sweep.py` or a driver in `correction/sessions/`); the dictionary baseline with `correction/dictionary_baseline.py`; analyses, tables and figures with the commands in [paper/README.md](paper/README.md), from the repository root.
 
-On Windows, scripts that print Bengali re-wrap stdout as UTF-8 so the console does not crash.
+To rescore everything and rebuild all generated tables in one go, with the run logged:
 
-## Data and release
-The code is not released under any licence. The per-page OCR text and model outputs are not in this repository; they will be released separately together with the final paper. The page images are out of copyright and the transcriptions carry the Public Domain Mark. The bundled font, Noto Serif Bengali, is under the SIL Open Font License. Model checkpoints are under their own licences and are not redistributed here.
+```
+python tools/run_logged.py --label reproduce-tables -- bash paper/scripts/reproduce_tables.sh
+```
+
+Set `PY` to the project's Python first if `python` is not the venv. On Windows, scripts that print Bengali re-wrap stdout as UTF-8 so the console does not crash.
+
+## Data and licence
+The code is not released under any licence yet. The per-page OCR text and model outputs are not in this repository; they will be released separately with the final paper. The page images are out of copyright and the transcriptions carry the Public Domain Mark. The bundled font, Noto Serif Bengali, is under the SIL Open Font License. Model checkpoints are under their own licences and are not redistributed here.

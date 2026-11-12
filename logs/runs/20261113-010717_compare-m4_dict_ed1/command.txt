@@ -1,0 +1,1 @@
+.venv/Scripts/python.exe tools/compare_outputs.py results/m4_dict_ed1.jsonl logs/reruns/m4_dict_ed1.jsonl

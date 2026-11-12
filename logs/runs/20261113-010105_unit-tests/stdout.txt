@@ -1,0 +1,9 @@
+PASS test_identical_text_zero_error
+PASS test_known_single_char_substitution
+PASS test_nfc_normalization_matches_decomposed_form
+PASS test_empty_reference_nonempty_hypothesis_is_full_error
+PASS test_empty_reference_and_hypothesis_is_zero_error
+PASS test_completely_wrong_hypothesis_has_high_cer
+PASS test_whitespace_only_differences_are_ignored
+
+All 7 tests passed

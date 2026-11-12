@@ -1,0 +1,1 @@
+.venv/Scripts/python.exe correction/ocr_fusion.py --ocr-path results/ocr_eval40.jsonl --conf-path results/ocr_conf40.jsonl --out logs/reruns/m6_fusion40.jsonl

@@ -1,0 +1,2 @@
+Wrote G:\bengali-postocr-sllm\paper\main-single.tex (1872 lines); remaining \input: none
+Wrote G:\bengali-postocr-sllm\paper\overleaf-final.zip: main.tex + 9 figure files + fonts

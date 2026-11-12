@@ -1,0 +1,26 @@
+{
+  "run_id": "20261113-010719_compare-m6_fusion40",
+  "label": "compare-m6_fusion40",
+  "command": "G:\\bengali-postocr-sllm\\.venv\\Scripts\\python.exe tools/compare_outputs.py results/m6_fusion40.jsonl logs/reruns/m6_fusion40.jsonl",
+  "start": "2026-11-13T01:07:19+06:00",
+  "end": "2026-11-13T01:07:19+06:00",
+  "seconds": 0.16,
+  "exit_code": 0,
+  "git_commit": "a5bd089980b5a8673fd7cdb13802353546b10266",
+  "git_dirty": false,
+  "python": "3.11.0",
+  "packages": {
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "jiwer": "4.0.0",
+    "rapidfuzz": "3.14.5",
+    "regex": "2026.7.19",
+    "matplotlib": "3.11.1",
+    "symspellpy": "6.10.0",
+    "torch": "2.13.0",
+    "transformers": "5.14.1",
+    "pytesseract": "0.3.13",
+    "easyocr": "1.7.2"
+  },
+  "machine": "Windows 10 AMD64"
+}

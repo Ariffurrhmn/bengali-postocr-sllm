@@ -1,0 +1,1 @@
+tectonic -X compile main.tex --outdir C:/Users/WINDOW~1/AppData/Local/Temp/claude/e64aa4efab3c7f81/2a39f507-1b8a-423f-832a-c0e19f37300e/scratchpad/paper_build

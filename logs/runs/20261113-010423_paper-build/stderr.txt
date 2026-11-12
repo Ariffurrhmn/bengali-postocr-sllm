@@ -1,0 +1,81 @@
+Fontconfig error: Cannot load default config file: No such file: (null)
+warning: main.tex:33: Underfull \hbox (badness 2469) in paragraph at lines 32--33
+warning: main.tex:111: Underfull \vbox (badness 1142) has occurred while \output is active
+warning: main.tex:113: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:113: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:130: Underfull \hbox (badness 4899) in paragraph at lines 129--130
+warning: main.tex:130: Underfull \hbox (badness 7540) in paragraph at lines 129--130
+warning: main.tex:145: Underfull \vbox (badness 1127) has occurred while \output is active
+warning: main.tex:197: Underfull \hbox (badness 4634) in paragraph at lines 196--197
+warning: tables/baseline:14: Underfull \hbox (badness 10000) in paragraph at lines 14--14
+warning: main.tex:244: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:244: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:285: Underfull \vbox (badness 4832) has occurred while \output is active
+warning: main.tex:307: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:323: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:338: Underfull \vbox (badness 6284) has occurred while \output is active
+warning: main.tex:342: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:346: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:346: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:385: Underfull \vbox (badness 4569) has occurred while \output is active
+warning: main.tex:401: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:424: Underfull \vbox (badness 4792) has occurred while \output is active
+warning: tables/checks:21: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:33: Underfull \hbox (badness 2469) in paragraph at lines 32--33
+warning: main.tex:113: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:113: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:130: Underfull \hbox (badness 4899) in paragraph at lines 129--130
+warning: main.tex:130: Underfull \hbox (badness 7540) in paragraph at lines 129--130
+warning: main.tex:197: Underfull \hbox (badness 4634) in paragraph at lines 196--197
+warning: tables/baseline:14: Underfull \hbox (badness 10000) in paragraph at lines 14--14
+warning: main.tex:242: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:244: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:267: Underfull \vbox (badness 2418) has occurred while \output is active
+warning: main.tex:285: Underfull \vbox (badness 4832) has occurred while \output is active
+warning: main.tex:307: Underfull \vbox (badness 2393) has occurred while \output is active
+warning: main.tex:323: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:329: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:342: Underfull \vbox (badness 6284) has occurred while \output is active
+warning: main.tex:346: Underfull \vbox (badness 1755) has occurred while \output is active
+warning: main.tex:346: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:380: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:396: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:424: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.bbl:33: Underfull \hbox (badness 10000) in paragraph at lines 26--33
+warning: main.bbl:33: Underfull \hbox (badness 10000) in paragraph at lines 26--33
+warning: main.bbl:101: Underfull \hbox (badness 1902) in paragraph at lines 94--101
+warning: main.bbl:143: Underfull \hbox (badness 2221) in paragraph at lines 138--143
+warning: main.bbl:206: Underfull \hbox (badness 2856) in paragraph at lines 202--206
+warning: main.bbl:370: Underfull \hbox (badness 3536) in paragraph at lines 368--370
+warning: main.bbl:380: Underfull \hbox (badness 1472) in paragraph at lines 377--380
+warning: main.bbl:395: Underfull \hbox (badness 2707) in paragraph at lines 392--395
+warning: main.tex:33: Underfull \hbox (badness 2469) in paragraph at lines 32--33
+warning: main.tex:113: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:113: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:130: Underfull \hbox (badness 4899) in paragraph at lines 129--130
+warning: main.tex:130: Underfull \hbox (badness 7540) in paragraph at lines 129--130
+warning: main.tex:136: Underfull \hbox (badness 5939) in paragraph at lines 135--136
+warning: main.tex:197: Underfull \hbox (badness 2103) in paragraph at lines 196--197
+warning: tables/baseline:14: Underfull \hbox (badness 10000) in paragraph at lines 14--14
+warning: main.tex:242: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:244: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:267: Underfull \vbox (badness 2418) has occurred while \output is active
+warning: main.tex:285: Underfull \vbox (badness 4832) has occurred while \output is active
+warning: main.tex:307: Underfull \vbox (badness 2393) has occurred while \output is active
+warning: main.tex:323: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:329: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:342: Underfull \vbox (badness 6284) has occurred while \output is active
+warning: main.tex:346: Underfull \vbox (badness 1755) has occurred while \output is active
+warning: main.tex:346: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:380: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:396: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.tex:424: Underfull \vbox (badness 10000) has occurred while \output is active
+warning: main.bbl:33: Underfull \hbox (badness 10000) in paragraph at lines 26--33
+warning: main.bbl:33: Underfull \hbox (badness 10000) in paragraph at lines 26--33
+warning: main.bbl:101: Underfull \hbox (badness 1902) in paragraph at lines 94--101
+warning: main.bbl:143: Underfull \hbox (badness 2221) in paragraph at lines 138--143
+warning: main.bbl:206: Underfull \hbox (badness 2856) in paragraph at lines 202--206
+warning: main.bbl:370: Underfull \hbox (badness 3536) in paragraph at lines 368--370
+warning: main.bbl:380: Underfull \hbox (badness 1472) in paragraph at lines 377--380
+warning: main.bbl:395: Underfull \hbox (badness 2707) in paragraph at lines 392--395
+warning: warnings were issued by the TeX engine; use --print and/or --keep-logs for details.

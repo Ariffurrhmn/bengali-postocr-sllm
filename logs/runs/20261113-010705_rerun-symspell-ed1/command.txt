@@ -1,0 +1,1 @@
+.venv/Scripts/python.exe correction/dictionary_baseline.py --ocr-path results/ocr_eval40.jsonl --max-edit-distance 1 --model-key symspell-ed1 --out logs/reruns/m4_dict_ed1.jsonl

@@ -1,0 +1,140 @@
+{
+  "split": {
+    "dev_pages": 10,
+    "eval_pages": 40,
+    "excluded_pages": 29,
+    "duplicate_ids_within_lists": 0,
+    "dev_eval_page_overlap": [],
+    "excluded_in_dev_or_eval": [],
+    "books_shared_dev_eval": [
+      "14048_D_11"
+    ]
+  },
+  "files_match_split": {
+    "ocr_dev_pages_equal_split": true,
+    "ocr_eval_pages_equal_split": true
+  },
+  "positive_control": {
+    "page_vs_itself": 1.0,
+    "half_of_eval_page_planted_in_dev_text": 0.426
+  },
+  "reference_text": {
+    "eval_vs_dev_12char_top5": [
+      {
+        "eval_page": "279_2_A_28_0002",
+        "most_similar_dev_page": "14123_h_3_0005",
+        "share": 0.0466
+      },
+      {
+        "eval_page": "279_41_D_19_0004",
+        "most_similar_dev_page": "14123_h_3_0005",
+        "share": 0.0182
+      },
+      {
+        "eval_page": "14028_D_2_0004",
+        "most_similar_dev_page": "14123_h_3_0005",
+        "share": 0.0165
+      },
+      {
+        "eval_page": "279_2_a_15_0005",
+        "most_similar_dev_page": "14123_h_3_0005",
+        "share": 0.0161
+      },
+      {
+        "eval_page": "279_33_C_7_0002",
+        "most_similar_dev_page": "14123_h_3_0005",
+        "share": 0.0149
+      }
+    ],
+    "shingle_length": 25,
+    "eval_pages_with_identical_reference": 0,
+    "max_eval_vs_dev_share": 0.0,
+    "eval_vs_dev_top5": [
+      {
+        "eval_page": "14028_D_2_0004",
+        "most_similar_dev_page": null,
+        "share_of_eval_shingles_in_dev_page": 0.0
+      },
+      {
+        "eval_page": "14048_D_11_0063",
+        "most_similar_dev_page": null,
+        "share_of_eval_shingles_in_dev_page": 0.0
+      },
+      {
+        "eval_page": "14076_a_2_0006",
+        "most_similar_dev_page": null,
+        "share_of_eval_shingles_in_dev_page": 0.0
+      },
+      {
+        "eval_page": "14090_d_15_0006",
+        "most_similar_dev_page": null,
+        "share_of_eval_shingles_in_dev_page": 0.0
+      },
+      {
+        "eval_page": "14090_d_15_0007",
+        "most_similar_dev_page": null,
+        "share_of_eval_shingles_in_dev_page": 0.0
+      }
+    ],
+    "max_eval_vs_eval_share": 0.0,
+    "eval_vs_eval_top5": [
+      {
+        "page": "14028_D_2_0004",
+        "most_similar_other_eval_page": null,
+        "share": 0.0
+      },
+      {
+        "page": "14048_D_11_0063",
+        "most_similar_other_eval_page": null,
+        "share": 0.0
+      },
+      {
+        "page": "14076_a_2_0006",
+        "most_similar_other_eval_page": null,
+        "share": 0.0
+      },
+      {
+        "page": "14090_d_15_0006",
+        "most_similar_other_eval_page": null,
+        "share": 0.0
+      },
+      {
+        "page": "14090_d_15_0007",
+        "most_similar_other_eval_page": null,
+        "share": 0.0
+      }
+    ]
+  },
+  "fewshot": [
+    {
+      "page_id": "14048_c_24_0185",
+      "page_in_dev": true,
+      "page_in_eval": false,
+      "shingles_shared_with_eval_refs": 0
+    },
+    {
+      "page_id": "14123_h_3_0005",
+      "page_in_dev": true,
+      "page_in_eval": false,
+      "shingles_shared_with_eval_refs": 0
+    },
+    {
+      "page_id": "14129_b_1-12_00028",
+      "page_in_dev": true,
+      "page_in_eval": false,
+      "shingles_shared_with_eval_refs": 0
+    }
+  ],
+  "noise_model": {
+    "source": "ocr_dev.jsonl",
+    "engines": [
+      "tesseract",
+      "easyocr"
+    ]
+  },
+  "finetune_dev_lines": {
+    "dev_lines": 165,
+    "lines_sharing_a_25gram_with_eval": 0,
+    "note": "finetune_byt5.py drops these before training; the Wikipedia part was filtered the same way (Kaggle logs: 0 segments dropped)."
+  }
+}

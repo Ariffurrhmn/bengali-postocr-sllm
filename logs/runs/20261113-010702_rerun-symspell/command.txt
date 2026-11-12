@@ -1,0 +1,1 @@
+.venv/Scripts/python.exe correction/dictionary_baseline.py --ocr-path results/ocr_eval40.jsonl --out logs/reruns/dict_eval40.jsonl

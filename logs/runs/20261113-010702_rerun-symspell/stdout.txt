@@ -1,0 +1,2 @@
+Lexicon: 44335 Bengali words
+Wrote logs\reruns\dict_eval40.jsonl (4481 words replaced in total)
