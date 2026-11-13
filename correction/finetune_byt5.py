@@ -128,7 +128,8 @@ def correct(model, tok, text, device, max_bytes):
     for chunk in chunk_text_chars(text):
         # Lines joined by spaces, as in training (segments_from removes newlines);
         # review3d fed "\n" the model had never seen and it skipped and repeated
-        # lines (D50). CER ignores whitespace, so scoring is unaffected.
+        # lines (D50). Scoring collapses every whitespace run to one space, so
+        # joining lines with spaces instead of newlines scores the same.
         chunk = " ".join(chunk.split())
         enc = tok(chunk, return_tensors="pt", truncation=True, max_length=max_bytes).to(device)
         n_in = enc["input_ids"].shape[1]

@@ -78,8 +78,12 @@ def ground_truth_text(dataset_dir: Path, page_id: str) -> str:
     for region in REGION_RE.findall(xml_text):
         matches = UNICODE_RE.findall(region)
         if matches:
-            # A region can have multiple TextLine/Unicode entries; keep only
-            # the region-level TextEquiv if present, else join line entries.
+            # One <Unicode> entry: use it. Several (line-level entries come
+            # before the region-level one): only the first is kept, which is
+            # usually the first line. In the evaluation XMLs this affects one
+            # region (page 279_2_A_28_0002, r8) and drops one transcribed
+            # line. Kept as is so the stored references and every score stay
+            # unchanged (decision D75).
             lines.append(matches[-1].strip() if len(matches) == 1 else matches[0].strip())
     return "\n".join(l for l in lines if l)
 

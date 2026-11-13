@@ -15,4 +15,8 @@ Copies of the numeric analysis outputs in `results/` from which the paper's tabl
 | `m6_fusion40.json` | `matrix_analysis.py` | Tesseract and EasyOCR fused by word confidence |
 | `m2_runs40.json` | `matrix_analysis.py` | fine-tuned ByT5-small (review3e) on both engines and clean text |
 | `m7_runs10.json` | `matrix_analysis.py` | Qwen3 size series up to 32B (4-bit) and the main models on 10 pages |
+| `review4_runs.json` | `review4_runs_analysis.py` | constraints on generated tokens only; completion prompt for the TituLLMs Instruct checkpoints |
+| `edit_analysis40.json`, `output_filter40.json` | `edit_analysis.py`, `output_filter.py` | character errors per word group; the commentary filter |
+| `m6_fusion40_family4.json` | `matrix_analysis.py` | fusion scored in the first 4-cell Holm family (D51, D60) |
+| `region_phi4-mini_easyocr_pages.json` | `page_deltas.py` | per-page CER changes of Phi-4-mini on EasyOCR region text |
 | `*_environment.txt` | the Kaggle notebooks | package versions of each GPU session |

@@ -1,0 +1,7 @@
+repo commit: 72df61d Revise after the external review: scope, audit, edit-level analysis, restructure by research question (D63)
+python: 3.13.15
+torch: 2.11.0+cu128
+cuda: 12.8
+cudnn: 91900
+transformers: 5.19.0
+gpus: ['Tesla T4', 'Tesla T4']

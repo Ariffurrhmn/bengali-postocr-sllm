@@ -1,0 +1,966 @@
+[
+ {
+  "file": "gpu_eval40.jsonl",
+  "model": "gemma-2b",
+  "engine": "tesseract",
+  "pages": 40,
+  "ref_chars": 29599,
+  "char_errors_raw": 8822,
+  "char_errors_corrected": 9318,
+  "words": {
+   "still_wrong": 2531,
+   "kept": 1878,
+   "broken": 77,
+   "fixed": 11
+  },
+  "still_wrong_changed": 233,
+  "delta_by_group": {
+   "fixed": -3,
+   "broken": 146,
+   "still_wrong": 208,
+   "kept": 40,
+   "boundary": 105
+  },
+  "delta_by_group_class": {
+   "fixed": {
+    "punct": -3
+   },
+   "broken": {
+    "consonant": 92,
+    "vowel_sign": 39,
+    "virama": 10,
+    "other_sign": 2,
+    "indep_vowel": 4,
+    "digit": 15,
+    "punct": 5,
+    "space": -21
+   },
+   "still_wrong": {
+    "consonant": 159,
+    "vowel_sign": 45,
+    "virama": 32,
+    "digit": 24,
+    "punct": -30,
+    "space": -22
+   },
+   "kept": {
+    "consonant": 17,
+    "vowel_sign": 2,
+    "virama": 3,
+    "other_sign": 2,
+    "digit": 10,
+    "space": 6
+   },
+   "boundary": {
+    "space": 105
+   }
+  },
+  "nospace_cer_raw": 0.3400376798488424,
+  "nospace_cer_corrected": 0.3528140751272558
+ },
+ {
+  "file": "gpu_eval40.jsonl",
+  "model": "qwen3-1.7b",
+  "engine": "tesseract",
+  "pages": 40,
+  "ref_chars": 29599,
+  "char_errors_raw": 8822,
+  "char_errors_corrected": 8842,
+  "words": {
+   "still_wrong": 2459,
+   "kept": 1890,
+   "fixed": 83,
+   "broken": 65
+  },
+  "still_wrong_changed": 293,
+  "delta_by_group": {
+   "fixed": -83,
+   "broken": 63,
+   "still_wrong": 95,
+   "kept": -109,
+   "boundary": 54
+  },
+  "delta_by_group_class": {
+   "fixed": {
+    "consonant": -9,
+    "vowel_sign": -34,
+    "virama": -5,
+    "other_sign": -6,
+    "punct": -22,
+    "space": -6,
+    "other": -1
+   },
+   "broken": {
+    "consonant": 25,
+    "vowel_sign": 7,
+    "virama": 1,
+    "other_sign": 2,
+    "indep_vowel": 1,
+    "digit": 4,
+    "punct": 21,
+    "space": 1,
+    "other": 1
+   },
+   "still_wrong": {
+    "consonant": 124,
+    "vowel_sign": 53,
+    "virama": 6,
+    "other_sign": 9,
+    "indep_vowel": 4,
+    "digit": 16,
+    "punct": -103,
+    "space": -17,
+    "other": 3
+   },
+   "kept": {
+    "consonant": -11,
+    "vowel_sign": 2,
+    "virama": -11,
+    "indep_vowel": -1,
+    "digit": -39,
+    "punct": -15,
+    "space": -33,
+    "other": -1
+   },
+   "boundary": {
+    "space": 54
+   }
+  },
+  "nospace_cer_raw": 0.3400376798488424,
+  "nospace_cer_corrected": 0.33786052101053193
+ },
+ {
+  "file": "review3b/m1_qwen3-4b.jsonl",
+  "model": "qwen3-4b",
+  "engine": "tesseract",
+  "pages": 40,
+  "ref_chars": 29599,
+  "char_errors_raw": 8822,
+  "char_errors_corrected": 9011,
+  "words": {
+   "still_wrong": 2333,
+   "kept": 1851,
+   "broken": 104,
+   "fixed": 209
+  },
+  "still_wrong_changed": 559,
+  "delta_by_group": {
+   "fixed": -187,
+   "broken": 137,
+   "still_wrong": 201,
+   "kept": 1,
+   "boundary": 37
+  },
+  "delta_by_group_class": {
+   "fixed": {
+    "consonant": -42,
+    "vowel_sign": -54,
+    "virama": -19,
+    "other_sign": -12,
+    "digit": -2,
+    "punct": -53,
+    "space": -4,
+    "other": -1
+   },
+   "broken": {
+    "consonant": 48,
+    "vowel_sign": 18,
+    "virama": 7,
+    "other_sign": 9,
+    "indep_vowel": 2,
+    "digit": 5,
+    "punct": 36,
+    "space": 12
+   },
+   "still_wrong": {
+    "consonant": 169,
+    "vowel_sign": 62,
+    "virama": 35,
+    "other_sign": 12,
+    "indep_vowel": 2,
+    "digit": 4,
+    "punct": -74,
+    "space": -9
+   },
+   "kept": {
+    "consonant": 20,
+    "vowel_sign": 15,
+    "virama": -4,
+    "other_sign": 3,
+    "indep_vowel": 2,
+    "digit": -18,
+    "punct": -4,
+    "space": -12,
+    "other": -1
+   },
+   "boundary": {
+    "space": 37
+   }
+  },
+  "nospace_cer_raw": 0.3400376798488424,
+  "nospace_cer_corrected": 0.34335005350018966
+ },
+ {
+  "file": "review3b/m1_qwen3-8b.jsonl",
+  "model": "qwen3-8b",
+  "engine": "tesseract",
+  "pages": 40,
+  "ref_chars": 29599,
+  "char_errors_raw": 8822,
+  "char_errors_corrected": 8931,
+  "words": {
+   "still_wrong": 2279,
+   "kept": 1843,
+   "fixed": 263,
+   "broken": 112
+  },
+  "still_wrong_changed": 667,
+  "delta_by_group": {
+   "fixed": -243,
+   "broken": 157,
+   "still_wrong": 241,
+   "kept": -95,
+   "boundary": 49
+  },
+  "delta_by_group_class": {
+   "fixed": {
+    "consonant": -42,
+    "vowel_sign": -82,
+    "virama": -26,
+    "other_sign": -10,
+    "digit": -4,
+    "punct": -71,
+    "space": -7,
+    "other": -1
+   },
+   "broken": {
+    "consonant": 60,
+    "vowel_sign": 29,
+    "virama": 16,
+    "other_sign": 3,
+    "indep_vowel": 3,
+    "digit": 3,
+    "punct": 30,
+    "space": 12,
+    "other": 1
+   },
+   "still_wrong": {
+    "consonant": 201,
+    "vowel_sign": 112,
+    "virama": 23,
+    "other_sign": 2,
+    "indep_vowel": -1,
+    "digit": -1,
+    "punct": -85,
+    "space": -11,
+    "other": 1
+   },
+   "kept": {
+    "consonant": -5,
+    "vowel_sign": 4,
+    "virama": -8,
+    "other_sign": 3,
+    "indep_vowel": -1,
+    "digit": -41,
+    "punct": -10,
+    "space": -36,
+    "other": -1
+   },
+   "boundary": {
+    "space": 49
+   }
+  },
+  "nospace_cer_raw": 0.3400376798488424,
+  "nospace_cer_corrected": 0.34487045252869963
+ },
+ {
+  "file": "review3b/m1_llama3.2-3b.jsonl",
+  "model": "llama3.2-3b",
+  "engine": "tesseract",
+  "pages": 40,
+  "ref_chars": 29599,
+  "char_errors_raw": 8822,
+  "char_errors_corrected": 9466,
+  "words": {
+   "still_wrong": 2470,
+   "kept": 1812,
+   "broken": 143,
+   "fixed": 72
+  },
+  "still_wrong_changed": 620,
+  "delta_by_group": {
+   "fixed": -54,
+   "broken": 207,
+   "still_wrong": 304,
+   "kept": 86,
+   "boundary": 101
+  },
+  "delta_by_group_class": {
+   "fixed": {
+    "consonant": -1,
+    "vowel_sign": -13,
+    "virama": -2,
+    "other_sign": -3,
+    "digit": -1,
+    "punct": -29,
+    "space": -5
+   },
+   "broken": {
+    "consonant": 84,
+    "vowel_sign": 44,
+    "virama": 16,
+    "other_sign": 8,
+    "indep_vowel": 9,
+    "digit": 11,
+    "punct": 35,
+    "space": -1,
+    "other": 1
+   },
+   "still_wrong": {
+    "consonant": 277,
+    "vowel_sign": 126,
+    "virama": 47,
+    "other_sign": 26,
+    "indep_vowel": 12,
+    "digit": -23,
+    "punct": -112,
+    "space": -52,
+    "other": 3
+   },
+   "kept": {
+    "consonant": 53,
+    "vowel_sign": 20,
+    "virama": 8,
+    "other_sign": 5,
+    "digit": -8,
+    "punct": 5,
+    "space": 5,
+    "other": -2
+   },
+   "boundary": {
+    "space": 101
+   }
+  },
+  "nospace_cer_raw": 0.3400376798488424,
+  "nospace_cer_corrected": 0.3601746494564956
+ },
+ {
+  "file": "review3e/m2_byt5.jsonl",
+  "model": "byt5-small-ft",
+  "engine": "tesseract",
+  "pages": 40,
+  "ref_chars": 29599,
+  "char_errors_raw": 8822,
+  "char_errors_corrected": 9147,
+  "words": {
+   "still_wrong": 2429,
+   "kept": 1853,
+   "fixed": 113,
+   "broken": 102
+  },
+  "still_wrong_changed": 597,
+  "delta_by_group": {
+   "fixed": -73,
+   "broken": 114,
+   "still_wrong": 187,
+   "kept": 41,
+   "boundary": 56
+  },
+  "delta_by_group_class": {
+   "fixed": {
+    "consonant": -15,
+    "vowel_sign": -33,
+    "virama": -1,
+    "other_sign": -1,
+    "indep_vowel": -3,
+    "digit": -1,
+    "punct": -20,
+    "space": 2,
+    "other": -1
+   },
+   "broken": {
+    "consonant": 74,
+    "vowel_sign": 25,
+    "virama": 6,
+    "other_sign": 9,
+    "indep_vowel": 5,
+    "digit": -10,
+    "punct": 18,
+    "space": -16,
+    "other": 3
+   },
+   "still_wrong": {
+    "consonant": 212,
+    "vowel_sign": 25,
+    "virama": -8,
+    "other_sign": 2,
+    "digit": 66,
+    "punct": -109,
+    "space": -8,
+    "other": 7
+   },
+   "kept": {
+    "consonant": 21,
+    "vowel_sign": 12,
+    "virama": 2,
+    "other_sign": 2,
+    "indep_vowel": 1,
+    "digit": 3,
+    "punct": -3,
+    "space": 1,
+    "other": 2
+   },
+   "boundary": {
+    "space": 56
+   }
+  },
+  "nospace_cer_raw": 0.3400376798488424,
+  "nospace_cer_corrected": 0.3534528813232946
+ },
+ {
+  "file": "gpu_eval40.jsonl",
+  "model": "gemma-2b",
+  "engine": "easyocr",
+  "pages": 40,
+  "ref_chars": 29599,
+  "char_errors_raw": 8480,
+  "char_errors_corrected": 8840,
+  "words": {
+   "kept": 1878,
+   "still_wrong": 2535,
+   "broken": 72,
+   "fixed": 12
+  },
+  "still_wrong_changed": 157,
+  "delta_by_group": {
+   "fixed": -14,
+   "broken": 148,
+   "still_wrong": 162,
+   "kept": 0,
+   "boundary": 64
+  },
+  "delta_by_group_class": {
+   "fixed": {
+    "consonant": -5,
+    "vowel_sign": -7,
+    "virama": -1,
+    "indep_vowel": -1,
+    "punct": -2,
+    "space": 2
+   },
+   "broken": {
+    "consonant": 61,
+    "vowel_sign": 10,
+    "virama": 18,
+    "other_sign": 7,
+    "indep_vowel": 4,
+    "digit": 54,
+    "punct": 3,
+    "space": -9
+   },
+   "still_wrong": {
+    "consonant": 60,
+    "vowel_sign": 35,
+    "virama": 29,
+    "other_sign": 6,
+    "indep_vowel": -6,
+    "digit": 77,
+    "punct": -9,
+    "space": -30
+   },
+   "kept": {
+    "consonant": -6,
+    "vowel_sign": -2,
+    "virama": -1,
+    "other_sign": -1,
+    "indep_vowel": -1,
+    "digit": 6,
+    "space": 5
+   },
+   "boundary": {
+    "space": 64
+   }
+  },
+  "nospace_cer_raw": 0.3031419548196424,
+  "nospace_cer_corrected": 0.30748886648283325
+ },
+ {
+  "file": "gpu_eval40.jsonl",
+  "model": "qwen3-1.7b",
+  "engine": "easyocr",
+  "pages": 40,
+  "ref_chars": 29599,
+  "char_errors_raw": 8480,
+  "char_errors_corrected": 9062,
+  "words": {
+   "kept": 1855,
+   "still_wrong": 2458,
+   "broken": 95,
+   "fixed": 89
+  },
+  "still_wrong_changed": 248,
+  "delta_by_group": {
+   "fixed": -46,
+   "broken": 287,
+   "still_wrong": 288,
+   "kept": 1,
+   "boundary": 52
+  },
+  "delta_by_group_class": {
+   "fixed": {
+    "consonant": 12,
+    "vowel_sign": -44,
+    "virama": 1,
+    "other_sign": -6,
+    "indep_vowel": 2,
+    "digit": -1,
+    "punct": -10
+   },
+   "broken": {
+    "consonant": 153,
+    "vowel_sign": 63,
+    "virama": 15,
+    "other_sign": 10,
+    "indep_vowel": 13,
+    "digit": 15,
+    "punct": 17,
+    "space": -3,
+    "other": 4
+   },
+   "still_wrong": {
+    "consonant": 184,
+    "vowel_sign": 46,
+    "virama": 38,
+    "other_sign": 15,
+    "indep_vowel": 12,
+    "digit": 7,
+    "punct": -22,
+    "other": 8
+   },
+   "kept": {
+    "consonant": -3,
+    "vowel_sign": -5,
+    "indep_vowel": -2,
+    "digit": 4,
+    "punct": 8,
+    "space": -1
+   },
+   "boundary": {
+    "space": 52
+   }
+  },
+  "nospace_cer_raw": 0.3031419548196424,
+  "nospace_cer_corrected": 0.3203177661314635
+ },
+ {
+  "file": "review3b/m1_qwen3-4b.jsonl",
+  "model": "qwen3-4b",
+  "engine": "easyocr",
+  "pages": 40,
+  "ref_chars": 29599,
+  "char_errors_raw": 8480,
+  "char_errors_corrected": 8630,
+  "words": {
+   "kept": 1850,
+   "still_wrong": 2346,
+   "broken": 100,
+   "fixed": 201
+  },
+  "still_wrong_changed": 394,
+  "delta_by_group": {
+   "fixed": -185,
+   "broken": 89,
+   "still_wrong": 159,
+   "kept": 15,
+   "boundary": 72
+  },
+  "delta_by_group_class": {
+   "fixed": {
+    "consonant": -22,
+    "vowel_sign": -100,
+    "virama": -13,
+    "other_sign": -11,
+    "digit": -4,
+    "punct": -21,
+    "space": -14
+   },
+   "broken": {
+    "consonant": 34,
+    "vowel_sign": 18,
+    "virama": 9,
+    "other_sign": 3,
+    "indep_vowel": 1,
+    "digit": 11,
+    "punct": 12,
+    "space": 1
+   },
+   "still_wrong": {
+    "consonant": 143,
+    "vowel_sign": 32,
+    "virama": 22,
+    "other_sign": 26,
+    "indep_vowel": -1,
+    "digit": -18,
+    "punct": -34,
+    "space": -11
+   },
+   "kept": {
+    "consonant": 18,
+    "vowel_sign": 6,
+    "virama": 3,
+    "indep_vowel": -2,
+    "digit": -4,
+    "punct": -4,
+    "space": -2
+   },
+   "boundary": {
+    "space": 72
+   }
+  },
+  "nospace_cer_raw": 0.3031419548196424,
+  "nospace_cer_corrected": 0.3056546987976582
+ },
+ {
+  "file": "review3b/m1_qwen3-8b.jsonl",
+  "model": "qwen3-8b",
+  "engine": "easyocr",
+  "pages": 40,
+  "ref_chars": 29599,
+  "char_errors_raw": 8480,
+  "char_errors_corrected": 8534,
+  "words": {
+   "kept": 1837,
+   "still_wrong": 2207,
+   "broken": 113,
+   "fixed": 340
+  },
+  "still_wrong_changed": 622,
+  "delta_by_group": {
+   "fixed": -416,
+   "broken": 154,
+   "still_wrong": 255,
+   "kept": -38,
+   "boundary": 99
+  },
+  "delta_by_group_class": {
+   "fixed": {
+    "consonant": -69,
+    "vowel_sign": -197,
+    "virama": -30,
+    "other_sign": -14,
+    "indep_vowel": -4,
+    "digit": -11,
+    "punct": -43,
+    "space": -48
+   },
+   "broken": {
+    "consonant": 60,
+    "vowel_sign": 34,
+    "virama": 14,
+    "other_sign": 4,
+    "indep_vowel": 6,
+    "digit": 18,
+    "punct": 7,
+    "space": 11
+   },
+   "still_wrong": {
+    "consonant": 201,
+    "vowel_sign": 15,
+    "virama": 40,
+    "other_sign": 28,
+    "indep_vowel": 1,
+    "digit": 4,
+    "punct": -60,
+    "space": 26
+   },
+   "kept": {
+    "consonant": 22,
+    "vowel_sign": 3,
+    "virama": 1,
+    "other_sign": 7,
+    "indep_vowel": 2,
+    "digit": -21,
+    "punct": -19,
+    "space": -33
+   },
+   "boundary": {
+    "space": 99
+   }
+  },
+  "nospace_cer_raw": 0.3031419548196424,
+  "nospace_cer_corrected": 0.3037103266844521
+ },
+ {
+  "file": "review3b/m1_llama3.2-3b.jsonl",
+  "model": "llama3.2-3b",
+  "engine": "easyocr",
+  "pages": 40,
+  "ref_chars": 29599,
+  "char_errors_raw": 8480,
+  "char_errors_corrected": 8731,
+  "words": {
+   "kept": 1824,
+   "still_wrong": 2410,
+   "fixed": 137,
+   "broken": 126
+  },
+  "still_wrong_changed": 481,
+  "delta_by_group": {
+   "fixed": -142,
+   "broken": 100,
+   "still_wrong": 249,
+   "kept": -55,
+   "boundary": 99
+  },
+  "delta_by_group_class": {
+   "fixed": {
+    "consonant": -11,
+    "vowel_sign": -62,
+    "virama": -10,
+    "other_sign": -11,
+    "indep_vowel": -1,
+    "digit": -9,
+    "punct": -30,
+    "space": -8
+   },
+   "broken": {
+    "consonant": 37,
+    "vowel_sign": 24,
+    "virama": 11,
+    "other_sign": 9,
+    "indep_vowel": 9,
+    "digit": 10,
+    "punct": 8,
+    "space": -8
+   },
+   "still_wrong": {
+    "consonant": 235,
+    "vowel_sign": 65,
+    "virama": 36,
+    "other_sign": 34,
+    "indep_vowel": 6,
+    "digit": -28,
+    "punct": -72,
+    "space": -27
+   },
+   "kept": {
+    "consonant": 4,
+    "vowel_sign": 2,
+    "virama": -7,
+    "other_sign": 1,
+    "indep_vowel": 2,
+    "digit": -9,
+    "punct": -34,
+    "space": -14
+   },
+   "boundary": {
+    "space": 99
+   }
+  },
+  "nospace_cer_raw": 0.3031419548196424,
+  "nospace_cer_corrected": 0.3078591101366023
+ },
+ {
+  "file": "review3e/m2_byt5.jsonl",
+  "model": "byt5-small-ft",
+  "engine": "easyocr",
+  "pages": 40,
+  "ref_chars": 29599,
+  "char_errors_raw": 8480,
+  "char_errors_corrected": 9007,
+  "words": {
+   "kept": 1804,
+   "still_wrong": 2265,
+   "fixed": 282,
+   "broken": 146
+  },
+  "still_wrong_changed": 584,
+  "delta_by_group": {
+   "fixed": -286,
+   "broken": 255,
+   "still_wrong": 399,
+   "kept": 76,
+   "boundary": 83
+  },
+  "delta_by_group_class": {
+   "fixed": {
+    "consonant": -32,
+    "vowel_sign": -140,
+    "virama": -13,
+    "other_sign": -7,
+    "indep_vowel": -2,
+    "digit": 1,
+    "punct": -78,
+    "space": -15
+   },
+   "broken": {
+    "consonant": 130,
+    "vowel_sign": 53,
+    "virama": 19,
+    "other_sign": 47,
+    "indep_vowel": 7,
+    "digit": 2,
+    "punct": 7,
+    "space": -10
+   },
+   "still_wrong": {
+    "consonant": 343,
+    "vowel_sign": 84,
+    "virama": 25,
+    "other_sign": 49,
+    "indep_vowel": 12,
+    "digit": 4,
+    "punct": -145,
+    "space": 27
+   },
+   "kept": {
+    "consonant": 3,
+    "vowel_sign": 9,
+    "other_sign": 3,
+    "indep_vowel": 1,
+    "digit": 37,
+    "punct": 2,
+    "space": 21
+   },
+   "boundary": {
+    "space": 83
+   }
+  },
+  "nospace_cer_raw": 0.3031419548196424,
+  "nospace_cer_corrected": 0.3189581670698147
+ },
+ {
+  "file": "m6_fusion40.jsonl",
+  "model": "fusion-conf",
+  "engine": "easyocr",
+  "pages": 40,
+  "ref_chars": 29599,
+  "char_errors_raw": 8480,
+  "char_errors_corrected": 8385,
+  "words": {
+   "kept": 1879,
+   "still_wrong": 2407,
+   "fixed": 140,
+   "broken": 71
+  },
+  "still_wrong_changed": 152,
+  "delta_by_group": {
+   "fixed": -163,
+   "broken": 86,
+   "still_wrong": -46,
+   "kept": 18,
+   "boundary": 10
+  },
+  "delta_by_group_class": {
+   "fixed": {
+    "consonant": -27,
+    "vowel_sign": -65,
+    "virama": -8,
+    "other_sign": -4,
+    "indep_vowel": -2,
+    "digit": -1,
+    "punct": -44,
+    "space": -12
+   },
+   "broken": {
+    "consonant": 43,
+    "vowel_sign": 12,
+    "virama": 13,
+    "other_sign": 2,
+    "indep_vowel": 3,
+    "digit": 4,
+    "punct": 8,
+    "space": 1
+   },
+   "still_wrong": {
+    "consonant": -1,
+    "vowel_sign": -24,
+    "virama": -2,
+    "other_sign": 9,
+    "indep_vowel": -3,
+    "digit": -8,
+    "punct": -4,
+    "space": -11,
+    "other": -2
+   },
+   "kept": {
+    "consonant": 8,
+    "vowel_sign": 2,
+    "virama": 2,
+    "indep_vowel": 4,
+    "digit": -2,
+    "space": 3,
+    "other": 1
+   },
+   "boundary": {
+    "space": 10
+   }
+  },
+  "nospace_cer_raw": 0.3031419548196424,
+  "nospace_cer_corrected": 0.29927795927785905
+ },
+ {
+  "file": "m6_fusion40.jsonl",
+  "model": "fusion-margin",
+  "engine": "easyocr",
+  "pages": 40,
+  "ref_chars": 29599,
+  "char_errors_raw": 8480,
+  "char_errors_corrected": 8412,
+  "words": {
+   "kept": 1920,
+   "still_wrong": 2460,
+   "broken": 30,
+   "fixed": 87
+  },
+  "still_wrong_changed": 46,
+  "delta_by_group": {
+   "fixed": -89,
+   "broken": 31,
+   "still_wrong": -21,
+   "kept": 5,
+   "boundary": 6
+  },
+  "delta_by_group_class": {
+   "fixed": {
+    "consonant": -12,
+    "vowel_sign": -41,
+    "virama": -4,
+    "other_sign": -3,
+    "indep_vowel": -1,
+    "digit": -2,
+    "punct": -20,
+    "space": -6
+   },
+   "broken": {
+    "consonant": 17,
+    "vowel_sign": 2,
+    "virama": 6,
+    "digit": 2,
+    "punct": 3,
+    "space": 1
+   },
+   "still_wrong": {
+    "consonant": 2,
+    "vowel_sign": -11,
+    "virama": -1,
+    "other_sign": -1,
+    "digit": -3,
+    "punct": -4,
+    "space": -3
+   },
+   "kept": {
+    "consonant": 3,
+    "vowel_sign": -1,
+    "virama": 1,
+    "digit": 1,
+    "space": 1
+   },
+   "boundary": {
+    "space": 6
+   }
+  },
+  "nospace_cer_raw": 0.3031419548196424,
+  "nospace_cer_corrected": 0.30020584074406076
+ }
+]

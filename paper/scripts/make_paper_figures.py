@@ -2,8 +2,8 @@
 are made by make_revision_figures.py):
 
   fig_method.pdf/.png  - end-to-end methodology diagram (reviewer item #12)
-  fig_dataset.pdf/.png - (a) how the 81 dataset pages become the 15 scored
-                         pages, (b) a sample page with its ground-truth text
+  fig_dataset.pdf/.png - (a) how the 81 dataset pages become the 40
+                         evaluation pages, (b) a sample page with its ground-truth text
                          regions drawn on it (reviewer item #36)
 
 Counts in the dataset figure are read from the committed split files, not

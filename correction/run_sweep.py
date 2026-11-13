@@ -91,7 +91,7 @@ def main():
     parser.add_argument(
         "--approaches",
         default=",".join(ALL_APPROACHES),
-        help="Comma-separated: whole,chunked",
+        help="Comma-separated: whole,chunked,chunked_chars",
     )
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument(
@@ -99,7 +99,9 @@ def main():
         choices=list(DECODING_PRESETS),
         default="guarded",
         help="guarded = repetition_penalty 1.3 + no_repeat_ngram_size 4 (the "
-        "paper's runs); plain = neither (decoding ablation)",
+        "first-version runs; an ablation in the paper); plain = neither (the "
+        "paper's main runs, D72). The default stays guarded so the "
+        "first-version notebook reproduces.",
     )
     parser.add_argument(
         "--pages", default=None, help="Comma-separated page_ids to restrict to"

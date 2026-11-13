@@ -1,0 +1,178 @@
+[
+ {
+  "engine": "easyocr",
+  "model": "banglat5",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.29729029673210716,
+  "output_cer": 0.8309999097801262,
+  "filtered_cer": 0.9679535439595053,
+  "lines_dropped": 50,
+  "lines": 63
+ },
+ {
+  "engine": "easyocr",
+  "model": "gemma-2b",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.29729029673210716,
+  "output_cer": 0.30067180661618587,
+  "filtered_cer": 0.2989578982768414,
+  "lines_dropped": 19,
+  "lines": 1876
+ },
+ {
+  "engine": "easyocr",
+  "model": "llama3.2-1b",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.29729029673210716,
+  "output_cer": 0.33014147659743404,
+  "filtered_cer": 0.3285442635500061,
+  "lines_dropped": 10,
+  "lines": 1813
+ },
+ {
+  "engine": "easyocr",
+  "model": "phi4-mini",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.29729029673210716,
+  "output_cer": 0.3146998284520416,
+  "filtered_cer": 0.30627858725875806,
+  "lines_dropped": 25,
+  "lines": 1525
+ },
+ {
+  "engine": "easyocr",
+  "model": "qwen3-1.7b",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.29729029673210716,
+  "output_cer": 0.3146480605698626,
+  "filtered_cer": 0.3157023618088872,
+  "lines_dropped": 37,
+  "lines": 1423
+ },
+ {
+  "engine": "easyocr",
+  "model": "titullm-1b",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.29729029673210716,
+  "output_cer": 1.0325821392516004,
+  "filtered_cer": 0.8819967778712534,
+  "lines_dropped": 210,
+  "lines": 2001
+ },
+ {
+  "engine": "easyocr",
+  "model": "titullm-1b-instruct",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.29729029673210716,
+  "output_cer": 1.632792263133466,
+  "filtered_cer": 0.9005891161626842,
+  "lines_dropped": 461,
+  "lines": 1636
+ },
+ {
+  "engine": "easyocr",
+  "model": "titullm-3b-instruct",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.29729029673210716,
+  "output_cer": 0.8862667492380307,
+  "filtered_cer": 0.9420054137677317,
+  "lines_dropped": 70,
+  "lines": 256
+ },
+ {
+  "engine": "tesseract",
+  "model": "banglat5",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.3409257396536577,
+  "output_cer": 0.8597636296603159,
+  "filtered_cer": 0.9402030549332405,
+  "lines_dropped": 43,
+  "lines": 62
+ },
+ {
+  "engine": "tesseract",
+  "model": "gemma-2b",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.3409257396536577,
+  "output_cer": 0.3526966777938378,
+  "filtered_cer": 0.3482498289958967,
+  "lines_dropped": 15,
+  "lines": 890
+ },
+ {
+  "engine": "tesseract",
+  "model": "llama3.2-1b",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.3409257396536577,
+  "output_cer": 0.37987732880504216,
+  "filtered_cer": 0.3786225493722966,
+  "lines_dropped": 2,
+  "lines": 829
+ },
+ {
+  "engine": "tesseract",
+  "model": "phi4-mini",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.3409257396536577,
+  "output_cer": 0.3542297581649295,
+  "filtered_cer": 0.345205845883031,
+  "lines_dropped": 6,
+  "lines": 797
+ },
+ {
+  "engine": "tesseract",
+  "model": "qwen3-1.7b",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.3409257396536577,
+  "output_cer": 0.3373383596320899,
+  "filtered_cer": 0.337422534716265,
+  "lines_dropped": 1,
+  "lines": 764
+ },
+ {
+  "engine": "tesseract",
+  "model": "titullm-1b",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.3409257396536577,
+  "output_cer": 1.083543529886348,
+  "filtered_cer": 0.8948648730741013,
+  "lines_dropped": 61,
+  "lines": 616
+ },
+ {
+  "engine": "tesseract",
+  "model": "titullm-1b-instruct",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.3409257396536577,
+  "output_cer": 1.6415610860398266,
+  "filtered_cer": 0.8655590786574747,
+  "lines_dropped": 339,
+  "lines": 840
+ },
+ {
+  "engine": "tesseract",
+  "model": "titullm-3b-instruct",
+  "n": 40,
+  "min_overlap": 0.3,
+  "raw_cer": 0.3409257396536577,
+  "output_cer": 0.9584798933526024,
+  "filtered_cer": 0.9761392276069788,
+  "lines_dropped": 41,
+  "lines": 147
+ }
+]

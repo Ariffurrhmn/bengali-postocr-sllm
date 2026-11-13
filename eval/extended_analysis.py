@@ -250,7 +250,7 @@ def main():
     lines = []
     p = lines.append
 
-    # ---- A + B: significance on CER, WER (the paper's 16 tests) and cMER ----
+    # ---- A + B: significance on CER, WER (the paper's 36 primary tests: 9 methods x 2 engines x 2 metrics) and cMER ----
     tests = []  # (family, engine, model, metric, summary)
     for engine in ENGINES:
         for model in MODEL_ORDER:

@@ -1,4 +1,4 @@
-"""Decoding ablation (review item C1): compares the paper's "guarded" runs
+"""Decoding ablation (review item C1): compares the first version's "guarded" runs
 (repetition_penalty 1.3 + no_repeat_ngram_size 4) against "plain" reruns of
 the same (page, engine, model, approach), page by page, on whatever pages
 the plain file has so far.

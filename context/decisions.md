@@ -1,6 +1,6 @@
 # Decision log
 
-Each entry gives the decision, why it was made, what else was considered, and what follows from it. Status is **current** unless marked otherwise. Dates are 2026.
+Each entry gives the decision, why it was made, what else was considered, and what follows from it. Status is **current** unless marked otherwise. Dates are 2026. Entries D72-D75 (2026-11-13) record decisions that were made earlier but never logged; "Update 2026-11-13" notes mark older entries that no longer describe the study.
 
 ---
 
@@ -50,6 +50,7 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 **Decision:** Split the 50 pages 10/40 with `data/make_split.py` (seed 403). Committed as b445580 before any correction model was run.
 **Why:** Freezing the split and committing it first means no eval result could have influenced which pages were used. The dev set is only for debugging the pipeline and is never used for reported numbers.
 **Superseded:** An earlier plan of 15 dev / 66 eval assumed all 81 pages had ground truth (see D05).
+**Update 2026-11-13:** the split files in use come from ed73163, 13 minutes after b445580, when the pool rule changed (D06): 14076_a_2_0006 moved dev to eval, 14053_C_15_0004 eval to dev, and the two restored pages went one to each side. Both commits precede the first model code (9c9dfc2), so the split was still frozen before any model ran. The dev pages also choose the fine-tuning checkpoint, and the paper reports that checkpoint's dev CER (0.365 against 0.362 raw), so "never used for reported numbers" is slightly too strong.
 
 ---
 
@@ -59,6 +60,7 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 **Decision:** Run both engines on every page with default settings. Tesseract uses the `tessdata_best` Bengali model, kept in a project-local `.tessdata/` directory.
 **Why:** Two engines with different error profiles are the minimum needed to test engine-independence. Default settings avoid engine-specific tuning, which would contradict the engine-agnostic claim. `tessdata_best` was chosen for accuracy over speed. The local `.tessdata/` exists because the local machine has no admin rights to add langpacks system-wide; it also makes setup reproducible (SETUP.md).
 **Consequence:** EasyOCR beat Tesseract here (eval CER 0.297 vs 0.364), the reverse of bbOCR's modern-document comparison. The likely reason is historical type.
+**Update 2026-11-13:** 0.364 is the 15-page August figure. On the 40-page main run the raw CER is 0.341 (Tesseract) and 0.297 (EasyOCR).
 
 ---
 
@@ -75,6 +77,7 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 
 **Why:** A mix of general multilingual models and Bengali-specific ones. TituLLMs 1B sits at the same parameter count as Llama 3.2 1B, so comparing them isolates the effect of Bengali pretraining. Llama and Gemma are gated on HuggingFace (licence accepted, read token used).
 **Note:** The TituLLMs ID was checked with a HuggingFace search; the first guessed ID was wrong.
+**Update 2026-11-13:** the claim that TituLLMs 1B vs Llama 3.2 1B isolates Bengali pretraining no longer holds: v1.1 is a base model and Llama is instruction-tuned (D31). Phi-3 Mini was never run (D20, D31).
 
 ### D10. One fixed zero-shot prompt, identical everywhere
 **Decision:** The same instruction for every model and engine (`CORRECTION_INSTRUCTION` in `correction/models.py`). It asks for corrected Bengali text only, with no explanation or preamble. It was specified in advance and never revised in response to output.
@@ -90,16 +93,19 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 **Decision:** `do_sample=False`, `repetition_penalty=1.3`, `no_repeat_ngram_size=4`.
 **Why:** Correction isn't creative generation, and determinism is needed for reproducibility. The guards were added after TituLLMs looped one phrase ~40 times until it hit the token cap (2026-07-26). They are deterministic, so decoding is still greedy.
 **Caveat:** A repetition penalty can in principle discourage correctly copying repeated words from the input. This was not measured.
+**Update 2026-11-13:** superseded as the main setting by plain greedy decoding (D72). Guarded decoding is now an ablation.
 
 ### D13. max_new_tokens scales with input length
 **Decision:** `min(512, max(64, 1.5 × input tokens))`.
 **Why:** A flat 512 cap let instruction models run long on every page. This was first blamed for the slowness, but the real cause turned out to be D15. It was kept anyway because a correction should be about as long as its input, and the cap bounds worst-case runtime.
 **Consequence:** "Truncated" in the results means the output hit this cap. Truncation rate correlates with CER at r = 0.84 across the 8 conditions.
+**Update 2026-11-13:** the r = 0.84 correlation and its figure were dropped from the paper in df32339 (reviewer F3); it describes the first-version guarded runs only.
 
 ### D14. bfloat16 for all models
 **Decision:** Load every model in bf16.
 **Why:** Phi-3 at fp32 (~7.6 GB of weights) was killed at ~70% of weight loading on free Colab RAM (~12–13 GB). bf16 halves the memory and, unlike fp16, is numerically stable on CPU. It was applied to all models so precision isn't a confound.
 **Caveat:** The early *dev-set* runs of TituLLMs and BanglaT5 were fp32 and single-threaded. All *eval-set* numbers are consistently bf16 and multithreaded.
+**Update 2026-11-13:** applies to the CPU runs only. The GPU runs use float32, or float16 above about 3B (D30).
 
 ### D15. Force PyTorch to use all CPU cores
 **Decision:** `torch.set_num_threads(os.cpu_count())` at import, in `correction/models.py`.
@@ -145,15 +151,18 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 ### D22. Paired bootstrap, 10,000 resamples, 95% percentile CI
 **Decision:** For each engine × model × metric, resample pages with replacement 10,000 times (seed 403) and report the mean delta (corrected − baseline) with a 95% percentile interval. Significant = the interval excludes 0 (`eval/bootstrap.py`).
 **Why:** Pairing cancels page-to-page difficulty. It was chosen over Wilcoxon because it gives an effect size with an interval, not just a p-value.
+**Update 2026-11-13:** the bootstrap no longer decides significance. The primary test is Holm-corrected Wilcoxon (D73); bootstrap intervals are reported alongside, unadjusted.
 
 ### D23. Overgeneration alignment filter: specified, not implemented
 **Decision:** Kanerva-style character-level local alignment to strip leading and trailing non-corrective text (their Section 4.3, biopython pairwise aligner) was planned but not built. The paper discloses it as a protocol deviation (Section III-F) and a limitation (Section VI-D). The README claim was removed in 839a772.
 **Why disclosed rather than hidden:** It affects models unequally. TituLLMs emits long English commentary and would benefit most.
 **Counter-argument recorded in the paper:** Gemma 2B emits almost no preamble and still degrades CER from 0.364 to 0.583, so the omission doesn't explain the overall result.
+**Update 2026-11-13:** 0.364 to 0.583 is the first-version guarded result on 15 pages. With plain decoding on 40 pages Gemma-2B-it goes from 0.341 to 0.353.
 
 ### D24. Failure diagnostics beyond CER
 **Decision:** For each model, measure output length relative to the reference, script composition (Bengali / Latin / other), ground-truth token retention (share of reference word tokens present in the output), truncation rate, and side-by-side examples (`eval/inspect_examples.py`).
 **Why:** CER says correction fails but not how. These show the mechanism: models discard text the engines had already got right (retention falls from 46–55% to 2–13%). BanglaT5 collapses (0.34× length); TituLLMs runs away (2.58×, 34% Latin, English commentary).
+**Update 2026-11-13:** these figures come from the first-version guarded runs. On the 40-page plain runs, retention is 46%/53% for raw OCR, 46-49% for the general models and 3-16% for the Bengali-pretrained checkpoints.
 
 ### D26. Run outputs are not committed
 **Decision:** `results/` is gitignored apart from `.gitkeep`.
@@ -335,6 +344,7 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 **Why:** MIT lets others reuse the code with attribution and keeps all rights with the author; CC BY 4.0 is the usual licence for research data and fits the public-domain source. Releasing the OCR text matters because the main run's Tesseract output can no longer be regenerated (D44).
 **Still to do for the DOI:** the author links Zenodo to GitHub and enables the repository; after the final paper pass a GitHub release is made (with the author's go-ahead), Zenodo assigns the DOI, and the DOI replaces the repository URL in the reference `rahman2026repo`. Check with Bijon Sir whether the venue reviews anonymously (the repository is public under the author's name).
 **Update 2026-10-17:** the author linked Zenodo to GitHub; the repository has an active Zenodo webhook for release events.
+**Update 2026-11-13:** commit 4482fec (2026-11-02) deleted `LICENSE` and the MIT line in `CITATION.cff`; the README now says the code has no licence yet. The reason is not recorded. `.zenodo.json` still says MIT and the paper still promises a CC BY 4.0 deposit of the outputs. The code licence is open.
 
 ### D50. review3d scored; M2 pilot flawed and rerun as review3e (2026-10-18)
 **What ran:** all three review3d jobs, no errors (`results/review3d/`). M7 and the region run of Qwen3 4B are valid and scored (`results/m7_runs10.txt`, `results/region_runs40.txt`; summaries copied).
@@ -349,6 +359,7 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 **M6 fusion:** `correction/ocr_fusion.py`, rules fixed in advance (EasyOCR base; replace blocks of at most 3 words; Tesseract wins if its mean within-page confidence rank is higher, or higher by 0.25). Uses the stored confidences (`ocr_conf40.jsonl`: 40/40 Tesseract and 37/40 EasyOCR pages reproduce the main OCR; unmatched words count as confident).
 **Test family, stated openly:** the first scoring put the comparisons with both engines in one Holm family of 4. The comparison with Tesseract mostly measures that EasyOCR is the better engine, not fusion, so fusion is scored against EasyOCR only (2 cells). This choice was made after seeing the 4-cell run. In the 2-cell family the margin rule's CER change (−0.002) is significant (p 0.045), in the 4-cell family it is not (p 0.09). The paper reports both and calls the gain negligible, like the gating gain; the WER decrease (−0.014) is significant in both.
 **Consequence:** new table `classical.tex` (generated), summaries `m4_dict40.json`, `m6_fusion40.json`, `m4_lexicon_coverage.json`.
+**Update 2026-11-13:** D60 and D71 later made both fusion metrics descriptive; "significant in both" above no longer describes the paper.
 
 ### D52. Paper rewritten with all third-review results except M2 (2026-10-18)
 **Decision:** one rewrite, written backwards (WRITING-GUIDE): new Results subsections IV-K region-level OCR, IV-L synthetic noise (Fig. 6, `fig_noise.pdf`), IV-M model size (Tables `scale.tex`, `large.tex`), IV-N methods without a language model (`classical.tex`); Sec V-C attribution now covers all eight models with the map figure (Fig. 7, `fig_attribution.pdf`); new Methods subsection III-L "Further experiments" (region OCR, noise, newer/larger models, fine-tuning, engine fusion); RQ5 added; contributions, discussion (input-noise explanation answered; model size; historical spelling partly tested), practical implications, threats and "experiments not performed" rewritten; Tesseract drift and the CC BY 4.0 release of OCR text stated in III-C/III-M; stale sentences fixed (Phi-4-mini and TituLLMs 3B Instruct now analysed; "nothing is trained"; "region-matched CER untested").
@@ -373,6 +384,7 @@ Each entry gives the decision, why it was made, what else was considered, and wh
 **Changes:** removed bbOCR (arXiv 2308.10647; its Tesseract CER figures left the introduction and Sec II-A), HiResCAM (arXiv 2011.08891, still "under review"; the element-wise Grad-CAM variant is now described in our own words, with the averaging argument stated without citation, also in the generated `attribution.tex` note), and Bhandari & Harit's Devanagari study (arXiv 2609.21595; its Table I row and three sentences removed; the research gap again says no post-OCR study in Table I prompts open models below 7B, which holds for every row). Bourne is now cited by its published version (IJDAR 28(4):741-755, 2025, doi 10.1007/s10032-025-00522-0). The arXiv technical reports of Qwen3, Phi-4-mini, Gemma and Gemma 3 are replaced by their Hugging Face model cards (software documentation, not papers; Llama 3.2 was already cited this way). 60 references, none a preprint.
 **Single file:** `paper/scripts/make_single_file.py` writes `paper/main-single.tex` (all tables and the compiled bibliography inlined) and `paper/overleaf-final.zip`. Tested: the zip, unpacked into an empty folder, compiles with Tectonic (XeLaTeX) to the same 28 pages, no errors, no undefined references, no overfull boxes. pdfLaTeX could not be tested locally (not installed); the example table then falls back to the pre-rendered PDF, as before.
 **Also:** Results introduction now lists the further experiments.
+**Update 2026-11-13:** the bibliography now has 62 entries (D71 added BanglaByT5, IndicBART and the British Library collection page), none a preprint.
 
 ### D56. Revision after the editorial review (2026-10-18)
 **Source:** `G:/Codex docs/2026-10-18/.../editor-feedback.md` (external editorial review).
@@ -453,3 +465,22 @@ The D69 float settings (`\dbltopfraction` etc. after `\appendices`) pushed refer
 
 ### D71. Focused revision after Google's AI review (2026-10-20)
 Author requested the suggested manuscript updates using a pasted single-file draft. Preserved its 15 newer prose revisions, clarified abstract scope/effect size, made both fusion metrics descriptive, added verified related work and dataset context, documented book overlap and implementation details, and qualified the pilot and 32B claims. No new experiments or changed result statistics. The review's BanglaT5 page range and interpretation of the 155-image collection were corrected against primary sources. Detailed status and the unavailable Instruct completion-prompt confidence intervals are recorded in `context/review-google-2026-10-20.md`.
+
+### D72. Plain greedy decoding is the main setting (logged 2026-11-13; decided 2026-10-10)
+**Decision:** the main tables use greedy decoding with no repetition penalty and no n-gram ban ("plain"). The original guarded runs (D12) are reported only in the decoding ablation.
+**Why:** the 15-page ablation showed that the guards caused most of the damage: in Hugging Face `generate` they also act on the prompt, so a copying model is penalised (commits b0c75c9 and d1e4baa; `context/engineering-notes.md`, note 8). Plain decoding is the more favourable setting for the models, so the switch works against the negative result.
+**Consequence:** D12 is superseded. `correction/run_sweep.py` and `correction/models.py` keep `guarded` as the default so the first-version notebook reproduces; the 40-page notebooks and session drivers pass `plain`.
+
+### D73. Primary test: Holm-corrected Wilcoxon over the 36 CER/WER tests (logged 2026-11-13; decided 2026-10-09/10)
+**Decision:** significance in the main evaluation means a two-sided Wilcoxon signed-rank test, Holm-corrected within one family of 36 tests (2 metrics x 2 engines x 9 methods). Every other family is exploratory. Bootstrap intervals (D22) are reported alongside, unadjusted.
+**Why:** added for the reviewer's request for a statistical test (D27) and named the primary family in D36. When it was adopted, Llama 3.2 1B's CER increase was significant by bootstrap but not under Holm-Wilcoxon (d1e4baa). Why per-analysis Holm families rather than one global family is not recorded.
+
+### D74. Main OCR rebuilt in October; the August OCR is used only for the CPU comparison (logged 2026-11-13; decided 2026-10-11)
+**Decision:** the 40-page study uses the OCR made on 11 October (`ocr_eval40.jsonl`). The August 15-page OCR survives only as the input of the CPU decoding comparison and the CPU timings.
+**Why:** re-OCR of the 15 pages did not reproduce the August text (Tesseract differed on 15/15 pages, EasyOCR on 10/15), so the 40-page file was built from the October engines only (640c6d2; `context/timeline.md`; `context/engineering-notes.md`).
+**Consequence:** the 15-page numbers (for example Tesseract CER 0.364) are not comparable with the 40-page numbers.
+
+### D75. Logged reruns, leakage check and knowledge base (2026-11-13)
+**Decision:** `tools/run_logged.py` records every check run (command, output, exit code, timing, commit, package versions) in `logs/`; `tools/compare_outputs.py` compares reruns with saved outputs; `eval/check_leakage.py` checks the split and data reuse with a positive control. `docs/knowledge-base.html` collects decisions, concepts, runs and likely questions with citations.
+**Why:** not recorded in the commits; `logs/README.md` describes what is logged.
+**Known gaps:** the leakage check does not address whether the models saw the REID2019 text in pretraining. The ground-truth reader (`ocr/run_ocr.py`) keeps only the first `<Unicode>` entry of a region; on evaluation page 279_2_A_28_0002 this drops one 46-character line from the reference. Not rescored.

@@ -1,4 +1,4 @@
-"""Zero-shot correction wrappers for the 5 models named in the methodology.
+"""Zero-shot correction wrappers for every model in the registry below.
 
 Two loading/inference paths, matching how each model actually works:
   - Causal LM + chat template (Phi-3 Mini, Llama 3.2 1B, Gemma 2B, TituLLMs 1B,
@@ -161,8 +161,8 @@ def load_model(model_key: str, hf_token: str | None = None):
     # Colab's ~12-13GB RAM (Phi-3 Mini at fp32 was getting killed partway
     # through weight loading); unlike fp16 it has no CPU stability issues.
     # GPU (revision runs, Colab T4): float32. The T4 has no native bfloat16,
-    # and Gemma is known to overflow in float16; every model fits in the
-    # T4's 15GB at float32. Weights load straight onto the GPU so the
+    # and Gemma is known to overflow in float16; models up to about 3B fit
+    # in the T4's 15GB at float32. Weights load straight onto the GPU so the
     # float32 copy never has to fit in system RAM.
     # Models over ~3B use float16 on GPU, since float32 would not fit.
     if torch.cuda.is_available():
@@ -245,7 +245,9 @@ def _make_progress_heartbeat(every_n: int = 10):
     return _ProgressHeartbeat()
 
 
-# "guarded" is what the paper's runs used. In HF generate(), both guards also
+# "guarded" is what the first-version runs (15 pages, CPU) used, and it stays the
+# default so that notebook reproduces. The paper's main runs use "plain" and
+# report "guarded" as an ablation (decision D72). In HF generate(), both guards also
 # see the prompt tokens of decoder-only models, so they penalise copying the
 # OCR text. "plain" drops them (repetition_penalty 1.0, no n-gram ban) and
 # keeps only the max_new_tokens length guard: the decoding ablation.

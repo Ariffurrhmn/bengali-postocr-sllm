@@ -1,0 +1,332 @@
+{
+ "engine": "easyocr",
+ "file": "c5_phi4-mini.jsonl",
+ "n": 40,
+ "mean_delta": 0.06614022711485665,
+ "median_delta": 0.006626760763967246,
+ "truncated_pages": 3,
+ "truncated_share_of_total_delta": 0.8713440708912299,
+ "mean_delta_without_largest": 0.03330800579373134,
+ "pages": [
+  {
+   "page_id": "VT_1252_E_0005",
+   "delta": 1.3465968586387436,
+   "raw_cer": 0.40104712041884816,
+   "corrected_cer": 1.7476439790575917,
+   "truncated": true,
+   "long_insert_chars": 733
+  },
+  {
+   "page_id": "279_2_a_15_0005",
+   "delta": 0.6577181208053691,
+   "raw_cer": 0.21476510067114093,
+   "corrected_cer": 0.87248322147651,
+   "truncated": true,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "14048_D_11_0063",
+   "delta": 0.3009208103130755,
+   "raw_cer": 0.13370165745856355,
+   "corrected_cer": 0.43462246777163904,
+   "truncated": true,
+   "long_insert_chars": 487
+  },
+  {
+   "page_id": "VT_1056_b_0106",
+   "delta": 0.050898203592814384,
+   "raw_cer": 0.18862275449101795,
+   "corrected_cer": 0.23952095808383234,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_35_B_1_0062",
+   "delta": 0.03310344827586208,
+   "raw_cer": 0.09379310344827586,
+   "corrected_cer": 0.12689655172413794,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_42_B_59_0180",
+   "delta": 0.031073446327683607,
+   "raw_cer": 0.13559322033898305,
+   "corrected_cer": 0.16666666666666666,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "VT_1752_b_0002",
+   "delta": 0.026936026936026924,
+   "raw_cer": 0.19528619528619529,
+   "corrected_cer": 0.2222222222222222,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_33_C_7_0002",
+   "delta": 0.026011560693641606,
+   "raw_cer": 0.22254335260115607,
+   "corrected_cer": 0.24855491329479767,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "VT_961_k_0172",
+   "delta": 0.019841269841269826,
+   "raw_cer": 0.2152777777777778,
+   "corrected_cer": 0.23511904761904762,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "14090_d_15_0006",
+   "delta": 0.018223234624145768,
+   "raw_cer": 0.2835990888382688,
+   "corrected_cer": 0.30182232346241455,
+   "truncated": false,
+   "long_insert_chars": 6
+  },
+  {
+   "page_id": "VT_1892_e_0003",
+   "delta": 0.017843289371605897,
+   "raw_cer": 0.20791311093871218,
+   "corrected_cer": 0.22575640031031807,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_23_D_6_0013",
+   "delta": 0.01712935617247488,
+   "raw_cer": 0.13290017720023628,
+   "corrected_cer": 0.15002953337271116,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_42_K_4_0125",
+   "delta": 0.012977649603460706,
+   "raw_cer": 0.11247296322999278,
+   "corrected_cer": 0.1254506128334535,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "14127_d_22_0103",
+   "delta": 0.010928961748633892,
+   "raw_cer": 0.16029143897996356,
+   "corrected_cer": 0.17122040072859745,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_23_D_8_0002",
+   "delta": 0.010101010101010083,
+   "raw_cer": 0.18181818181818182,
+   "corrected_cer": 0.1919191919191919,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "VT_1892_e_0001",
+   "delta": 0.008670520231213869,
+   "raw_cer": 0.1531791907514451,
+   "corrected_cer": 0.16184971098265896,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_42_A_60_0011",
+   "delta": 0.007616974972796509,
+   "raw_cer": 0.17736670293797607,
+   "corrected_cer": 0.18498367791077258,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "14125_c_2_1_0011",
+   "delta": 0.007128309572301428,
+   "raw_cer": 0.3910386965376782,
+   "corrected_cer": 0.3981670061099796,
+   "truncated": false,
+   "long_insert_chars": 6
+  },
+  {
+   "page_id": "14127_d_15_4_0007",
+   "delta": 0.007109004739336511,
+   "raw_cer": 0.2725118483412322,
+   "corrected_cer": 0.2796208530805687,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "VT_1625_f_0003",
+   "delta": 0.006932409012131713,
+   "raw_cer": 0.2512998266897747,
+   "corrected_cer": 0.2582322357019064,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_34_D_26_0007",
+   "delta": 0.006321112515802779,
+   "raw_cer": 0.11757269279393173,
+   "corrected_cer": 0.12389380530973451,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "VT_280_a_0005",
+   "delta": 0.006259780907668211,
+   "raw_cer": 0.4194053208137715,
+   "corrected_cer": 0.42566510172143973,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_21_B_3_0015",
+   "delta": 0.0046136101499423265,
+   "raw_cer": 0.20530565167243367,
+   "corrected_cer": 0.209919261822376,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "VT_949_b_0011",
+   "delta": 0.003978779840848823,
+   "raw_cer": 0.33421750663129973,
+   "corrected_cer": 0.33819628647214856,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "14076_a_2_0006",
+   "delta": 0.0034662045060658564,
+   "raw_cer": 0.1611785095320624,
+   "corrected_cer": 0.16464471403812825,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_2_D_32_0007",
+   "delta": 0.002832861189801694,
+   "raw_cer": 0.22662889518413598,
+   "corrected_cer": 0.22946175637393768,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "14090_d_15_0007",
+   "delta": 0.0023166023166023286,
+   "raw_cer": 0.20077220077220076,
+   "corrected_cer": 0.2030888030888031,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_43_I_12_0109",
+   "delta": 0.002028397565922921,
+   "raw_cer": 0.09127789046653144,
+   "corrected_cer": 0.09330628803245436,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "vt1712_Schoolbook_0009",
+   "delta": 0.0019762845849802257,
+   "raw_cer": 0.1541501976284585,
+   "corrected_cer": 0.15612648221343872,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "14131_c_2_2_0005",
+   "delta": 0.001762114537444931,
+   "raw_cer": 0.1092511013215859,
+   "corrected_cer": 0.11101321585903083,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "14028_D_2_0004",
+   "delta": 0.0,
+   "raw_cer": 0.16580310880829016,
+   "corrected_cer": 0.16580310880829016,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "14131_B_6_1_0007",
+   "delta": 0.0,
+   "raw_cer": 0.22943722943722944,
+   "corrected_cer": 0.22943722943722944,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_21_B_2_0004",
+   "delta": 0.0,
+   "raw_cer": 0.2413793103448276,
+   "corrected_cer": 0.2413793103448276,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_2_A_28_0002",
+   "delta": 0.0,
+   "raw_cer": 0.41700404858299595,
+   "corrected_cer": 0.41700404858299595,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_33_E_41_0003",
+   "delta": 0.0,
+   "raw_cer": 0.34791666666666665,
+   "corrected_cer": 0.34791666666666665,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_41_D_19_0004",
+   "delta": 0.0,
+   "raw_cer": 0.23976608187134502,
+   "corrected_cer": 0.23976608187134502,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_42_B_41_0003",
+   "delta": 0.0,
+   "raw_cer": 0.20833333333333334,
+   "corrected_cer": 0.20833333333333334,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "VT_1653_a_0018",
+   "delta": 0.0,
+   "raw_cer": 0.21875,
+   "corrected_cer": 0.21875,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "VT_1712_d_0001",
+   "delta": 0.0,
+   "raw_cer": 0.21224489795918366,
+   "corrected_cer": 0.21224489795918366,
+   "truncated": false,
+   "long_insert_chars": 0
+  },
+  {
+   "page_id": "279_2_D_32_0006",
+   "delta": -0.0077071290944122905,
+   "raw_cer": 0.5722543352601156,
+   "corrected_cer": 0.5645472061657033,
+   "truncated": false,
+   "long_insert_chars": 0
+  }
+ ]
+}

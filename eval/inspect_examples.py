@@ -160,7 +160,7 @@ def main():
         buf.write(line + "\n")
 
     emit("=" * 78)
-    emit("PER-MODEL FAILURE-MODE DIAGNOSTICS (all 15 pages, both engines)")
+    emit("PER-MODEL FAILURE-MODE DIAGNOSTICS (all pages, both engines)")
     emit("=" * 78)
     saved = sys.stdout
     sys.stdout = buf_capture = io.StringIO()

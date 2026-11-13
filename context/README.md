@@ -7,7 +7,7 @@ Working memory for this project, so decisions and the reasons behind them surviv
 ## Files
 - [NEXT-SESSION.md](NEXT-SESSION.md): handoff: current state, task list, questions to ask the author.
 - [review-draft-03.md](review-draft-03.md): the third review (43 items + X1), each with dated status notes.
-- [decisions.md](decisions.md): every design decision with its reasons, alternatives and consequences (D01-D48). D36 onwards cover the third review; D48 maps the old file paths to the reorganized layout.
+- [decisions.md](decisions.md): every design decision with its reasons, alternatives and consequences (D01-D75). D36 onwards cover the third review; D48 maps the old file paths to the reorganized layout; D72-D75 log earlier decisions that had no entry.
 - [results.md](results.md): the numbers, current study first, the superseded first version after.
 - [timeline.md](timeline.md): dated history with commit hashes.
 - [engineering-notes.md](engineering-notes.md): bugs found and fixed, and environment gotchas that will bite again.

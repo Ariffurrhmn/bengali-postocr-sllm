@@ -39,12 +39,12 @@ The Kaggle `environment.txt` files record the repository commit, Python, PyTorch
 | Engine fusion | 2026-10-18, local | `m6_fusion40.jsonl` | none then; rerun 2026-11-13 with log, identical | yes |
 
 ## Analyses, tables and figures
-Rerun on 2026-11-13 with `paper/scripts/reproduce_tables.sh` under `tools/run_logged.py` (`logs/runs/*reproduce-tables`). All 20 summary files came out byte-identical to the ones in `summaries/`, and every generated table in `paper/tables/` came out unchanged.
+Rerun on 2026-11-13 with `paper/scripts/reproduce_tables.sh` under `tools/run_logged.py` (`logs/runs/*reproduce-tables`). The script regenerates 15 of the 20 summary files; all 15 came out byte-identical to the ones in `summaries/`. The other 5 (`decoding_ablation`, `model_profile`, `sensitivity_gpu40`, `region_ocr40`, `m4_lexicon_coverage`) need page images or are not in the script; they were only compared with their copies in `results/`, also identical. Every generated table in `paper/tables/` came out unchanged.
 
 ## Failed or repeated runs
 - Phi-3 Mini was dropped before the main run because it was too slow on CPU (D20). It was never evaluated.
 - The first review3 session died after one minute because `HF_TOKEN` was not attached, and was started again.
-- The first fine-tuning run (review3d) was invalid: the test chunks had line breaks the model never saw in training. It was fixed and rerun as review3e (D50). The paper uses review3e. The review3d numbers are kept in `summaries/` only for the record.
+- The first fine-tuning run (review3d) was invalid: the test chunks had line breaks the model never saw in training. It was fixed and rerun as review3e (D50). The paper uses review3e. The review3d numbers are kept only in the local `results/m2_runs40_review3d.*`, not in `summaries/`, and are not reported.
 - Tesseract 5.3.4 no longer gives the text of the 11 October run (D44), so the main OCR file is kept as data and not regenerated.
 - The August CPU sweep disconnected at 84/120 and resumed from its output file.
 

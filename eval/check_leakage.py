@@ -103,7 +103,9 @@ def main():
                      "share": round(max_share(g, g12_dev)[0], 4)} for p, g in g12_ev.items()),
                    key=lambda c: -c["share"])
     # Positive control: the same measure must find a page in itself, and a page
-    # with half of another page pasted in must score about 0.5.
+    # with half of another page pasted in must score close to 0.5. A short page
+    # scores lower, because the shingles that cross the cut are lost (0.426 for
+    # the first evaluation page, a short title page).
     p0 = next(iter(ev_rows))
     half = normalize(ev_rows[p0]["ground_truth"])[: len(normalize(ev_rows[p0]["ground_truth"])) // 2]
     planted = grams(half + " " + normalize(next(iter(dev_rows.values()))["ground_truth"]), NGRAM)

@@ -13,13 +13,13 @@ flowchart LR
     A --> C["EasyOCR 1.7.2"]
     B --> D["Raw OCR text"]
     C --> D
-    D --> E["Zero-shot correction<br/>14 open models, SymSpell, fusion"]
+    D --> E["Zero-shot correction<br/>15 open models, SymSpell, fusion"]
     E --> F["CER / WER against the transcription"]
     D -. "baseline" .-> F
 ```
 
 ## Result
-No language model lowered the character error rate of either engine. Most left it about the same and several made it much worse.
+No language model on its own significantly lowered the character error rate of either engine. Most left it about the same and several made it much worse.
 
 <p align="center">
   <img src="paper/figures/fig_delta.png" alt="Change in CER (corrected minus raw OCR) for every method on both engines" width="820">
@@ -28,24 +28,26 @@ No language model lowered the character error rate of either engine. Most left i
 | Method | Tesseract CER | EasyOCR CER | Compared with raw OCR |
 |---|---:|---:|---|
 | Raw OCR (no correction) | 0.341 | 0.297 | |
-| Gemma 2B | 0.353 | 0.301 | no significant change |
+| Gemma-2B-it | 0.353 | 0.301 | no significant change |
 | Qwen3 1.7B | 0.337 | 0.315 | no significant change |
 | Phi-4-mini | 0.354 | 0.315 | no significant change |
 | Llama 3.2 1B | 0.380 | 0.330 | significantly worse |
 | SymSpell dictionary | 0.378 | 0.337 | significantly worse |
 | BanglaT5 | 0.860 | 0.831 | significantly worse |
 | TituLLMs 1B | 1.084 | 1.033 | significantly worse |
+| TituLLMs 1B Instruct | 1.642 | 1.633 | significantly worse |
 | TituLLMs 3B Instruct | 0.958 | 0.886 | significantly worse |
 
 "Significant" here means the Holm-corrected Wilcoxon test in the paper's full evaluation matrix. On EasyOCR the bootstrap intervals of Qwen3 1.7B ([+0.004, +0.033]) and Phi-4-mini ([+0.000, +0.046]) start at or above zero, so on that engine they lean worse, not better.
 
 Other findings:
 - General-purpose models mostly copy their input. The Bengali-pretrained checkpoints rewrite it and end up above CER 0.8. Every method changes some text that was already correct.
-- Noisy input is not the reason. Correction also hurts on region-level OCR with lower CER, and on clean transcriptions corrupted to any CER from 0.02 to 0.30.
-- A repetition penalty or n-gram ban in Hugging Face `generate` also acts on the prompt, so a model that copies its input gets penalised for it. This makes copying models look harmful in an evaluation.
-- Qwen3 4B, 8B and 32B fix more wrong words and lower WER, but they also break correct words, so CER does not fall.
-- A Wikipedia lexicon cuts the dictionary's damage by about four-fifths, but it is still harmful. Fusing the two engines by word confidence lowers CER by less than 1%.
-- Grad-CAM maps show the copying from inside: a copied token mostly relies on its own source token.
+- Noisy input alone does not explain it. Correction also hurts on region-level OCR with lower CER, and on clean transcriptions corrupted to any CER from 0.02 to 0.30.
+- A repetition penalty or n-gram ban in Hugging Face `generate` also acts on the prompt, so a model that copies its input gets penalised for it. Restricting both to the generated tokens removes much of the extra damage, but not all of it.
+- Qwen3 4B, 8B and 32B fix more wrong words and lower WER, but their other edits (inside words that stay wrong, and in words that were already right) add about as many character errors as the repairs remove, so CER does not fall.
+- A Wikipedia lexicon together with edit distance 1 cuts the dictionary's damage by about four-fifths, but it is still harmful. Fusing the two engines by word confidence lowers CER by about 1% (1.1% and 0.8% for the two rules), too little to matter.
+- Keeping only the model edits on words the OCR engine was unsure of gives the study's one significant CER drop: 0.004 for Qwen3 1.7B on Tesseract at one threshold, about 1%.
+- Grad-CAM maps agree with the copying: for most copied tokens the map peaks on that token in the OCR text. The maps are not a causal explanation.
 - ByT5-small fine-tuned on synthetic noise does the least damage to clean text and lowers WER, but not CER.
 
 ## Repository layout

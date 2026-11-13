@@ -57,6 +57,7 @@ def regions(xml: str) -> list[dict]:
     out = []
     for attrs, body in REGION_RE.findall(xml):
         matches = UNICODE_RE.findall(body)
+        # Same rule as ground_truth_text in ocr/run_ocr.py (see the note there).
         text = (matches[-1] if len(matches) == 1 else matches[0]).strip() if matches else ""
         if not text:
             continue

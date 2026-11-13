@@ -53,6 +53,7 @@ def region_texts(xml: str):
     for attrs, body in REGION_RE.findall(xml):
         matches = UNICODE_RE.findall(body)
         if matches:
+            # Same rule as ground_truth_text in ocr/run_ocr.py (see the note there).
             text = matches[-1].strip() if len(matches) == 1 else matches[0].strip()
             if text:
                 out.append((re.search(r'\bid="([^"]+)"', attrs).group(1), text))
