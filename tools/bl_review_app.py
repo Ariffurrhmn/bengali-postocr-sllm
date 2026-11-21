@@ -166,6 +166,9 @@ details.help{background:#fffde7;border:1px solid #d9cc6b;padding:4px 8px;margin-
  <div id="imgcol">
   <div style="margin-bottom:4px;font-size:12px">Image size <input type="range" id="zoom" min="40" max="250" value="100">
    <label><input type="checkbox" id="lblmode"> number boxes by new order</label>
+   &nbsp;Show: <select id="vis"><option value="all">all boxes</option><option value="choose">only the ones I tick</option></select>
+   <button id="hideall" title="untick every box">Hide all</button><button id="showall" title="tick every box">Tick all</button>
+   &nbsp;Label size <input type="range" id="lsize" min="3" max="40" value="14" style="width:70px">
    &nbsp;<span id="pageinfo"></span></div>
   <div id="wrap"><img id="img" alt=""><svg id="svg" preserveAspectRatio="none"></svg></div>
  </div>
@@ -198,7 +201,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">"
 const now = () => new Date().toISOString();
 
 let S = {schema_version: SCHEMA, reviewer: "", pages: {}};
-let cur = 0, hot = null, sel = null, mode = null, hotLine = null, dirty = false, storageOK = true;
+let shown = new Set(), cur = 0, hot = null, sel = null, mode = null, hotLine = null, dirty = false, storageOK = true;
 
 function defPage(p) {
   return {status:"not_started", page_type:"", drop_page:"undecided", drop_reason:"", note:"",
@@ -275,7 +278,7 @@ function renderBlocks() {
     return `<div class="row ${fl.exclude ? "excl" : ""}" data-k="${k}" draggable="false" style="border-left-color:${colorOf(k)}">
      <div class="rh"><span class="handle" title="drag to reorder">&#8942;&#8942;</span><b>${pos + 1}.</b>
       <span class="badge" style="background:${colorOf(k)};color:#fff">${k[0] === "a" ? "added " + k.slice(1) : "XML " + (+k.slice(1) + 1)}</span>
-      <code>${b ? esc(b.id) : ""}</code><span class="sp" style="flex:1"></span>
+      <code>${b ? esc(b.id) : ""}</code><label class="fl" style="margin:0"><input type="checkbox" data-show="1" ${shown.has(k) ? "checked" : ""}> show</label><span class="sp" style="flex:1"></span>
       <button data-act="up">&uarr;</button><button data-act="down">&darr;</button></div>
      ${b ? `<div class="txt bn">${txt}</div>` : ""}
      ${b ? `<div class="fl">${FLAGS.map(([f, l]) => `<label><input type="checkbox" data-flag="${f}" ${fl[f] ? "checked" : ""}> ${l}</label>`).join("")}</div>` : ""}
@@ -290,8 +293,9 @@ function renderBlocks() {
 }
 function renderOverlay() {
   const p = D.pages[cur], st = ps(cur), svg = $("svg");
-  const fs = p.ph / 42, parts = [];
+  const fs = p.ph / 1000 * $("lsize").value, parts = [], choose = $("vis").value === "choose";
   st.order.forEach(k => {
+    if (choose && !shown.has(k) && k !== hot && !(mode && mode.key === k)) return;
     const col = colorOf(k), b = k[0] === "b" ? st.blocks[k] : null, fl = (b && b.flags) || {};
     const dim = fl.exclude || fl.phantom ? " dim" : "";
     const cls = (hot === k ? " hot" : "") + (sel === k ? " sel" : "");
@@ -313,7 +317,7 @@ function renderOverlay() {
 }
 function setHot(k) { hot = k; renderOverlay(); }
 function gotoPage(i) {
-  if (i < 0 || i >= D.pages.length) return; cur = i; hot = sel = mode = hotLine = null; showMode();
+  if (i < 0 || i >= D.pages.length) return; cur = i; shown = new Set(); hot = sel = mode = hotLine = null; showMode();
   const p = D.pages[i];
   $("svg").setAttribute("viewBox", `0 0 ${p.pw} ${p.ph}`);
   $("img").src = "img/" + p.name + ".jpg";
@@ -365,7 +369,10 @@ $("blocks").addEventListener("mouseleave", () => setHot(null));
 $("blocks").addEventListener("click", e => {
   const r = e.target.closest(".row"); if (!r) return; const k = r.dataset.k, st = ps(cur), p = D.pages[cur];
   const act = e.target.dataset.act;
-  if (!act) { sel = k; renderOverlay(); return; }
+  if (!act) {
+    if (e.target.dataset.show) { if (e.target.checked) shown.add(k); else shown.delete(k); sel = k; renderOverlay(); return; }
+    sel = k; renderOverlay(); return;
+  }
   if (act === "up") move(k, -1); else if (act === "down") move(k, 1);
   else if (act === "redraw") { mode = {type: "redraw", key: k}; showMode(); e.target.classList.add("on"); renderOverlay(); }
   else if (act === "resetbox") { bs(st, k).new_box = null; touch(cur); renderBlocks(); }
@@ -401,7 +408,9 @@ $("blocks").addEventListener("mouseover", e => {
 $("svg").addEventListener("mouseover", e => { if (!mode && e.target.dataset.k) setHot(e.target.dataset.k); });
 $("svg").addEventListener("mouseleave", () => { if (!mode) setHot(null); });
 $("svg").addEventListener("click", e => {
-  if (mode) return; const k = e.target.dataset.k; if (!k) return; sel = k; renderOverlay();
+  if (mode) return; const k = e.target.dataset.k; if (!k) return; sel = k;
+  if ($("vis").value === "choose") { shown.add(k); const c = document.querySelector(`.row[data-k="${k}"] [data-show]`); if (c) c.checked = true; }
+  renderOverlay();
   const r = document.querySelector(`.row[data-k="${k}"]`); if (r) r.scrollIntoView({block: "center", behavior: "smooth"});
 });
 $("addbox").addEventListener("click", e => { mode = {type: "add"}; showMode(); e.target.classList.add("on"); renderOverlay(); });
@@ -453,7 +462,11 @@ $("pg").addEventListener("input", e => {
 $("plist").addEventListener("click", e => { const d = e.target.closest("[data-i]"); if (d) gotoPage(+d.dataset.i); });
 $("prev").onclick = () => gotoPage(cur - 1); $("next").onclick = () => gotoPage(cur + 1);
 $("zoom").oninput = e => { $("wrap").style.width = e.target.value + "%"; };
-$("lblmode").onchange = renderOverlay;
+$("lblmode").onchange = renderOverlay; $("lsize").oninput = renderOverlay;
+function syncShow() { document.querySelectorAll(".row").forEach(r => { r.querySelector("[data-show]").checked = shown.has(r.dataset.k); }); renderOverlay(); }
+$("vis").onchange = () => { if ($("vis").value === "choose" && !shown.size && sel) shown.add(sel); syncShow(); };
+$("hideall").onclick = () => { $("vis").value = "choose"; shown.clear(); syncShow(); };
+$("showall").onclick = () => { $("vis").value = "choose"; ps(cur).order.forEach(k => shown.add(k)); syncShow(); };
 $("reviewer").oninput = e => { S.reviewer = e.target.value; save(); };
 
 // ---------- export / import
