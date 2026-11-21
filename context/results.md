@@ -95,3 +95,10 @@ Run under mixed early settings; every model was already worse than the baseline.
 - Table XI equal entries (unrounded): 300-char chunks, Tesseract: Gemma 0.3432, Qwen3 1.7B 0.3434, Phi-4-mini 0.3435; Llama original 0.3799 vs 300-char 0.3796; EasyOCR original Qwen3 1.7B 0.3146 vs Phi-4-mini 0.3147. Outputs differ on all 40 pages.
 
 **Review item 4 run (D64, `results/review4_runs.txt`).** Mean CER, plain / whole-sequence / generated-only, both constraints: Tesseract Gemma 0.353 / 0.545 / 0.371, Qwen3 1.7B 0.337 / 0.925 / 0.701, Phi-4-mini 0.354 / 1.740 / 0.688, Llama 3.2 1B 0.380 / 0.972 / 0.785; clean text Gemma 0.032 / 0.360 / 0.103, Qwen3 0.035 / 0.940 / 0.537, Phi 0.060 / 1.406 / 0.327, Llama 0.119 / 0.942 / 0.775. Generated-only vs plain: 23/24 significantly worse (Holm over 24); vs whole: 21/24 significantly better. Completion prompt (Tesseract): TituLLMs 1B Instruct 1.336 (main 1.642), 3B Instruct 0.960 (main 0.958).
+
+**Fully trained correctors, validation only (D76, `results/bengali-rev-03-train-both/`).** Mean page CER on the 14 validation pages, both engines, region level; raw OCR 0.2956.
+- byt5-small (base model, byte-level): best 0.3299 at step 2000, 4,500 steps, 284 min; last evaluation 0.3306. Curve: 0.459, 0.419, 0.355, 0.330, 0.362, 0.347, 0.334, 0.362, 0.331 (steps 500 to 4500).
+- BanglaByT5 (Bangla continued pretraining): best 0.3237 at step 4000, 6,500 steps, 254 min; last evaluation 0.3298. Curve: 0.367, 0.377, 0.348, 0.337, 0.330, 0.332, 0.327, 0.324, 0.326, 0.343, 0.374, 0.334, 0.330.
+- Training data: 1,185 real pairs (x10), 69,822 synthetic pairs; 499 real pieces dropped for length ratio, 36 for overlap; fitted noise rates 0.132 substituted, 0.103 deleted, 0.044 inserted per reference character; real-pair CER quantiles median 0.20, 90th percentile 0.44.
+- Truncated blocks 1.6-7.1% at the evaluations. Logged samples show runs of the danda-like mark replacing numbers at several checkpoints of both models.
+- Test pages (test_bl) not scored yet. Run `correction/score_trained_corrector.py` once per model.

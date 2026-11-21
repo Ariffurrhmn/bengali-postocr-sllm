@@ -26,6 +26,7 @@ Every model and OCR run behind the paper, with its output file in `results/` (lo
 | review3d: Qwen3 32B 4-bit on 10 pages, Qwen3 4B on region text, first fine-tuning run | 2026-10-18, Kaggle 2x T4 | `review3d/` | `review3d/*.log`, `environment.txt` | yes, except the fine-tuning run (see below) |
 | review3e: fine-tuning rerun (ByT5-small) | 2026-10-18, Kaggle T4 | `review3e/m2_byt5.jsonl` | `review3e/lane0.log` (loss and dev CER per step), `setup.log`, `environment.txt` | yes |
 | review4: constraints on generated tokens only, completion prompt for the Instruct checkpoints | 2026-10-19, Kaggle 2x T4 | `review4/` | `review4/*.log`, `environment.txt` | yes |
+| rev-03: full fine-tuning of ByT5-small and BanglaByT5 (D76) | 2026-11-21, Kaggle 2x T4 (about 4.7 h and 4.2 h) | `bengali-rev-03-train-both/train/<model>/{best,last,curve.jsonl,train_log.json,noise_model_train.json}` | `bengali-rev-03-train-both/bengali-rev-03-train-both.log`, `train/<model>.log`, `environment_train.json`, `setup.log` | validation numbers only; test not scored yet |
 | Prompt-constraint check (Qwen3 0.6B, Transformers 5.19.0) | 2026-10-19, local CPU | `prompt_constraints_5.19.0.json` | none | yes (text only) |
 | Grad-CAM pilot (Qwen3 0.6B) | 2026-10-15, local CPU | `xai_pilot_qwen3-0.6b.jsonl` | none | no, pipeline test |
 
@@ -50,5 +51,6 @@ Rerun on 2026-11-13 with `paper/scripts/reproduce_tables.sh` under `tools/run_lo
 
 ## What is missing
 - Console logs of the Colab OCR runs and of the July/August first-version runs. They were never saved.
-- The fine-tuned ByT5-small checkpoint stayed in the Kaggle session output and was not downloaded.
+- The review3e fine-tuned ByT5-small checkpoint stayed in the Kaggle session output and was not downloaded. The two rev-03 checkpoints (`best/` and `last/`, about 1.2 GB and 3.6 GB each) were downloaded on 2026-11-21 and load locally.
+- The rev-03 run was started with `aa94619` as base commit; the trainer itself was added later (badc712), so the Kaggle code dataset is a copy, not a checkout.
 - The notebooks in `notebooks/` were committed without their cell outputs. The executed versions may still be on Kaggle and Colab.
