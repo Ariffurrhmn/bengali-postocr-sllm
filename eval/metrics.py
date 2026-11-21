@@ -32,3 +32,18 @@ def wer(reference: str, hypothesis: str) -> float:
 
 def score_pair(reference: str, hypothesis: str) -> dict:
     return {"cer": cer(reference, hypothesis), "wer": wer(reference, hypothesis)}
+
+
+def block_scores(references, hypotheses) -> dict:
+    """Per-block scoring of one page (D78): the sum of the block edit distances divided by the
+    sum of the block reference characters (words for WER). Blocks whose reference is empty
+    after normalisation are skipped. A block with several lines is one reference string."""
+    refs, hyps = [], []
+    for r, h in zip(references, hypotheses):
+        r, h = normalize(r), normalize(h)
+        if r:
+            refs.append(r)
+            hyps.append(h)
+    if not refs:
+        return {"cer": 0.0, "wer": 0.0, "blocks": 0}
+    return {"cer": float(jiwer.cer(refs, hyps)), "wer": float(jiwer.wer(refs, hyps)), "blocks": len(refs)}

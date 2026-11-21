@@ -86,3 +86,13 @@ if __name__ == "__main__":
         print(f"{failures}/{len(tests)} tests failed")
         sys.exit(1)
     print(f"All {len(tests)} tests passed")
+
+
+def test_block_scores_are_character_weighted():
+    from metrics import block_scores
+
+    # one long block with 1 error in 10 characters and one short block that is wrong in 2 of 2
+    s = block_scores(["abcdefghij", "kl"], ["abcdefghiX", "xy"])
+    assert abs(s["cer"] - 3 / 12) < 1e-9          # not the mean of 0.1 and 1.0
+    assert s["blocks"] == 2
+    assert block_scores(["", "ab"], ["zzz", "ab"])["blocks"] == 1  # empty references are skipped

@@ -41,7 +41,7 @@ import numpy as np
 from corrector_common import MODELS, REPO, correct_texts, flat, load_jsonl, load_model, read_ids
 
 sys.path.insert(0, str(REPO / "eval"))
-from metrics import cer, wer  # noqa: E402
+from metrics import block_scores, cer, wer  # noqa: E402
 
 SEED = 403
 RESAMPLES = 10000
@@ -118,7 +118,8 @@ def main():
     t0 = time.time()
     per_page = []
     for rec in pages:
-        row = {"page_id": rec["page_id"], "ground_truth": rec["ground_truth"], "blocks": len(rec["regions"])}
+        row = {"page_id": rec["page_id"], "page_type": rec.get("page_type", ""), "ground_truth": rec["ground_truth"],
+               "blocks": len(rec["regions"])}
         for eng in ENGINES:
             src = [reg[eng] for reg in rec["regions"]]
             outs, trunc = correct_texts(model, tok, src, device, args.max_bytes, args.batch)
@@ -133,9 +134,16 @@ def main():
                 "changed_blocks": int(sum(flat(s) != flat(o) for s, o in zip(src, outs))),
                 "text": texts,
             }
+            refs = [reg["ground_truth"] for reg in rec["regions"]]
+            per_block = {"raw": src, "plain": outs, "guarded": kept}
             for name, t in texts.items():
                 row[eng][name + "_cer"] = cer(rec["ground_truth"], t)
                 row[eng][name + "_wer"] = wer(rec["ground_truth"], t)
+                # main test metric (D78): per-block, character-weighted within the page
+                bs = block_scores(refs, per_block[name])
+                row[eng][name + "_blockcer"] = bs["cer"]
+                row[eng][name + "_blockwer"] = bs["wer"]
+                row[eng]["scored_blocks"] = bs["blocks"]
         if not args.no_clean:
             refs = [reg["ground_truth"] for reg in rec["regions"] if flat(reg.get("ground_truth", ""))]
             outs, trunc = correct_texts(model, tok, refs, device, args.max_bytes, args.batch)
@@ -144,7 +152,7 @@ def main():
                             "cer_vs_reference": float(np.mean([cer(r, o) for r, o in zip(refs, outs)])) if refs else 0.0}
         per_page.append(row)
         print(f"  {rec['page_id']}: " + ", ".join(
-            f"{e} raw {row[e]['raw_cer']:.3f} -> {row[e]['plain_cer']:.3f}" for e in ENGINES), flush=True)
+            f"{e} raw {row[e]['raw_blockcer']:.3f} -> {row[e]['plain_blockcer']:.3f}" for e in ENGINES) + " (per-block CER)", flush=True)
 
     rng = np.random.default_rng(SEED)
     summary = {"model": args.model, "weights": str(args.weights), "split": args.split, "pages": len(pages),
@@ -159,9 +167,17 @@ def main():
              "changed_blocks": sum(r[eng]["changed_blocks"] for r in per_page),
              "blocks": sum(r["blocks"] for r in per_page)}
         for variant in ("plain", "guarded"):
-            for metric in ("cer", "wer"):
+            for metric in ("blockcer", "blockwer", "cer", "wer"):
                 e[f"{variant}_{metric}"] = paired([r[eng][f"raw_{metric}"] for r in per_page],
                                                   [r[eng][f"{variant}_{metric}"] for r in per_page], rng)
+        # layout breakdown (D78): table-of-contents pages against the others, per-block metric
+        e["by_layout"] = {}
+        for label, keep in (("toc", lambda r: r.get("page_type") == "toc"), ("other", lambda r: r.get("page_type") != "toc")):
+            sel = [r for r in per_page if keep(r)]
+            if len(sel) >= 2:
+                e["by_layout"][label] = {f"{v}_blockcer": paired([r[eng]["raw_blockcer"] for r in sel],
+                                                                 [r[eng][f"{v}_blockcer"] for r in sel], rng)
+                                         for v in ("plain", "guarded")}
         summary["engines"][eng] = e
     if not args.no_clean:
         c = [r["clean"] for r in per_page]
@@ -179,12 +195,16 @@ def main():
         lines.append(f"{eng}: top-level raw CER {e['raw_toplevel_cer_mean']:.4f}; blocks {e['blocks']}, changed "
                      f"{e['changed_blocks']}, truncated {e['truncated_blocks']}, degenerate {e['degenerate_blocks']}")
         for variant in ("plain", "guarded"):
-            for metric in ("cer", "wer"):
+            for metric in ("blockcer", "blockwer", "cer", "wer"):
                 s = e[f"{variant}_{metric}"]
                 p = f"{s['wilcoxon_p']:.4f}" if s.get("wilcoxon_p") is not None else "n/a"
-                lines.append(f"  {variant:7s} {metric.upper()} {s['mean_raw']:.4f} -> {s['mean_corrected']:.4f}  "
+                lines.append(f"  {variant:7s} {metric.upper()}{' (main, per-block)' if metric == 'blockcer' else ''} {s['mean_raw']:.4f} -> {s['mean_corrected']:.4f}  "
                              f"delta {s['delta']:+.4f} [{s['ci95'][0]:+.4f}, {s['ci95'][1]:+.4f}]  "
                              f"better {s['better']} worse {s['worse']}  Wilcoxon p {p}")
+        for label, d in e["by_layout"].items():
+            for variant, s in d.items():
+                lines.append(f"  layout {label:5s} {variant}: {s['mean_raw']:.4f} -> {s['mean_corrected']:.4f} "
+                             f"delta {s['delta']:+.4f} [{s['ci95'][0]:+.4f}, {s['ci95'][1]:+.4f}] ({s['pages']} pages)")
     if "clean_text" in summary:
         c = summary["clean_text"]
         lines.append(f"clean text: {c['changed']}/{c['blocks']} blocks changed, mean CER vs reference "
