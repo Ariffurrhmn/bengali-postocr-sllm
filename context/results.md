@@ -101,4 +101,12 @@ Run under mixed early settings; every model was already worse than the baseline.
 - BanglaByT5 (Bangla continued pretraining): best 0.3237 at step 4000, 6,500 steps, 254 min; last evaluation 0.3298. Curve: 0.367, 0.377, 0.348, 0.337, 0.330, 0.332, 0.327, 0.324, 0.326, 0.343, 0.374, 0.334, 0.330.
 - Training data: 1,185 real pairs (x10), 69,822 synthetic pairs; 499 real pieces dropped for length ratio, 36 for overlap; fitted noise rates 0.132 substituted, 0.103 deleted, 0.044 inserted per reference character; real-pair CER quantiles median 0.20, 90th percentile 0.44.
 - Truncated blocks 1.6-7.1% at the evaluations. Logged samples show runs of the danda-like mark replacing numbers at several checkpoints of both models.
-- Test pages (test_bl) not scored yet. Run `correction/score_trained_corrector.py` once per model.
+**Fully trained correctors, test pages (D76, scored once on 2026-11-22, `results/bengali-rev-04-score-trained/rev03_score/`).** Page CER on the 41 BL test pages, joined region text, 95% paired bootstrap interval for the change against raw OCR. Raw OCR: Tesseract 0.3253, EasyOCR 0.2536.
+- Tesseract, byt5-small: plain 0.4244 (+0.099, [+0.054, +0.152]); guarded 0.3258 (+0.001, [-0.006, +0.007]).
+- Tesseract, BanglaByT5: plain 0.4160 (+0.091, [+0.054, +0.134]); guarded 0.3278 (+0.003, [-0.004, +0.009]).
+- EasyOCR, byt5-small: plain 0.3006 (+0.047, [+0.011, +0.098]); guarded 0.2500 (-0.004, [-0.012, +0.006]).
+- EasyOCR, BanglaByT5: plain 0.2609 (+0.007, [-0.005, +0.022]); guarded 0.2502 (-0.003, [-0.011, +0.004]).
+- Word error rate with the guard falls on both engines for both models, and every interval is below zero: Tesseract byt5-small 0.6981 to 0.6502 (-0.048, [-0.066, -0.031]); Tesseract BanglaByT5 0.6720 (-0.026, [-0.045, -0.009]); EasyOCR byt5-small 0.6396 (-0.079, [-0.100, -0.058]); EasyOCR BanglaByT5 0.6487 (-0.070, [-0.091, -0.050]).
+- Reading: the plain output is worse than raw OCR for both engines, as on validation. The guarded output is level with raw OCR in character error and better in word error. No character-level gain is significant.
+- Clean-text check (reference text through the corrector): 531 of 1213 blocks changed for byt5-small (mean CER vs reference 0.113) and 544 of 1213 for BanglaByT5 (0.085). Both models rewrite a large share of text that was already correct. The guard does not cover this case.
+- Validation numbers from this script use the joined region text, so raw validation CER is 0.2992 (Tesseract) and 0.2921 (EasyOCR), not the 0.2956 of the training log (region records).
