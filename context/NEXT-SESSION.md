@@ -31,6 +31,14 @@ Handoff updated 2026-10-19 (after the external review by Ahmed Shafkat, D63). Re
 4. **Release (C6, R2), only with the author's go-ahead after the final pass:** GitHub release → Zenodo DOI → put the DOI into reference `rahman2026repo`; separate Zenodo dataset deposit of the per-page OCR text and model outputs under CC BY 4.0 (the paper already says they are released with it). `results/` is local only (gitignored); copies on Google Drive.
 5. Optional: check the TALLIP paper's PDF if the author has ACM access (D53 caveat); arXiv preprint (WRITING-GUIDE Sec 6).
 
+## 3b. BL test pages: review finished (D77, 2026-11-22), what is left
+The author finished the reading-order review. All 41 pages are done and all 41 are in the dataset. Final file: `results/bl_review/review_final_2026-11-22.json` (local). Open items, in order:
+1. **Author decides before any score is looked at:** (a) per-block scoring as the main test metric (Claude recommends yes); (b) the 7 table-of-contents pages: fix the reading order and score with the rest, report them as a separate group, or drop them. The reason must be layout, not score.
+2. **Claude builds the scoring input from the review file** (new tool in `tools/`): per page, blocks in the reviewed order, added boxes with their linked lines, excluded and phantom blocks removed, redrawn boxes used. Check it with a count test (every ALTO line used once). Do not look at any score while building it.
+3. **Rescore.** The test scores recorded under D76 used the old order and boxes, so they are not valid for the reviewed set. Rerun `correction/score_trained_corrector.py` (and the raw-OCR baseline) on the reviewed input, once, after items 1 and 2.
+4. **Author:** copy the final JSON to the Drive folder `revision_2026-11` (it stays out of git); say which pages the paper may show; update the paper text (test set description, alignment method, reading-order rule) after the rescore.
+5. Optional: tick the old page-type labels in `data/page_types.tsv` (E8); the review file now has page_type for 12 pages (7 toc, 5 body).
+
 ## 4. Questions to ask the author at the start of every session
 1. Any news from Bijon Sir or the reviewer on the revised draft?
 2. Have you checked `data/page_types.tsv` (E8)?
