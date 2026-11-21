@@ -165,7 +165,7 @@ details.help{background:#fffde7;border:1px solid #d9cc6b;padding:4px 8px;margin-
  <div id="plist"></div>
  <div id="imgcol">
   <div style="margin-bottom:4px;font-size:12px">Image size <input type="range" id="zoom" min="40" max="250" value="100">
-   <label><input type="checkbox" id="lblmode"> number boxes by new order</label>
+   Numbers: <select id="lblmode"><option value="order">reading order</option><option value="xml">XML order</option></select>
    &nbsp;Show: <select id="vis"><option value="all">all boxes</option><option value="choose">only the ones I tick</option></select>
    <button id="hideall" title="untick every box">Hide all</button><button id="showall" title="tick every box">Tick all</button>
    &nbsp;Label size <input type="range" id="lsize" min="3" max="40" value="14" style="width:70px">
@@ -175,7 +175,7 @@ details.help{background:#fffde7;border:1px solid #d9cc6b;padding:4px 8px;margin-
  <div id="side">
   <details class="help" open><summary><b>Help</b></summary>
    <p><b>Reading-order rule:</b> <span id="rule"></span></p>
-   <p>Boxes on the image are numbered in the order of the XML file (tick the box above to number by your new order). Hover or click a box or a row to highlight both.
+   <p>Boxes on the image are numbered in your reading order, like the list on the right (switch "Numbers" above to see XML-file numbers; the small XML tag on each row always shows them). Hover or click a box or a row to highlight both.
    Drag rows by the &#8942;&#8942; handle, or use the arrows, to set reading order. Dashed outline = original box; solid = your redrawn box.
    <i>Redraw</i> then drag on the image. <i>Add box</i> then drag on the image for visible text that has no box. Esc cancels drawing.
    Text is never edited. Everything autosaves in this browser; use Export JSON to keep a copy.</p>
@@ -244,7 +244,7 @@ function pageBox(p, st, k) { // box currently in force for a key
 }
 function xmlNo(k, st) { return k[0] === "b" ? (+k.slice(1) + 1) : "+" + k.slice(1); }
 function colorOf(k) { return k[0] === "a" ? "#00796b" : COLORS[(+k.slice(1) + 1) % COLORS.length]; }
-function labelOf(k, st) { return $("lblmode").checked ? (st.order.indexOf(k) + 1) : xmlNo(k, st); }
+function labelOf(k, st) { return $("lblmode").value === "order" ? (st.order.indexOf(k) + 1) : xmlNo(k, st); }
 function keyText(p, st, k) { return k[0] === "a" ? "" : p.blocks[+k.slice(1)].text; }
 
 // ---------- rendering
@@ -462,7 +462,7 @@ $("pg").addEventListener("input", e => {
 $("plist").addEventListener("click", e => { const d = e.target.closest("[data-i]"); if (d) gotoPage(+d.dataset.i); });
 $("prev").onclick = () => gotoPage(cur - 1); $("next").onclick = () => gotoPage(cur + 1);
 $("zoom").oninput = e => { $("wrap").style.width = e.target.value + "%"; };
-$("lblmode").onchange = renderOverlay; $("lsize").oninput = renderOverlay;
+$("lblmode").onchange = () => { try { localStorage.setItem(STORE + "_lbl", $("lblmode").value); } catch (e) {} renderOverlay(); }; $("lsize").oninput = renderOverlay;
 function syncShow() { document.querySelectorAll(".row").forEach(r => { r.querySelector("[data-show]").checked = shown.has(r.dataset.k); }); renderOverlay(); }
 $("vis").onchange = () => { if ($("vis").value === "choose" && !shown.size && sel) shown.add(sel); syncShow(); };
 $("hideall").onclick = () => { $("vis").value = "choose"; shown.clear(); syncShow(); };
@@ -527,6 +527,7 @@ $("impf").onchange = e => {
 window.addEventListener("beforeunload", e => { if (dirty && !storageOK) { e.preventDefault(); e.returnValue = ""; } });
 
 $("rule").textContent = D.rule;
+try { const m = localStorage.getItem(STORE + "_lbl"); if (m === "xml" || m === "order") $("lblmode").value = m; } catch (e) {}
 load();
 let start = 0; try { start = +localStorage.getItem(STORE + "_cur") || 0; } catch (e) {}
 dirty = false; gotoPage(Math.min(start, D.pages.length - 1));
