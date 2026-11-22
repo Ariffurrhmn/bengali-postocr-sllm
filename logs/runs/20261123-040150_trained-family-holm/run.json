@@ -1,0 +1,26 @@
+{
+  "run_id": "20261123-040150_trained-family-holm",
+  "label": "trained-family-holm",
+  "command": "G:\\bengali-postocr-sllm\\.venv\\Scripts\\python.exe eval/trained_family_holm.py --summaries results/bengali-rev-07-score-reviewed/rev07_score --out results/rev07_holm.json",
+  "start": "2026-11-23T04:01:50+06:00",
+  "end": "2026-11-23T04:01:53+06:00",
+  "seconds": 2.67,
+  "exit_code": 0,
+  "git_commit": "9596a895146aa6ec46d6c904578c160bb6879f9d",
+  "git_dirty": false,
+  "python": "3.11.0",
+  "packages": {
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "jiwer": "4.0.0",
+    "rapidfuzz": "3.14.5",
+    "regex": "2026.7.19",
+    "matplotlib": "3.11.1",
+    "symspellpy": "6.10.0",
+    "torch": "2.13.0",
+    "transformers": "5.14.1",
+    "pytesseract": "0.3.13",
+    "easyocr": "1.7.2"
+  },
+  "machine": "Windows 10 AMD64"
+}

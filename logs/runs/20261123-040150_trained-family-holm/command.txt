@@ -1,0 +1,1 @@
+.venv/Scripts/python.exe eval/trained_family_holm.py --summaries results/bengali-rev-07-score-reviewed/rev07_score --out results/rev07_holm.json
