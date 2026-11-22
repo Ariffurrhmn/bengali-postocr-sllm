@@ -157,7 +157,9 @@ def gating_table():
             for t in ths:
                 r = by[(e, m, t)]
                 d = r["blockcer_vs_raw"]
-                star = "" if r["holm_p"] >= 0.05 else ("$^{-}$" if d["delta"] < 0 else "$^{+}$")
+                # direction of a significant Wilcoxon test: which way most pages moved (rank-based),
+                # not the sign of the mean, which outliers can flip
+                star = "" if r["holm_p"] >= 0.05 else ("$^{-}$" if d["better"] > d["worse"] else "$^{+}$")
                 cells.append(f"{r['gated_blockcer']:.3f} & {d['delta']:+.3f}{star}")
             rows.append(f"& {NAMES[m]} ({r0['ungated_blockcer']:.3f}) & " + " & ".join(cells) + " \\\\")
         if e == "tesseract":
@@ -167,8 +169,14 @@ def gating_table():
     note = (f"Confidence gating on the 41 held-out pages with the thresholds fixed for the 40-page study: a model's "
             f"change to a block is kept only where every OCR word it touches has a confidence below the threshold. "
             f"Raw block CER: Tesseract {raw['tesseract']:.3f}, EasyOCR {raw['easyocr']:.3f}; in brackets, the ungated "
-            "block CER. $\\Delta$: gated $-$ raw OCR. $^{+}$/$^{-}$: Holm-significant increase/decrease over the 54 "
-            "tests (exploratory family, as in the 40-page study). Confidence run: " + stats)
+            "block CER. $\\Delta$: gated $-$ raw OCR, mean over pages. $^{+}$/$^{-}$: Holm-significant Wilcoxon test over "
+            "the 54 tests (exploratory family, as in the 40-page study), marked by the direction most pages moved"
+            + "".join(f"; for {NAMES[r['method']]} on {dict(ENGINES)[r['engine']]} at {r['threshold']:g} the mean is "
+                      f"{'negative' if r['blockcer_vs_raw']['delta'] < 0 else 'positive'} but "
+                      f"{r['blockcer_vs_raw']['worse']} pages got worse and {r['blockcer_vs_raw']['better']} better"
+                      for r in s["rows"] if r["holm_p"] < 0.05
+                      and (r["blockcer_vs_raw"]["delta"] < 0) != (r["blockcer_vs_raw"]["better"] > r["blockcer_vs_raw"]["worse"]))
+            + ". Confidence run: " + stats)
     return table("tab:testgating", "Held-Out Test: Confidence-Gated Correction (Block CER)", "llcccccc",
                  "& Method (ungated) & Gated & $\\Delta$ & Gated & $\\Delta$ & Gated & $\\Delta$", rows, note)
 

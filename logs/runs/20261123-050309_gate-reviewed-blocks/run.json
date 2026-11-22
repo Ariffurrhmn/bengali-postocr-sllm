@@ -1,0 +1,26 @@
+{
+  "run_id": "20261123-050309_gate-reviewed-blocks",
+  "label": "gate-reviewed-blocks",
+  "command": "G:\\bengali-postocr-sllm\\.venv\\Scripts\\python.exe eval/gate_reviewed_blocks.py --ocr-region results/bengali-rev-06-ocr-reviewed/ocr/reviewed_region.jsonl --conf results/bengali-rev-09-conf-reviewed/conf/reviewed_conf.jsonl --split-dir data/split_v2 --outputs results/rev08/zs_banglat5_a.jsonl results/rev08/zs_gemma-2b_b.jsonl results/rev08/zs_llama3.2-1b_b.jsonl results/rev08/zs_phi4-mini_a.jsonl results/rev08/zs_qwen3-1.7b_a.jsonl results/rev08/zs_titullm-1b-instruct_a.jsonl results/rev08/zs_titullm-1b-instruct_b.jsonl results/rev08/zs_titullm-1b_a.jsonl results/rev08/zs_titullm-3b-instruct_a.jsonl results/rev08_symspell/zs_symspell.jsonl --out-dir results/rev09_gated",
+  "start": "2026-11-23T05:03:09+06:00",
+  "end": "2026-11-23T05:03:43+06:00",
+  "seconds": 33.74,
+  "exit_code": 0,
+  "git_commit": "9c0e327bcc7575794ef4b916774b8e0c7475af33",
+  "git_dirty": false,
+  "python": "3.11.0",
+  "packages": {
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "jiwer": "4.0.0",
+    "rapidfuzz": "3.14.5",
+    "regex": "2026.7.19",
+    "matplotlib": "3.11.1",
+    "symspellpy": "6.10.0",
+    "torch": "2.13.0",
+    "transformers": "5.14.1",
+    "pytesseract": "0.3.13",
+    "easyocr": "1.7.2"
+  },
+  "machine": "Windows 10 AMD64"
+}

@@ -1,0 +1,36 @@
+\begin{table*}[t]
+\centering
+\caption{Held-Out Test: Confidence-Gated Correction (Block CER)}
+\label{tab:testgating}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\begin{tabular}{llcccccc}
+\toprule
+& Method (ungated) & Gated & $\Delta$ & Gated & $\Delta$ & Gated & $\Delta$ \\
+\midrule
+\multicolumn{2}{l}{\textit{Tesseract}} & \multicolumn{2}{c}{$<$50} & \multicolumn{2}{c}{$<$70} & \multicolumn{2}{c}{$<$90} \\
+& SymSpell (dictionary) (0.388) & 0.357 & +0.007$^{+}$ & 0.361 & +0.011$^{+}$ & 0.375 & +0.025$^{+}$ \\
+& Gemma-2B-it (0.357) & 0.349 & -0.002 & 0.347 & -0.003 & 0.351 & +0.001 \\
+& Qwen3 1.7B (0.364) & 0.351 & +0.001 & 0.351 & +0.001 & 0.352 & +0.002 \\
+& Phi-4-mini (0.389) & 0.355 & +0.005 & 0.356 & +0.006 & 0.361 & +0.010 \\
+& Llama 3.2 1B (0.431) & 0.365 & +0.014$^{+}$ & 0.374 & +0.024$^{+}$ & 0.398 & +0.048$^{+}$ \\
+& BanglaT5 (2.029) & 0.605 & +0.255$^{+}$ & 0.808 & +0.458$^{+}$ & 1.123 & +0.773$^{+}$ \\
+& TituLLMs 1B (1.167) & 0.504 & +0.153$^{+}$ & 0.609 & +0.259$^{+}$ & 0.768 & +0.418$^{+}$ \\
+& TituLLMs 1B Instruct (4.306) & 1.008 & +0.658$^{+}$ & 1.423 & +1.073$^{+}$ & 2.227 & +1.876$^{+}$ \\
+& TituLLMs 3B Instruct (1.759) & 0.431 & +0.081$^{+}$ & 0.562 & +0.212$^{+}$ & 0.769 & +0.419$^{+}$ \\
+\midrule
+\multicolumn{2}{l}{\textit{EasyOCR}} & \multicolumn{2}{c}{$<$0.5} & \multicolumn{2}{c}{$<$0.7} & \multicolumn{2}{c}{$<$0.9} \\
+& SymSpell (dictionary) (0.318) & 0.294 & +0.022$^{+}$ & 0.307 & +0.036$^{+}$ & 0.315 & +0.043$^{+}$ \\
+& Gemma-2B-it (0.287) & 0.266 & -0.005 & 0.271 & -0.001$^{+}$ & 0.277 & +0.006$^{+}$ \\
+& Qwen3 1.7B (0.284) & 0.273 & +0.001 & 0.278 & +0.006 & 0.281 & +0.010 \\
+& Phi-4-mini (0.291) & 0.277 & +0.006 & 0.284 & +0.012$^{+}$ & 0.287 & +0.015$^{+}$ \\
+& Llama 3.2 1B (0.369) & 0.303 & +0.031$^{+}$ & 0.337 & +0.066$^{+}$ & 0.355 & +0.084$^{+}$ \\
+& BanglaT5 (2.176) & 1.021 & +0.749$^{+}$ & 1.581 & +1.309$^{+}$ & 1.950 & +1.678$^{+}$ \\
+& TituLLMs 1B (1.208) & 0.608 & +0.336$^{+}$ & 0.900 & +0.628$^{+}$ & 1.063 & +0.791$^{+}$ \\
+& TituLLMs 1B Instruct (4.295) & 1.856 & +1.584$^{+}$ & 2.979 & +2.707$^{+}$ & 3.760 & +3.489$^{+}$ \\
+& TituLLMs 3B Instruct (1.563) & 0.728 & +0.456$^{+}$ & 1.021 & +0.750$^{+}$ & 1.265 & +0.994$^{+}$ \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Confidence gating on the 41 held-out pages with the thresholds fixed for the 40-page study: a model's change to a block is kept only where every OCR word it touches has a confidence below the threshold. Raw block CER: Tesseract 0.350, EasyOCR 0.272; in brackets, the ungated block CER. $\Delta$: gated $-$ raw OCR, mean over pages. $^{+}$/$^{-}$: Holm-significant Wilcoxon test over the 54 tests (exploratory family, as in the 40-page study), marked by the direction most pages moved; for Gemma-2B-it on EasyOCR at 0.7 the mean is negative but 25 pages got worse and 10 better. Confidence run: tesseract: confidence-run text equals stored text on 1250/1250 units; 0/9104 stored words without a confidence; words below threshold $<$50: 39.5\%, $<$70: 55.7\%, $<$90: 77.1\% easyocr: confidence-run text equals stored text on 1250/1250 units; 0/8486 stored words without a confidence; words below threshold $<$0.5: 58.5\%, $<$0.7: 84.5\%, $<$0.9: 94.8\%\end{minipage}
+\end{table*}

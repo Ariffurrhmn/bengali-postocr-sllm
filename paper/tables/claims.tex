@@ -21,8 +21,7 @@ Every method changes error-free text & Tables~\ref{tab:testzeroshot}, \ref{tab:t
 Repetition constraints make copying models much worse & Table~\ref{tab:decoding} & Exploratory, Holm within the family \\
 In Transformers~5.19.0 these constraints also act on the prompt & One-step test, Section~\ref{sec:correction} & Verified \\
 Restricting them to generated tokens removes much, but not all, of the damage & Table~\ref{tab:decodinggen} & Exploratory, Holm within each comparison \\
-Confidence gating gives a small CER gain at one of three thresholds on the 40 pages & Table~\ref{tab:gated} & Exploratory % GATING-PENDING: held-out status
-\\
+Confidence gating gives a small CER gain at one of three thresholds on the 40 pages & Table~\ref{tab:gated} & Exploratory; did not recur on the held-out pages (Table~\ref{tab:testgating}) \\
 Engine fusion gains about as much & Table~\ref{tab:classical} & Descriptive (test family chosen after a first scoring) \\
 The tested Bengali-pretrained checkpoints regenerate text instead of editing it & Tables~\ref{tab:matrix}, \ref{tab:diagnostics}, \ref{tab:filter}; Fig.~\ref{fig:corrected} & Descriptive; specific to these checkpoints and prompts \\
 \bottomrule
