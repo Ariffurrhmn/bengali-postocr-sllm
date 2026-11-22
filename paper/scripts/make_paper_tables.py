@@ -369,7 +369,7 @@ def main():
         "\\par\\smallskip\n\\begin{minipage}{\\linewidth}\\footnotesize $\\Delta$ = corrected $-$ uncorrected (positive = worse). "
         "CI: paired bootstrap, 10{,}000 resamples, seed 403. "
         "$p_{\\mathrm{Holm}}$: two-sided Wilcoxon signed-rank test, Holm-corrected over the "
-        + str(n_tests) + " CER and WER tests, the primary family of the study; "
+        + str(n_tests) + " CER and WER tests, the main family of the 40-page evaluation, exploratory since the held-out test (Section~\\ref{sec:testset}); "
         "pages whose error rate did not change are dropped by the test (zero differences). "
         "ns: not significant. wMER: word match error rate; $^{+}$/$^{-}$: significantly higher/lower "
         "than the raw OCR (exploratory family of " + str(len(wm)) + " tests). "

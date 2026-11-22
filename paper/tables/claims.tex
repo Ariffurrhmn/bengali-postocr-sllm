@@ -11,15 +11,18 @@
 \toprule
 Claim & Evidence & Status \\
 \midrule
-No ungated model significantly lowers code-point CER on whole-page OCR & Table~\ref{tab:matrix}; Tables~\ref{tab:robustness}, \ref{tab:scale}, \ref{tab:large} & Primary family (eight core models, dictionary); exploratory for the other models and measures \\
+On 41 book-disjoint held-out pages no zero-shot method lowers per-block CER; most raise it & Table~\ref{tab:testzeroshot} & Confirmatory family (36 tests, Holm) \\
+Fully trained correctors do not lower CER either; they lower WER on EasyOCR text & Table~\ref{tab:testtrained} & Family fixed before testing (8 tests, Holm); guarded variant secondary \\
+No ungated model significantly lowers code-point CER on whole-page OCR of the 40 pages & Table~\ref{tab:matrix}; Tables~\ref{tab:robustness}, \ref{tab:scale}, \ref{tab:large} & Exploratory (40 reused pages; primary family before the held-out test) \\
 The same holds for region-level OCR and for synthetic noise down to an input CER of 0.02 & Tables~\ref{tab:region}, \ref{tab:noise} & Exploratory, Holm within each family \\
-Larger Qwen3 models and the fine-tuning pilot lower WER but not CER & Tables~\ref{tab:scale}, \ref{tab:finetune} & Exploratory; the pilot is under-trained \\
+Larger Qwen3 models and the fine-tuning pilot lower WER but not CER & Tables~\ref{tab:scale}, \ref{tab:finetune} & Exploratory, 40 pages only; the pilot is under-trained (diagnostic) \\
 Their word repairs are offset by edits to other words & Table~\ref{tab:editlevel} & Descriptive \\
-Every method changes error-free text & Tables~\ref{tab:clean}, \ref{tab:scale}, \ref{tab:finetune} & Descriptive stress test of preservation \\
+Every method changes error-free text & Tables~\ref{tab:testzeroshot}, \ref{tab:testtrained}, \ref{tab:clean}, \ref{tab:scale}, \ref{tab:finetune} & Descriptive stress test of preservation, on both page sets \\
 Repetition constraints make copying models much worse & Table~\ref{tab:decoding} & Exploratory, Holm within the family \\
 In Transformers~5.19.0 these constraints also act on the prompt & One-step test, Section~\ref{sec:correction} & Verified \\
 Restricting them to generated tokens removes much, but not all, of the damage & Table~\ref{tab:decodinggen} & Exploratory, Holm within each comparison \\
-Confidence gating gives a small CER gain at one of three thresholds & Table~\ref{tab:gated} & Exploratory, not validated on held-out pages \\
+Confidence gating gives a small CER gain at one of three thresholds on the 40 pages & Table~\ref{tab:gated} & Exploratory % GATING-PENDING: held-out status
+\\
 Engine fusion gains about as much & Table~\ref{tab:classical} & Descriptive (test family chosen after a first scoring) \\
 The tested Bengali-pretrained checkpoints regenerate text instead of editing it & Tables~\ref{tab:matrix}, \ref{tab:diagnostics}, \ref{tab:filter}; Fig.~\ref{fig:corrected} & Descriptive; specific to these checkpoints and prompts \\
 \bottomrule

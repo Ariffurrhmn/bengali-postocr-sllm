@@ -136,7 +136,7 @@ def trained_table():
     return table("tab:testtrained", "Held-Out Test: Fully Trained Correctors (ByT5-Small and BanglaByT5)", "llccccccccc",
                  "Engine & Model & Raw CER & CER & $\\Delta$CER [95\\% CI] & $p_{\\mathrm{Holm}}$ & $\\Delta$WER [95\\% CI] & "
                  "$p_{\\mathrm{Holm}}$ & \\shortstack{Guarded\\\\CER} & \\shortstack{Guarded\\\\$\\Delta$CER [95\\% CI]} & Trunc.",
-                 rows, note)
+                 rows, note, sep="2pt")
 
 
 def gating_table():
