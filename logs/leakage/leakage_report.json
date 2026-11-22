@@ -136,5 +136,119 @@
     "dev_lines": 165,
     "lines_sharing_a_25gram_with_eval": 0,
     "note": "finetune_byt5.py drops these before training; the Wikipedia part was filtered the same way (Kaggle logs: 0 segments dropped)."
+  },
+  "split_v2": {
+    "pages": {
+      "train": 62,
+      "val": 14,
+      "test_bl": 41,
+      "old_dev": 10,
+      "old_eval": 40
+    },
+    "books": {
+      "train": 51,
+      "val": 12,
+      "test_bl": 39,
+      "old_dev": 10,
+      "old_eval": 37
+    },
+    "pairs": {
+      "train|val": {
+        "shared_pages": 0,
+        "shared_books": []
+      },
+      "train|test_bl": {
+        "shared_pages": 0,
+        "shared_books": []
+      },
+      "train|old_dev": {
+        "shared_pages": 8,
+        "shared_books": [
+          "14048_D_11",
+          "14048_c_24",
+          "14053_C_15",
+          "14123_h_3",
+          "279_36_C_32",
+          "279_41_B_32",
+          "VT_1347_a",
+          "VT_2003_h"
+        ]
+      },
+      "train|old_eval": {
+        "shared_pages": 33,
+        "shared_books": [
+          "14028_D_2",
+          "14048_D_11",
+          "14076_a_2",
+          "14090_d_15",
+          "14127_d_15_4",
+          "14127_d_22",
+          "14131_B_6_1",
+          "14131_c_2_2",
+          "279_21_B_2",
+          "279_21_B_3",
+          "279_23_D_6",
+          "279_23_D_8",
+          "279_2_A_28",
+          "279_2_D_32",
+          "279_2_a_15",
+          "279_33_C_7",
+          "279_33_E_41",
+          "279_34_D_26",
+          "279_35_B_1",
+          "279_42_A_60",
+          "279_42_B_41",
+          "279_42_B_59",
+          "279_43_I_12",
+          "VT_1056_b",
+          "VT_1252_E",
+          "VT_1653_a",
+          "VT_1752_b",
+          "VT_1892_e",
+          "VT_280_a",
+          "VT_949_b"
+        ]
+      },
+      "val|test_bl": {
+        "shared_pages": 0,
+        "shared_books": []
+      },
+      "val|old_dev": {
+        "shared_pages": 2,
+        "shared_books": [
+          "14129_b_1-12",
+          "VT_961_h"
+        ]
+      },
+      "val|old_eval": {
+        "shared_pages": 7,
+        "shared_books": [
+          "14125_c_2_1",
+          "279_41_D_19",
+          "279_42_K_4",
+          "VT_1625_f",
+          "VT_1712_d",
+          "VT_961_k",
+          "vt1712_Schoolbook"
+        ]
+      },
+      "test_bl|old_dev": {
+        "shared_pages": 0,
+        "shared_books": []
+      },
+      "test_bl|old_eval": {
+        "shared_pages": 0,
+        "shared_books": []
+      },
+      "old_dev|old_eval": {
+        "shared_pages": 0,
+        "shared_books": [
+          "14048_D_11"
+        ]
+      }
+    },
+    "test_bl_books_shared_with_any_other_list": [],
+    "test_bl_shelfmark_roots_shared_with_train_or_val": [],
+    "note": "train and val reuse old dev/eval pages by design (the v2 split replaces the 10/40 split); test_bl must share nothing."
   }
 }
