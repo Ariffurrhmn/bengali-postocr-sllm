@@ -1,0 +1,20 @@
+{
+  "id": "arifurrhmn/bengali-rev-09-conf-reviewed",
+  "title": "bengali-rev-09-conf-reviewed",
+  "code_file": "bengali-rev-09-conf-reviewed.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "arifurrhmn/bengali-revision-pages",
+    "arifurrhmn/bengali-bl-reviewed-units"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [
+    "arifurrhmn/bengali-rev-06-ocr-reviewed-units"
+  ],
+  "model_sources": []
+}
