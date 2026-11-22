@@ -143,6 +143,35 @@ def main():
                                     "note": "finetune_byt5.py drops these before training; the Wikipedia part was "
                                             "filtered the same way (Kaggle logs: 0 segments dropped)."}
 
+    # 6. Revision split (data/split_v2: train, val, test_bl; copy of the lists in the Kaggle
+    # dataset bengali-revision-pages). The reviewer asked for a book-disjoint test set, so
+    # every pair of lists is checked for shared pages and shared books, also against the
+    # old dev/eval lists. "shelfmark_root" drops one more part of the book id
+    # (279_23_I_8 -> 279_23_I) and is a stricter test for near-neighbour volumes.
+    v2 = {n: read_ids(REPO / f"data/split_v2/{n}.txt") for n in ("train", "val", "test_bl")}
+    lists = {**v2, "old_dev": dev, "old_eval": ev}
+    root = lambda p: re.sub(r"_[^_]+$", "", book_of(p)).lower()
+    pairs = {}
+    names = list(lists)
+    for i, a in enumerate(names):
+        for c in names[i + 1:]:
+            pairs[f"{a}|{c}"] = {
+                "shared_pages": len(set(lists[a]) & set(lists[c])),
+                "shared_books": sorted({book_of(p) for p in lists[a]} & {book_of(p) for p in lists[c]}),
+            }
+    others = [p for n in ("train", "val", "old_dev", "old_eval") for p in lists[n]]
+    report["split_v2"] = {
+        "pages": {n: len(v) for n, v in lists.items()},
+        "books": {n: len({book_of(p) for p in v}) for n, v in lists.items()},
+        "pairs": pairs,
+        "test_bl_books_shared_with_any_other_list": sorted({book_of(p) for p in v2["test_bl"]}
+                                                           & {book_of(p) for p in others}),
+        "test_bl_shelfmark_roots_shared_with_train_or_val": sorted({root(p) for p in v2["test_bl"]}
+                                                                   & {root(p) for p in v2["train"] + v2["val"]}),
+        "note": "train and val reuse old dev/eval pages by design (the v2 split replaces the 10/40 split); "
+                "test_bl must share nothing.",
+    }
+
     args.out_json.parent.mkdir(parents=True, exist_ok=True)
     args.out_json.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))

@@ -34,6 +34,7 @@ import argparse
 import json
 import pickle
 import random
+import re
 import shutil
 import sys
 import time
@@ -215,6 +216,9 @@ def main():
     train_ids, val_ids = set(read_ids(args.split_dir / "train.txt")), set(read_ids(args.split_dir / "val.txt"))
     test_ids = set(read_ids(args.split_dir / "test_bl.txt"))
     assert not (train_ids & val_ids) and not (train_ids & test_ids) and not (val_ids & test_ids), "split overlap"
+    book = lambda p: re.sub(r"_\d+$", "", p)  # same rule as eval/check_leakage.py
+    shared = {book(p) for p in test_ids} & {book(p) for p in train_ids | val_ids}
+    assert not shared, f"test books also in train/val: {sorted(shared)}"
     recs = {}
     for p in args.ocr_region:
         for r in load_jsonl(p):

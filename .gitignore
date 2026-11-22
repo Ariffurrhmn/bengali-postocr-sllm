@@ -17,6 +17,7 @@ data/*
 !data/page_types.tsv
 !data/noise_model_dev.json
 !data/m7_pages.txt
+!data/split_v2/
 results/*
 !results/.gitkeep
 
