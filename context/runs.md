@@ -28,7 +28,7 @@ Every model and OCR run behind the paper, with its output file in `results/` (lo
 | review4: constraints on generated tokens only, completion prompt for the Instruct checkpoints | 2026-10-19, Kaggle 2x T4 | `review4/` | `review4/*.log`, `environment.txt` | yes |
 | rev-03: full fine-tuning of ByT5-small and BanglaByT5 (D76) | 2026-11-21, Kaggle 2x T4 (about 4.7 h and 4.2 h) | `bengali-rev-03-train-both/train/<model>/{best,last,curve.jsonl,train_log.json,noise_model_train.json}` | `bengali-rev-03-train-both/bengali-rev-03-train-both.log`, `train/<model>.log`, `environment_train.json`, `setup.log` | validation numbers only in this row; test scored in the next row |
 | rev-04: test scoring of the two rev-03 correctors (D76) | 2026-11-22, Kaggle 2x T4 (`bengali-rev-04-score-trained`) | `bengali-rev-04-score-trained/rev03_score/<model>_<split>/{summary.json,summary.txt,pages.jsonl}` | `bengali-rev-04-score-trained/bengali-rev-04-score-trained.log`, `rev03_score/*.log`, `environment.txt`, `setup.log` | yes (test numbers in `results.md`); `pages.jsonl` holds page text, kept out of Git |
-| rev-08a/08b: the eight zero-shot models on the reviewed BL test units (D81), two parallel sessions | Kaggle 2x T4 each (`bengali-rev-08a-zero-shot-reviewed` about 3.7 h, `bengali-rev-08b-zero-shot-reviewed` about 1.5 h, at main-run speed); a first single-session version (`bengali-rev-08-zero-shot-reviewed`, v1) was cancelled after a few minutes | `rev08{a,b}_zero_shot/zs_<model>_<a|b>.jsonl` (outputs only) | `lane0.log`, `lane1.log`, `setup.log`, `environment.txt`, `counts.txt` | scored once by `eval/score_zero_shot_reviewed.py` with SymSpell |
+| rev-08a/08b: the eight zero-shot models on the reviewed BL test units (D81), two parallel sessions | Kaggle 2x T4 each (`bengali-rev-08a-zero-shot-reviewed` about 3.7 h, `bengali-rev-08b-zero-shot-reviewed` about 1.5 h, at main-run speed); a first single-session version (`bengali-rev-08-zero-shot-reviewed`, v1) was cancelled after a few minutes | `rev08{a,b}_zero_shot/zs_<model>_<a|b>.jsonl` (outputs only) | `lane0.log`, `lane1.log`, `setup.log`, `environment.txt`, `counts.txt` | yes: scored once on 2026-11-23 with SymSpell (D82); outputs in `results/rev08/` (the 9 `zs_*.jsonl` only, logs not downloaded), scores in `results/rev08_score/` |
 | Prompt-constraint check (Qwen3 0.6B, Transformers 5.19.0) | 2026-10-19, local CPU | `prompt_constraints_5.19.0.json` | none | yes (text only) |
 | Grad-CAM pilot (Qwen3 0.6B) | 2026-10-15, local CPU | `xai_pilot_qwen3-0.6b.jsonl` | none | no, pipeline test |
 
@@ -38,6 +38,7 @@ The Kaggle `environment.txt` files record the repository commit, Python, PyTorch
 | Run | Date, where | Output | Log | Used |
 |---|---|---|---|---|
 | SymSpell, subtitle lexicon | 2026-10-11, local | `dict_eval40.jsonl` | none then; rerun 2026-11-13 with log, identical | yes |
+| SymSpell on the reviewed BL test blocks (D81) | 2026-11-23, local CPU | `rev08_symspell/zs_symspell.jsonl` | `logs/runs/20261123-024426_symspell-reviewed-bl/` | yes (D82) |
 | SymSpell variants (Wikipedia lexicon, edit distance 1) | 2026-10-18, local | `m4_dict_*.jsonl` | `m4_lexicon_build.log`; rerun 2026-11-13 with log, identical | yes |
 | Engine fusion | 2026-10-18, local | `m6_fusion40.jsonl` | none then; rerun 2026-11-13 with log, identical | yes |
 

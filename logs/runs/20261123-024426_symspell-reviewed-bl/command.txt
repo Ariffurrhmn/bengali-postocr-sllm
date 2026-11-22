@@ -1,0 +1,1 @@
+.venv/Scripts/python.exe correction/run_zero_shot_blocks.py --ocr-region results/bengali-rev-06-ocr-reviewed/ocr/reviewed_region.jsonl --split-dir data/split_v2 --split test_bl --models symspell --engines tesseract,easyocr,ground_truth --out results/rev08_symspell/zs_symspell.jsonl

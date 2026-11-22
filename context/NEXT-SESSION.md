@@ -43,7 +43,7 @@ The author finished the reading-order review. All 41 pages are done and all 41 a
 - D80 done: the test set shares no book with train, validation or the old split (`data/split_v2/`, logged leakage check).
 - D81 fixes the protocol. Code: `correction/run_zero_shot_blocks.py` (outputs only), `eval/score_zero_shot_reviewed.py` (scores once), Kaggle script `notebooks/kaggle/rev08_zero_shot_reviewed/`.
 - Rev 08 runs as two parallel Kaggle sessions, 08a and 08b (`notebooks/kaggle/rev08{a,b}_zero_shot_reviewed/`). Both need the HF_TOKEN secret ticked and are started from the website (a CLI push without the secret exits at once). If one stops at the time limit, run it again with its own output attached (it resumes). Rule from 2026-11-22: no model runs or downloads on the author's PC.
-- Then Claude: SymSpell locally on the reviewed units (`run_zero_shot_blocks.py --models symspell`, CPU), then one scoring run; numbers into `results.md`.
+- DONE (D82, 2026-11-23): SymSpell run, all 9 methods scored once; numbers in `results.md`. Both reviewer points now have their experiments on the book-disjoint test set (D79, D82).
 - Confidence gating and engine fusion are not run on the test set (author, 2026-11-22: no reviewer asked for it; D81).
 
 ## 4. Questions to ask the author at the start of every session
