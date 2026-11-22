@@ -44,7 +44,7 @@ The author finished the reading-order review. All 41 pages are done and all 41 a
 - D81 fixes the protocol. Code: `correction/run_zero_shot_blocks.py` (outputs only), `eval/score_zero_shot_reviewed.py` (scores once), Kaggle script `notebooks/kaggle/rev08_zero_shot_reviewed/`.
 - Rev 08 runs as two parallel Kaggle sessions, 08a and 08b (`notebooks/kaggle/rev08{a,b}_zero_shot_reviewed/`). Both need the HF_TOKEN secret ticked and are started from the website (a CLI push without the secret exits at once). If one stops at the time limit, run it again with its own output attached (it resumes). Rule from 2026-11-22: no model runs or downloads on the author's PC.
 - Then Claude: SymSpell locally on the reviewed units (`run_zero_shot_blocks.py --models symspell`, CPU), then one scoring run; numbers into `results.md`.
-- Open choice: confidence gating and engine fusion on the test set need a CPU OCR pass with word confidences on the reviewed units first.
+- Confidence gating and engine fusion are not run on the test set (author, 2026-11-22: no reviewer asked for it; D81).
 
 ## 4. Questions to ask the author at the start of every session
 1. Any news from Bijon Sir or the reviewer on the revised draft?
