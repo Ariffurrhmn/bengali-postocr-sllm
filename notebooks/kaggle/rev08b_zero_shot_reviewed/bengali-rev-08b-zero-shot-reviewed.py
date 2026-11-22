@@ -1,4 +1,6 @@
-"""Rev 08: the eight zero-shot models on the reviewed BL test units (D81), Kaggle 2x T4. Outputs only.
+"""Rev 08b: the eight zero-shot models on the reviewed BL test units (D81), Kaggle 2x T4. Outputs only.
+Session B of two (D81). GPU 0: Gemma 2B and Llama 3.2 1B on all inputs (gated: needs HF_TOKEN);
+GPU 1: TituLLMs 1B Instruct on the clean-text inputs. About 1.5 h.
 
 Runs correction/run_zero_shot_blocks.py per model, one lane per GPU: phase 1 the OCR inputs
 (tesseract, easyocr), general-purpose models first, then the Bengali checkpoints; phase 2 the
@@ -7,16 +9,22 @@ is scored here; eval/score_zero_shot_reviewed.py scores everything once, locally
 has run too. If the session runs out of time, start it again with this kernel's own output
 attached: it resumes from the finished pages.
 
-Session: Accelerator GPU T4 x2, Internet on, Secrets: HF_TOKEN (Gemma and Llama are gated).
+Session: Accelerator GPU T4 x2, Internet on, Secrets: HF_TOKEN (required: the script stops at once without it).
 Attach: output of bengali-rev-06-ocr-reviewed-units, dataset bengali-revision-pages (test_bl.txt).
-Download rev08_zero_shot.zip afterwards."""
+Download rev08b_zero_shot.zip afterwards."""
 import glob, os, shutil, subprocess, sys, threading, time
 
 HOURS = 11.0  # Kaggle stops a session at 12 h
 W = "/kaggle/working"
-OUT = f"{W}/rev08_zero_shot"
+OUT = f"{W}/rev08b_zero_shot"
 os.makedirs(OUT, exist_ok=True)
 DEADLINE = time.time() + HOURS * 3600
+try:
+    from kaggle_secrets import UserSecretsClient
+
+    assert UserSecretsClient().get_secret("HF_TOKEN")
+except Exception:
+    sys.exit("HF_TOKEN is not attached: Add-ons > Secrets > tick HF_TOKEN, then Save & Run All")
 
 
 def sh(cmd):
@@ -64,7 +72,7 @@ REGION = one("/kaggle/input/**/reviewed_region.jsonl", "reviewed_region.jsonl")
 SPLIT_DIR = os.path.dirname(one("/kaggle/input/**/test_bl.txt", "test_bl.txt"))
 print({"region": REGION, "split_dir": SPLIT_DIR}, flush=True)
 # resume: copy finished outputs of an earlier run of this kernel, if attached
-for f in glob.glob("/kaggle/input/**/rev08_zero_shot/zs_*.jsonl", recursive=True):
+for f in glob.glob("/kaggle/input/**/rev08b_zero_shot/zs_*.jsonl", recursive=True):
     if not os.path.exists(f"{OUT}/{os.path.basename(f)}"):
         shutil.copy(f, OUT)
         print("resuming from", f, flush=True)
@@ -74,32 +82,33 @@ for f in glob.glob("/kaggle/input/**/rev08_zero_shot/zs_*.jsonl", recursive=True
 # Phi-4-mini 35, BanglaT5 6. Lanes about 326 and 269 min at that rate; block-level calls may cost
 # more (one length cap per block), so the session can run out and be resumed.
 # General-purpose models first in each lane.
-LANES = [["gemma-2b", "titullm-1b-instruct"],
-         ["qwen3-1.7b", "phi4-mini", "llama3.2-1b", "banglat5", "titullm-1b", "titullm-3b-instruct"]]
+LANES = [
+    [("gemma-2b", "tesseract,easyocr"), ("llama3.2-1b", "tesseract,easyocr"), ("gemma-2b", "ground_truth"), ("llama3.2-1b", "ground_truth")],
+    [("titullm-1b-instruct", "ground_truth")],
+]
 
 
-def run_lane(i, models):
+def run_lane(i, jobs):
     log = open(f"{OUT}/lane{i}.log", "a", encoding="utf-8")
-    for engines in ("tesseract,easyocr", "ground_truth"):
-        for m in models:
-            left = (DEADLINE - time.time()) / 60
-            if left < 5:
-                print(f"[lane{i}] deadline reached; skipping the rest", flush=True)
-                return
-            cmd = [sys.executable, "run_zero_shot_blocks.py", "--ocr-region", REGION, "--split-dir", SPLIT_DIR,
-                   "--split", "test_bl", "--models", m, "--engines", engines,
-                   "--out", f"{OUT}/zs_{m}.jsonl", "--stop-after-minutes", f"{left - 3:.0f}"]
-            t0 = time.time()
-            print(f"[lane{i}] start {m} {engines}", flush=True)
-            log.write(f"\n### {' '.join(cmd)}\n")
-            log.flush()
-            e = dict(os.environ, CUDA_VISIBLE_DEVICES=str(i), PYTHONIOENCODING="utf-8", **({"HF_TOKEN": token} if token else {}))
-            r = subprocess.run(cmd, cwd=f"{REPO}/correction", env=e, stdout=log, stderr=subprocess.STDOUT)
-            print(f"[lane{i}] end {m} {engines}: exit {r.returncode}, {(time.time() - t0) / 60:.0f} min, "
-                  f"{(DEADLINE - time.time()) / 60:.0f} min left", flush=True)
+    for m, engines in jobs:
+        left = (DEADLINE - time.time()) / 60
+        if left < 5:
+            print(f"[lane{i}] deadline reached; skipping the rest", flush=True)
+            return
+        cmd = [sys.executable, "run_zero_shot_blocks.py", "--ocr-region", REGION, "--split-dir", SPLIT_DIR,
+               "--split", "test_bl", "--models", m, "--engines", engines,
+               "--out", f"{OUT}/zs_{m}_b.jsonl", "--stop-after-minutes", f"{left - 3:.0f}"]
+        t0 = time.time()
+        print(f"[lane{i}] start {m} {engines}", flush=True)
+        log.write(f"\n### {' '.join(cmd)}\n")
+        log.flush()
+        e = dict(os.environ, CUDA_VISIBLE_DEVICES=str(i), PYTHONIOENCODING="utf-8", **({"HF_TOKEN": token} if token else {}))
+        r = subprocess.run(cmd, cwd=f"{REPO}/correction", env=e, stdout=log, stderr=subprocess.STDOUT)
+        print(f"[lane{i}] end {m} {engines}: exit {r.returncode}, {(time.time() - t0) / 60:.0f} min, "
+              f"{(DEADLINE - time.time()) / 60:.0f} min left", flush=True)
 
 
-threads = [threading.Thread(target=run_lane, args=(i, ms)) for i, ms in enumerate(LANES)]
+threads = [threading.Thread(target=run_lane, args=(i, jobs)) for i, jobs in enumerate(LANES)]
 for t in threads:
     t.start()
 for t in threads:
@@ -119,5 +128,5 @@ for f in glob.glob(f"{OUT}/zs_*.jsonl"):
 lines = [f"{m} {e}: {n} of 41 pages" for (m, e), n in sorted(c.items())]
 open(f"{OUT}/counts.txt", "w").write("\n".join(lines) + "\n")
 print("\n".join(lines))
-shutil.make_archive(f"{W}/rev08_zero_shot", "zip", W, "rev08_zero_shot")
-print("wrote", f"{W}/rev08_zero_shot.zip")
+shutil.make_archive(f"{W}/rev08b_zero_shot", "zip", W, "rev08b_zero_shot")
+print("wrote", f"{W}/rev08b_zero_shot.zip")

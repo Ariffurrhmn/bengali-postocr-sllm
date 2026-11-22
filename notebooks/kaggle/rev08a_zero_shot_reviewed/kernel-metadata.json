@@ -1,0 +1,20 @@
+{
+  "id": "arifurrhmn/bengali-rev-08a-zero-shot-reviewed",
+  "title": "bengali-rev-08a-zero-shot-reviewed",
+  "code_file": "bengali-rev-08a-zero-shot-reviewed.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "dataset_sources": [
+    "arifurrhmn/bengali-revision-pages"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [
+    "arifurrhmn/bengali-rev-06-ocr-reviewed-units"
+  ],
+  "model_sources": []
+}

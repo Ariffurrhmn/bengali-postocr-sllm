@@ -42,7 +42,7 @@ The author finished the reading-order review. All 41 pages are done and all 41 a
 ## 3c. Zero-shot models on the reviewed BL test set (D80, D81), 2026-11-22
 - D80 done: the test set shares no book with train, validation or the old split (`data/split_v2/`, logged leakage check).
 - D81 fixes the protocol. Code: `correction/run_zero_shot_blocks.py` (outputs only), `eval/score_zero_shot_reviewed.py` (scores once), Kaggle script `notebooks/kaggle/rev08_zero_shot_reviewed/`.
-- Next: **author** starts rev 08 on Kaggle (GPU T4 x2, Internet on, secret HF_TOKEN; attach rev 06 output and `bengali-revision-pages`). If it stops at the time limit, start it again with its own output attached (it resumes).
+- Rev 08 runs as two parallel Kaggle sessions, 08a and 08b (`notebooks/kaggle/rev08{a,b}_zero_shot_reviewed/`). Both need the HF_TOKEN secret ticked and are started from the website (a CLI push without the secret exits at once). If one stops at the time limit, run it again with its own output attached (it resumes). Rule from 2026-11-22: no model runs or downloads on the author's PC.
 - Then Claude: SymSpell locally on the reviewed units (`run_zero_shot_blocks.py --models symspell`, CPU), then one scoring run; numbers into `results.md`.
 - Open choice: confidence gating and engine fusion on the test set need a CPU OCR pass with word confidences on the reviewed units first.
 
