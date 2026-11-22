@@ -1,0 +1,22 @@
+v2, 2026-11-20, strict sibling rule chosen by the author before any test result (v1 kept in superseded_v1\)
+Split built 2026-11-20 16:46:56 +06:00 by make_splits.ps1 (seed 2026, val target 18-22% of pool GT chars)
+gt_chars: BL = ALTO String CONTENT words joined by spaces per line, lines joined without newline; REID = PAGE TextRegion TextEquiv/Unicode (TextLine fallback), newlines replaced by a space.
+
+test    pages= 41  groups= 36  gt_chars=  45080  (REID 0 pages, BL 41 pages)
+train   pages= 62  groups= 37  gt_chars=  45906  (REID 43 pages, BL 19 pages)
+val     pages= 14  groups=  9  gt_chars=  10823  (REID 9 pages, BL 5 pages)
+unused  pages= 38  groups= 29  gt_chars=   1809  (REID 29 pages, BL 9 pages)
+val share of pool chars = 19.1%
+
+CHECK no group in two splits (test/train/val): PASS
+CHECK no test group contains any REID page (incl. no-GT pages): PASS
+CHECK VT_1712_0090 excluded: PASS
+
+Val groups: g_14125_c_2_1, g_14129_b_1_12, g_279_32_b_24, g_279_41_d_19, g_279_41_h_11, g_279_42_k_4, g_vt_1625_f, g_vt_1712, g_vt_961_h
+Test groups: g_14038_d_12, g_14043_c_3, g_14079_c_33, g_14085_c_2, g_14123_a_30, g_14123_d_4_1, g_14125_a_25, g_14125_bb_2, g_14125_bb_8_2, g_14125_ee_5_3, g_14129_a_13, g_14131_a_12_4, g_14131_e_4_8, g_14131_f_3, g_14133_b_4_1, g_14133_h_4_5, g_279_21_bb_20, g_279_23_i_8, g_279_36_g_14, g_279_41_m_20, g_vt_1328, g_vt_1355, g_vt_1358_c, g_vt_1359, g_vt_1388_a, g_vt_1612_j, g_vt_1727_a, g_vt_1775_h, g_vt_1812_c, g_vt_1827_a, g_vt_1897_f, g_vt_1930_f, g_vt_1968, g_vt_1994, g_vt_948_d, g_vt_960_c
+Multi-book groups: g_14028_d_2=[14028_d_2 14028_d_3 14028_d_4]; g_14123_a_30=[14123_a_30 14123_a_6]; g_14123_c_2=[14123_c_2 14123_c_3]; g_14127_d_15_2=[14127_d_15_2 14127_d_15_4]; g_14129_b_1_12=[14129_b_1_12 14129_b_12]; g_14129_e_1=[14129_e_1 14129_e_7]; g_279_2_a_15=[279_2_a_15 279_2_a_28]; g_279_21_b_2=[279_21_b_2 279_21_b_3]; g_279_23_d_6=[279_23_d_6 279_23_d_7 279_23_d_8]; g_279_32_b_24=[279_32_b_24 279_32_b_34]; g_279_32_c_23=[279_32_c_23 279_32_c_25 279_32_c_26 279_32_c_43]; g_279_33_e_39=[279_33_e_39 279_33_e_41]; g_279_41_h_11=[279_41_h_11 279_41_h_2]; g_279_42_a_45=[279_42_a_45 279_42_a_48 279_42_a_60]; g_279_42_b_41=[279_42_b_41 279_42_b_59]; g_vt_1328=[vt_1328 vt_1328_c]; g_vt_1355=[vt_1355 vt_1355_a]; g_vt_1712=[vt_1712 vt_1712_d vt1712_schoolbook]; g_vt_1892_e=[vt_1892_e vt_1892_i]; g_vt_280=[vt_280 vt_280_a]; g_vt_961_h=[vt_961_h vt_961_k]
+
+SHA-256 of list files at freeze time:
+  test_bl.txt  de994d04eb2a8b0a4ce2483406af18526d12df7e4c5647f723097599d991520a
+  train.txt  f9d8fef3f73a0cee7c211de392b6fac90767ef8c8ecaea56e5d2000510832baa
+  val.txt  24e04643a45b46e5e19663fefa3c56f70820324088edc6608f47c142c8fce6fd
