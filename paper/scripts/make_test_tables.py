@@ -127,7 +127,7 @@ def trained_table():
         cl.append(f"{NAMES[m]} changed {c['changed']} of {num(c['blocks'])} blocks (CER {c['mean_cer_vs_reference']:.3f})")
     note = ("Fully trained correctors on the 41 held-out pages, block by block. Both were trained on aligned OCR and "
             "reference pairs from the 62 training pages and synthetic pairs, and their checkpoints were chosen on the 14 "
-            "validation pages; the test pages were scored once. Plain: the model output, the result of record; "
+            "validation pages; the reviewed test units were scored once. Plain: the model output, the result of record; "
             "$p_{\\mathrm{Holm}}$ over the 8 plain CER and WER tests, a family fixed before any test score. Guarded: "
             "a block falls back to the raw OCR when the output hits the length cap, changes length by more than a "
             "factor of two, or contains a run of six identical characters absent from the input; the rule was written "
