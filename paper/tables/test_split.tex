@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\caption{Revision Split: Training, Validation and Held-Out Test Pages}
+\label{tab:testsplit}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{lccccc}
+\toprule
+Split & Pages & Book groups & REID & BL & Characters \\
+\midrule
+Training & 62 & 37 & 43 & 19 & 45{,}906 \\
+Validation & 14 & 9 & 9 & 5 & 10{,}823 \\
+Test (held out) & 41 & 36 & 0 & 41 & 45{,}080 \\
+Not used & 38 & 29 & 29 & 9 & 1{,}809 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Split v2, frozen on 20 November 2026 before any model saw a test page. REID: pages of the REID2019 release (PAGE-XML); BL: pages of the British Library Transkribus set (ALTO). Books are merged into groups by known aliases and by shelfmark siblings (the same shelfmark without its last part); no group appears in two of training, validation and test, and no test group contains a REID page. Test pages need at least 300 reference characters, at least half of them Bengali. Not used: REID pages without a transcription, short BL pages and one duplicate page. Characters: reference characters per split.\end{minipage}
+\end{table}

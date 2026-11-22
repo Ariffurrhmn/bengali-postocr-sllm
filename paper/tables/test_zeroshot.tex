@@ -1,0 +1,38 @@
+\begin{table*}[t]
+\centering
+\caption{Held-Out Test: Zero-Shot Methods on 41 Book-Disjoint Pages}
+\label{tab:testzeroshot}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\begin{tabular}{llcccccccc}
+\toprule
+Engine & Method & CER & $\Delta$CER [95\% CI] & $p_{\mathrm{Holm}}$ & WER & $\Delta$WER [95\% CI] & $p_{\mathrm{Holm}}$ & \shortstack{Pages\\better/worse} & Trunc. \\
+\midrule
+Tesseract & (no correction) & 0.350 & --- & --- & 0.742 & --- & --- & --- & --- \\
+Tesseract & SymSpell (dictionary) & 0.388 & +0.038 [+0.034, +0.042] & $<$0.001 & 0.841 & +0.099 [+0.081, +0.121] & $<$0.001 & 0/41 & 0 \\
+Tesseract & Gemma-2B-it & 0.357 & +0.007 [-0.015, +0.023] & 0.09\textsuperscript{ns} & 0.692 & -0.049 [-0.098, -0.017] & 0.012 & 14/23 & 1 \\
+Tesseract & Qwen3 1.7B & 0.364 & +0.013 [+0.006, +0.022] & 0.019 & 0.722 & -0.019 [-0.037, +0.003] & 0.023 & 13/27 & 13 \\
+Tesseract & Phi-4-mini & 0.389 & +0.039 [+0.021, +0.060] & $<$0.001 & 0.746 & +0.005 [-0.025, +0.032] & 1.00\textsuperscript{ns} & 8/32 & 10 \\
+Tesseract & Llama 3.2 1B & 0.431 & +0.081 [+0.051, +0.112] & $<$0.001 & 0.750 & +0.009 [-0.057, +0.056] & 0.16\textsuperscript{ns} & 4/35 & 60 \\
+\cmidrule(lr){2-10}
+Tesseract & BanglaT5 & 2.029 & +1.679 [+1.352, +2.010] & $<$0.001 & 3.026 & +2.284 [+1.766, +2.812] & $<$0.001 & 0/41 & 470 \\
+Tesseract & TituLLMs 1B & 1.167 & +0.817 [+0.723, +0.914] & $<$0.001 & 1.669 & +0.928 [+0.805, +1.063] & $<$0.001 & 0/41 & 787 \\
+Tesseract & TituLLMs 1B Instruct & 4.306 & +3.956 [+3.193, +4.740] & $<$0.001 & 5.024 & +4.282 [+3.458, +5.133] & $<$0.001 & 0/41 & 766 \\
+Tesseract & TituLLMs 3B Instruct & 1.759 & +1.409 [+1.189, +1.625] & $<$0.001 & 1.956 & +1.215 [+0.991, +1.456] & $<$0.001 & 0/41 & 95 \\
+\midrule
+EasyOCR & (no correction) & 0.272 & --- & --- & 0.744 & --- & --- & --- & --- \\
+EasyOCR & SymSpell (dictionary) & 0.318 & +0.046 [+0.042, +0.051] & $<$0.001 & 0.834 & +0.090 [+0.070, +0.112] & $<$0.001 & 0/41 & 0 \\
+EasyOCR & Gemma-2B-it & 0.287 & +0.015 [-0.009, +0.032] & $<$0.001 & 0.728 & -0.017 [-0.038, +0.002] & 0.35\textsuperscript{ns} & 8/31 & 0 \\
+EasyOCR & Qwen3 1.7B & 0.284 & +0.012 [+0.005, +0.020] & 0.020 & 0.719 & -0.026 [-0.044, -0.006] & 0.06\textsuperscript{ns} & 14/26 & 4 \\
+EasyOCR & Phi-4-mini & 0.291 & +0.019 [+0.001, +0.038] & $<$0.001 & 0.735 & -0.009 [-0.032, +0.013] & 1.00\textsuperscript{ns} & 8/33 & 3 \\
+EasyOCR & Llama 3.2 1B & 0.369 & +0.098 [+0.059, +0.135] & $<$0.001 & 0.790 & +0.046 [+0.013, +0.080] & 0.09\textsuperscript{ns} & 2/37 & 65 \\
+\cmidrule(lr){2-10}
+EasyOCR & BanglaT5 & 2.176 & +1.904 [+1.538, +2.299] & $<$0.001 & 3.398 & +2.654 [+2.113, +3.196] & $<$0.001 & 0/41 & 569 \\
+EasyOCR & TituLLMs 1B & 1.208 & +0.936 [+0.857, +1.021] & $<$0.001 & 1.682 & +0.938 [+0.841, +1.037] & $<$0.001 & 0/41 & 791 \\
+EasyOCR & TituLLMs 1B Instruct & 4.295 & +4.024 [+3.274, +4.796] & $<$0.001 & 4.964 & +4.219 [+3.446, +4.999] & $<$0.001 & 0/41 & 782 \\
+EasyOCR & TituLLMs 3B Instruct & 1.563 & +1.292 [+1.084, +1.501] & $<$0.001 & 1.781 & +1.037 [+0.815, +1.269] & $<$0.001 & 0/41 & 79 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize 41 held-out pages, 1{,}250 reviewed text blocks, each corrected on its own (plain greedy decoding, main prompt). Block CER/WER: errors summed over the blocks of a page divided by its reference characters (words), then averaged over pages. $\Delta$ = corrected $-$ uncorrected (positive = worse); CI: paired bootstrap over pages, 10{,}000 resamples, seed 403. $p_{\mathrm{Holm}}$: two-sided Wilcoxon signed-rank test, Holm-corrected over these 36 tests, the primary family of the held-out evaluation. ns: not significant. Pages: pages whose block CER fell/rose, of 41. Trunc.: blocks whose output hit the token cap. Below the rule: the four Bengali-pretrained checkpoints, unadapted and diagnostic. Blocks under 10 characters (463 Tesseract, 459 EasyOCR) are passed through unchanged by the language models. Clean-text control (block references as input), blocks changed of 1{,}250: SymSpell (dictionary) 721; Gemma-2B-it 277; Qwen3 1.7B 405; Phi-4-mini 286; Llama 3.2 1B 473; BanglaT5 799; TituLLMs 1B 799; TituLLMs 1B Instruct 799; TituLLMs 3B Instruct 776.\end{minipage}
+\end{table*}

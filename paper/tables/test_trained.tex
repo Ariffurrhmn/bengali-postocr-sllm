@@ -1,0 +1,20 @@
+\begin{table*}[t]
+\centering
+\caption{Held-Out Test: Fully Trained Correctors (ByT5-Small and BanglaByT5)}
+\label{tab:testtrained}
+\setlength{\tabcolsep}{3pt}
+\footnotesize
+\begin{tabular}{llccccccccc}
+\toprule
+Engine & Model & Raw CER & CER & $\Delta$CER [95\% CI] & $p_{\mathrm{Holm}}$ & $\Delta$WER [95\% CI] & $p_{\mathrm{Holm}}$ & \shortstack{Guarded\\CER} & \shortstack{Guarded\\$\Delta$CER [95\% CI]} & Trunc. \\
+\midrule
+Tesseract & ByT5-small & 0.350 & 0.456 & +0.105 [+0.060, +0.160] & $<$0.001 & +0.048 [-0.035, +0.162] & 1.00\textsuperscript{ns} & 0.353 & +0.002 [-0.005, +0.010] & 101 \\
+Tesseract & BanglaByT5 & 0.350 & 0.446 & +0.096 [+0.055, +0.142] & $<$0.001 & +0.021 [-0.015, +0.057] & 1.00\textsuperscript{ns} & 0.355 & +0.004 [-0.002, +0.012] & 105 \\
+\midrule
+EasyOCR & ByT5-small & 0.272 & 0.328 & +0.057 [+0.018, +0.110] & 0.48\textsuperscript{ns} & -0.016 [-0.069, +0.048] & 0.040 & 0.271 & -0.001 [-0.013, +0.012] & 32 \\
+EasyOCR & BanglaByT5 & 0.272 & 0.291 & +0.019 [+0.001, +0.041] & 0.55\textsuperscript{ns} & -0.065 [-0.090, -0.039] & $<$0.001 & 0.271 & -0.001 [-0.008, +0.006] & 12 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize Fully trained correctors on the 41 held-out pages, block by block. Both were trained on aligned OCR and reference pairs from the 62 training pages and synthetic pairs, and their checkpoints were chosen on the 14 validation pages; the test pages were scored once. Plain: the model output, the result of record; $p_{\mathrm{Holm}}$ over the 8 plain CER and WER tests, a family fixed before any test score. Guarded: a block falls back to the raw OCR when the output hits the length cap, changes length by more than a factor of two, or contains a run of six identical characters absent from the input; the rule was written after reading validation outputs, so it is secondary and untested. Trunc.: blocks that hit the length cap. Clean-text control: ByT5-small changed 545 of 1{,}250 blocks (CER 0.113); BanglaByT5 changed 565 of 1{,}250 blocks (CER 0.085).\end{minipage}
+\end{table*}
