@@ -1,6 +1,6 @@
 # Claim-to-evidence check, 23 November 2026
 
-This file lists the main claims of the abstract, introduction and conclusion, and where each one comes from. Every held-out number was checked line by line against the result file named here. The 40-page numbers were checked number by number in October; this round regenerated all their tables from the raw results (identical, byte for byte), compared the three data figures against their tables, and confirmed that every number in the prose appears in a table or result file.
+This file lists the main claims of the abstract, introduction and conclusion, and where each one comes from. The held-out numbers in the prose and the regenerated tables were checked against the result files named here, including the split counts (74 Transkribus pages = 41 + 19 + 5 + 9), the excluded duplicate (VT_1712_0090, identical to VT_1712_d_0001) and the training filters (length ratio 1/3 to 3, OCR CER at most 0.6, in `correction/train_corrector.py`). The dates, software versions and the review rules were taken from the decision log, not re-traced. The 40-page numbers were checked number by number in October; this round regenerated all their tables from the raw results (identical, byte for byte), compared the three data figures against their tables, and confirmed that every number in the prose appears in a table or result file.
 
 | # | Claim (as in the paper) | Where | Evidence | Source file | Checked | Caveat in paper |
 |---|---|---|---|---|---|---|
@@ -14,7 +14,7 @@ This file lists the main claims of the abstract, introduction and conclusion, an
 | 8 | 1,185 real pairs, 69,822 synthetic, 81,672 in all; 60,062 Wikipedia segments, 976 lines | Methods | text only | `train_log.json` | yes | |
 | 9 | Guarded variant within 0.004 of raw OCR | Results | Table IX | rev07 summaries | yes (+0.002, +0.004, −0.001, −0.001) | post-hoc, secondary |
 | 10 | Gating gain of the 40 pages did not recur; no gated method lowered CER significantly | Abstract, Results, RQ3, Conclusion | Table X (test_gating) | `results/rev09_gated/summary.txt` | yes (Qwen3 Tesseract 70: +0.001 [−0.002, +0.005]) | added after zero-shot scores were known |
-| 11 | 40 of 54 gating tests significant, more pages worse in each | Results | Table X | same | yes | one cell has a negative mean (now in the text) |
+| 11 | 40 of 54 gating tests significant, more pages worse in each | Results | Table X | same | yes (worse > better in all 40, no ties) | one cell has a negative mean (now in the text) |
 | 12 | Gated output always below ungated output | Results | Table X | same | yes (all 54 cells) | |
 | 13 | 1,250 units = 1,213 kept blocks + 37 added; 9 of 1,222 blocks not scored | Methods | text only | `results/bl_review/reviewed_units.json`, review file | yes (was wrong: said six) | |
 | 14 | 41 test pages, 36 groups, 45,080 characters; 62/37 train, 14/9 validation | Methods | Table (test_split) | `data/split_v2/split_manifest.csv` | yes (regenerated) | |
@@ -30,7 +30,7 @@ This file lists the main claims of the abstract, introduction and conclusion, an
 2. The paper said units under 10 characters pass through unchanged for every method. Only the zero-shot language models skip them; the dictionary and the trained correctors process every block. Fixed in the method and limitations text.
 3. The paper said the trained correctors changed more error-free text than Gemma-2B-it, Phi-4-mini and Qwen3 1.7B. The counts are not comparable (different block coverage, different averaging), and the per-block clean outputs of the trained models were not saved, so no fair comparison can be made now. The claim is removed and the table notes say why.
 4. RQ4 said the trained correctors' CER was higher than that of "the copying zero-shot models". On EasyOCR text BanglaByT5 (0.2907) and Phi-4-mini (0.2906) are level. Now it names Gemma-2B-it and Qwen3 1.7B, which holds on both engines.
-5. Two sentences said gating never brought a model below the raw OCR. Gemma-2B-it at Tesseract 70 is 0.347 against 0.350 (not significant). Now "not significantly below".
+5. Three sentences said gating never brought a model below the raw OCR. Gemma-2B-it at Tesseract 70 is 0.347 against 0.350 (not significant). Now "not significantly below".
 6. The gating table note pasted the raw summary lines. Rewritten from the same numbers.
 7. The abstract's "17 of the 18 zero-shot tests" now says method-and-engine pairs, so it cannot be read as all tests.
 
@@ -40,7 +40,8 @@ This file lists the main claims of the abstract, introduction and conclusion, an
 - Noise figure: all 20 points match the noise table.
 - Decoding figure: all points match the decoding table.
 - Method figure: shows only the 40-page pipeline. The caption now says so and lists how the held-out run differs. Redrawing the figure itself is an option, not done.
-- The dataset, per-page, scatter and attribution figures were not changed and were checked in October.
+- Noise figure: shows means without intervals; the caption now points to the table for the tests.
+- The dataset, per-page, scatter and attribution figures were not changed and not rechecked this round; they were checked in October.
 
 ## Left for the author
 
@@ -48,6 +49,7 @@ This file lists the main claims of the abstract, introduction and conclusion, an
   - *Small Language Models Do Not Correct Historical Bengali OCR: A Book-Disjoint Test of Eight Zero-Shot Models and Two Trained Correctors*
   - *Leave the OCR Alone: Neither Zero-Shot nor Trained Small Models Lower Character Errors in Historical Bengali Print*
 - **Read the draft.** Ask any human reader to mark where they got lost, not typos.
+- Cited authors can be asked whether their work is described fairly (for example Koynov et al. and Kanerva et al., whose numbers the paper compares against).
 - The whole-page zero-shot run on the test pages (Kaggle 04, 20 November) is still unscored and unused.
 - The Bengali examples table needs you to judge which changes are OCR errors and which are valid old spellings.
 - Upload the new single-file version to Overleaf before editing there.
