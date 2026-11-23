@@ -13,6 +13,7 @@ Usage: python paper/scripts/make_test_tables.py
 """
 import csv
 import json
+import re
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -91,7 +92,8 @@ def zeroshot_table():
                 rows.append("\\cmidrule(lr){2-10}")
         if e == "tesseract":
             rows.append("\\midrule")
-    clean = "; ".join(f"{NAMES[m]} {s['methods'][m]['clean_text']['changed']}" for m in GENERAL + DIAGNOSTIC)
+    clean = "; ".join(f"{NAMES[m]} {s['methods'][m]['clean_text']['changed']} "
+                      f"({s['methods'][m]['clean_text']['mean_cer_vs_reference']:.3f})" for m in GENERAL + DIAGNOSTIC)
     note = (f"41 held-out pages, {num(BLOCKS)} reviewed text blocks, each corrected on its own (plain greedy decoding, "
             "main prompt). Block CER/WER: errors summed over the blocks of a page divided by its reference characters "
             "(words), then averaged over pages. $\\Delta$ = corrected $-$ uncorrected (positive = worse); CI: paired "
@@ -100,7 +102,8 @@ def zeroshot_table():
             "significant. Pages: pages whose block CER fell/rose, of 41. Trunc.: blocks whose output hit the token cap. "
             "Below the rule: the four Bengali-pretrained checkpoints, unadapted and diagnostic. Blocks under 10 "
             "characters (463 Tesseract, 459 EasyOCR) are passed through unchanged by the language models. "
-            f"Clean-text control (block references as input), blocks changed of {num(BLOCKS)}: {clean}.")
+            f"Clean-text control (block references as input), blocks changed of {num(BLOCKS)} and, in brackets, the "
+            f"mean CER over the blocks: {clean}.")
     return table("tab:testzeroshot", "Held-Out Test: Zero-Shot Methods on 41 Book-Disjoint Pages", "llcccccccc",
                  "Engine & Method & CER & $\\Delta$CER [95\\% CI] & $p_{\\mathrm{Holm}}$ & WER & $\\Delta$WER [95\\% CI] & "
                  "$p_{\\mathrm{Holm}}$ & \\shortstack{Pages\\\\better/worse} & Trunc.", rows, note)
@@ -124,7 +127,7 @@ def trained_table():
     for m in ("byt5-small", "banglabyt5"):
         s = json.loads((RES / f"bengali-rev-07-score-reviewed/rev07_score/{m}_test_bl/summary.json").read_text(encoding="utf-8"))
         c = s["clean_text"]
-        cl.append(f"{NAMES[m]} changed {c['changed']} of {num(c['blocks'])} blocks (CER {c['mean_cer_vs_reference']:.3f})")
+        cl.append(f"{NAMES[m]} changed {c['changed']} of {num(c['blocks'])} blocks (mean CER {c['mean_cer_vs_reference']:.3f})")
     note = ("Fully trained correctors on the 41 held-out pages, block by block. Both were trained on aligned OCR and "
             "reference pairs from the 62 training pages and synthetic pairs, and their checkpoints were chosen on the 14 "
             "validation pages; the reviewed test units were scored once. Plain: the model output, the result of record; "
@@ -132,7 +135,10 @@ def trained_table():
             "a block falls back to the raw OCR when the output hits the length cap, changes length by more than a "
             "factor of two, or contains a run of six identical characters absent from the input; the rule was written "
             "after reading validation outputs, so it is secondary and untested. Trunc.: blocks that hit the length cap. "
-            "Clean-text control: " + "; ".join(cl) + ".")
+            "Clean-text control: " + "; ".join(cl) + "; the CER is averaged over the blocks of a page, then over "
+            "pages. These counts are not directly comparable with those of Table~\\ref{tab:testzeroshot}: the trained "
+            "correctors process every block, whereas the zero-shot language models leave blocks under 10 characters "
+            "unchanged, and that table averages over all blocks at once.")
     return table("tab:testtrained", "Held-Out Test: Fully Trained Correctors (ByT5-Small and BanglaByT5)", "llccccccccc",
                  "Engine & Model & Raw CER & CER & $\\Delta$CER [95\\% CI] & $p_{\\mathrm{Holm}}$ & $\\Delta$WER [95\\% CI] & "
                  "$p_{\\mathrm{Holm}}$ & \\shortstack{Guarded\\\\CER} & \\shortstack{Guarded\\\\$\\Delta$CER [95\\% CI]} & Trunc.",
@@ -165,7 +171,21 @@ def gating_table():
         if e == "tesseract":
             rows.append("\\midrule")
     raw = {e: next(r["raw_blockcer"] for r in s["rows"] if r["engine"] == e) for e, _ in ENGINES}
-    stats = " ".join(x.replace("%", "\\%").replace("<", "$<$") for x in s["confidence_stats"])
+    # the summary stores the confidence-run checks as one line per engine; read the numbers out of them
+    conf = {}
+    for line in s["confidence_stats"]:
+        e = line.split(":", 1)[0]
+        same, units = map(int, re.search(r"stored text on (\d+)/(\d+) units", line).groups())
+        missing, words = map(int, re.search(r"(\d+)/(\d+) stored words without", line).groups())
+        shares = re.findall(r"<[\d.]+: ([\d.]+)%", line)
+        conf[e] = (same, units, missing, words, shares)
+    same_all = all(c[0] == c[1] for c in conf.values()) and all(c[2] == 0 for c in conf.values())
+    stats = ((f"its text equals the scored OCR on all {num(conf['tesseract'][1])} units for both engines, and every scored "
+              "word has a confidence. " if same_all else
+              "; ".join(f"{dict(ENGINES)[e]}: text equal on {c[0]} of {c[1]} units, {c[2]} of {c[3]} words without a "
+                        "confidence" for e, c in conf.items()) + ". ")
+             + "Words below the three thresholds: " + "; ".join(
+                 f"{dict(ENGINES)[e]} " + ", ".join(f"{x}\\%" for x in c[4]) for e, c in conf.items()) + ".")
     note = (f"Confidence gating on the 41 held-out pages with the thresholds fixed for the 40-page study: a model's "
             f"change to a block is kept only where every OCR word it touches has a confidence below the threshold. "
             f"Raw block CER: Tesseract {raw['tesseract']:.3f}, EasyOCR {raw['easyocr']:.3f}; in brackets, the ungated "
@@ -176,7 +196,7 @@ def gating_table():
                       f"{r['blockcer_vs_raw']['worse']} pages got worse and {r['blockcer_vs_raw']['better']} better"
                       for r in s["rows"] if r["holm_p"] < 0.05
                       and (r["blockcer_vs_raw"]["delta"] < 0) != (r["blockcer_vs_raw"]["better"] > r["blockcer_vs_raw"]["worse"]))
-            + ". Confidence run: " + stats)
+            + ". Confidences come from a second OCR run with the same engine builds: " + stats)
     return table("tab:testgating", "Held-Out Test: Confidence-Gated Correction (Block CER)", "llcccccc",
                  "& Method (ungated) & Gated & $\\Delta$ & Gated & $\\Delta$ & Gated & $\\Delta$", rows, note)
 
